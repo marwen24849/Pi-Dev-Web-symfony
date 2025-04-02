@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter Question{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Ajouter une Question</div>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="question_title" class="form-label">Titre de la Question</label>
+                                {{ form_widget(form.question_title, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Entrez le titre de la question'
+                                    }
+                                }) }}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="category" class="form-label">Catégorie</label>
+                                {{ form_widget(form.category, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Entrez la catégorie'
+                                    }
+                                }) }}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="difficultylevel" class="form-label">Niveau de difficulté</label>
+                                {{ form_widget(form.difficultylevel, {
+                                    'attr': {
+                                        'class': 'form-control'
+                                    }
+                                }) }}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="score" class="form-label">Score</label>
+                                {{ form_widget(form.score, {
+                                    'attr': {
+                                        'class': 'form-control'
+                                    }
+                                }) }}
+                            </div>
+                        </div>
+
+                        <!-- Colonne de droite -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Choix possibles</label>
+                                <div class="mb-3">
+                                    {{ form_widget(form.option1, {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Option 1'
+                                        }
+                                    }) }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form_widget(form.option2, {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Option 2'
+                                        }
+                                    }) }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form_widget(form.option3, {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Option 3'
+                                        }
+                                    }) }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form_widget(form.option4, {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Option 4'
+                                        }
+                                    }) }}
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="right_answer" class="form-label">Bonne réponse</label>
+                                {{ form_widget(form.right_answer, {
+                                    'attr': {
+                                        'class': 'form-control'
+                                    }
+                                }) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12 text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>
+                                Enregistrer
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

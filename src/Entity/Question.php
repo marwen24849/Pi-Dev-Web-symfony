@@ -123,22 +123,24 @@ class Question
         $this->option4 = $value;
     }
 
-    public function getQuestion_title()
+    public function getQuestionTitle(): string
     {
         return $this->question_title;
     }
 
-    public function setQuestion_title($value)
+    public function setQuestionTitle(string $value): self
     {
         $this->question_title = $value;
+        return $this;
     }
 
-    public function getRight_answer()
+
+    public function getRightAnswer()
     {
         return $this->right_answer;
     }
 
-    public function setRight_answer($value)
+    public function setRightAnswer($value)
     {
         $this->right_answer = $value;
     }
