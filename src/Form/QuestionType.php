@@ -4,9 +4,12 @@ namespace App\Form;
 
 use App\Entity\Question;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class QuestionType extends AbstractType
@@ -20,8 +23,15 @@ class QuestionType extends AbstractType
             ->add('category', TextType::class, [
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Catégorie']
             ])
-            ->add('difficultylevel', TextType::class, [
-                'attr' => ['class' => 'form-control', 'placeholder' => 'Niveau de difficulté']
+            ->add('difficultylevel', ChoiceType::class, [
+                'choices' => [
+                    'Facile' => 'Facile',
+                    'Moyen' => 'Moyen',
+                    'Difficile' => 'Difficile',
+                ],
+                'expanded' => false, // Utilise un select
+                'multiple' => false, // Une seule valeur sélectionnable
+                'attr' => ['class' => 'form-control']
             ])
             ->add('option1', TextType::class, [
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Option 1']
@@ -36,7 +46,15 @@ class QuestionType extends AbstractType
             ->add('question_title' )
             ->add('right_answer');
 
+        $builder->get('category')->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            $data = $event->getData();
+            if ($data) {
+                $event->setData(strtoupper($data));
+            }
+        });
+
     }
+
 
     public function configureOptions(OptionsResolver $resolver): void
     {

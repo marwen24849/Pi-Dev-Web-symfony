@@ -3,72 +3,84 @@
 {% block title %}Liste des Questions{% endblock %}
 
 {% block body %}
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title">Liste des Questions</h4>
-                <a href="{{ path('app_question_new') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Nouvelle Question
-                </a>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
- <table id="multi-filter-select" class="display table table-striped table-hover">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Titre</th>
-                            <th>Catégorie</th>
-                            <th>Difficulté</th>
-                            <th>Score</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tfoot>
-                        <tr>
-                            <th>ID</th>
-                            <th>Titre</th>
-                            <th>Catégorie</th>
-                            <th>Difficulté</th>
-                            <th>Score</th>
-                            <th>Actions</th>
-                        </tr>
-                        </tfoot>
-                        <tbody>
-                        {% for question in questions %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-question-circle me-2"></i> Liste des Questions
+                        </h4>
+                        <a href="{{ path('app_question_new') }}" class="btn btn-light">
+                            <i class="fas fa-plus"></i> Nouvelle Question
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label for="categoryFilter" class="form-label">Filtrer par catégorie :</label>
+                        <select id="categoryFilter" class="form-select">
+                            <option value="">Toutes</option>
+                            {% for category in categories %}
+                                <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="questionsTable" class="table table-striped align-middle">
+                            <thead class="table-dark">
                             <tr>
-                                <td>{{ question.id }}</td>
-                                <td>{{ question.questionTitle }}</td>
-                                <td>{{ question.category }}</td>
-                                <td>
-                                    <span class="badge
-                                        {% if question.difficultylevel == 'Facile' %}bg-success
-                                        {% elseif question.difficultylevel == 'Moyen' %}bg-warning
-                                        {% else %}bg-danger{% endif %}">
-                                        {{ question.difficultylevel }}
-                                    </span>
-                                </td>
-                                <td>{{ question.score }}</td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a href="{{ path('app_question_show', {'id': question.id}) }}"
-                                           class="btn btn-sm btn-info" title="Voir">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ path('app_question_edit', {'id': question.id}) }}"
-                                           class="btn btn-sm btn-primary" title="Modifier">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </div>
-                                </td>
+                                <th>ID</th>
+                                <th>Titre</th>
+                                <th>Catégorie</th>
+                                <th>Difficulté</th>
+                                <th>Score</th>
+                                <th>Actions</th>
                             </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center">Aucune question trouvée</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="questionList">
+                            {% for question in questions %}
+                                <tr data-category="{{ question.category }}">
+                                    <td>{{ question.id }}</td>
+                                    <td>{{ question.questionTitle }}</td>
+                                    <td>{{ question.category }}</td>
+                                    <td>
+                                        <span class="badge
+                                            {% if question.difficultylevel == 'Facile' %} bg-success
+                                            {% elseif question.difficultylevel == 'Moyen' %} bg-warning
+                                            {% else %} bg-danger {% endif %}">
+                                            {{ question.difficultylevel }}
+                                        </span>
+                                    </td>
+                                    <td>{{ question.score }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ path('app_question_show', {'id': question.id}) }}"
+                                               class="btn btn-sm btn-info" title="Voir">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ path('app_question_edit', {'id': question.id}) }}"
+                                               class="btn btn-sm btn-primary" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-danger">Aucune question trouvée</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <nav>
+                        <ul class="pagination justify-content-center" id="pagination"></ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -77,5 +89,67 @@
 
 {% block javascripts %}
     {{ parent() }}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const categoryFilter = document.getElementById("categoryFilter");
+            const questionList = document.getElementById("questionList");
+            const pagination = document.getElementById("pagination");
+            const rowsPerPage = 5;
+            let currentPage = 1;
 
+            function filterQuestions() {
+                let selectedCategory = categoryFilter.value;
+                let rows = questionList.querySelectorAll("tr");
+                let filteredRows = [];
+
+                rows.forEach(row => {
+                    if (!selectedCategory || row.dataset.category === selectedCategory) {
+                        row.style.display = "";
+                        filteredRows.push(row);
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+
+                setupPagination(filteredRows);
+            }
+
+            function setupPagination(rows) {
+                let totalPages = Math.ceil(rows.length / rowsPerPage);
+                pagination.innerHTML = "";
+
+                for (let i = 1; i <= totalPages; i++) {
+                    let li = document.createElement("li");
+                    li.classList.add("page-item");
+                    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                    li.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        currentPage = i;
+                        showPage(rows, currentPage);
+                    });
+
+                    if (i === currentPage) li.classList.add("active");
+                    pagination.appendChild(li);
+                }
+
+                showPage(rows, currentPage);
+            }
+
+            function showPage(rows, page) {
+                let start = (page - 1) * rowsPerPage;
+                let end = start + rowsPerPage;
+
+                rows.forEach((row, index) => {
+                    row.style.display = index >= start && index < end ? "" : "none";
+                });
+
+                let pageItems = pagination.querySelectorAll("li");
+                pageItems.forEach(item => item.classList.remove("active"));
+                if (pageItems[page - 1]) pageItems[page - 1].classList.add("active");
+            }
+
+            categoryFilter.addEventListener("change", filterQuestions);
+            filterQuestions();
+        });
+    </script>
 {% endblock %}
