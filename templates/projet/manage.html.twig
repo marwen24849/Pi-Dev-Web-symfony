@@ -1,0 +1,204 @@
+{% extends 'base.html.twig' %} {# Use your actual base template name #}
+
+{% block title %}Gestion des Projets{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            {# Page Header - Adapt breadcrumbs as needed #}
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Gestion des Projets</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        {# --- ADJUST path to your actual home/dashboard route --- #}
+                        <a href="{{ path('app_home') }}">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ path('app_projet_manage') }}">Projets</a>
+                    </li>
+                </ul>
+            </div>
+
+            {# Display Flash Messages #}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+
+            {# --- Add Project Card --- #}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Ajouter un Nouveau Projet</div>
+                        </div>
+                        {{ form_start(creation_form) }}
+                        <div class="card-body">
+                            {# Form layout inspired by image - Labels on left #}
+                            <div class="form-group row mb-3 align-items-center">
+                                {# Use label from form type #}
+                                {{ form_label(creation_form.nomProjet, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
+                                <div class="col-md-10">
+                                    {{ form_widget(creation_form.nomProjet, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(creation_form.nomProjet) }}
+                                </div>
+                            </div>
+                            <div class="form-group row mb-3 align-items-center">
+                                {{ form_label(creation_form.equipe, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
+                                <div class="col-md-4"> {# Smaller width for select #}
+                                    {{ form_widget(creation_form.equipe, {'attr': {'class': 'form-select'}}) }} {# Ensure form-select class #}
+                                    {{ form_errors(creation_form.equipe) }}
+                                </div>
+                            </div>
+                            <div class="form-group row mb-3 align-items-center">
+                                {{ form_label(creation_form.responsable, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
+                                <div class="col-md-10">
+                                    {{ form_widget(creation_form.responsable, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(creation_form.responsable) }}
+                                </div>
+                            </div>
+                            <div class="form-group row mb-3 align-items-center">
+                                {{ form_label(creation_form.dateDebut, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
+                                <div class="col-md-4"> {# Smaller width for date #}
+                                    {{ form_widget(creation_form.dateDebut, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(creation_form.dateDebut) }}
+                                </div>
+                            </div>
+                            <div class="form-group row mb-3 align-items-center">
+                                {{ form_label(creation_form.dateFin, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
+                                <div class="col-md-4"> {# Smaller width for date #}
+                                    {{ form_widget(creation_form.dateFin, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(creation_form.dateFin) }}
+                                </div>
+                            </div>
+
+                            {# Render CSRF token and any other hidden fields #}
+                            {{ form_rest(creation_form) }}
+                        </div>
+                        <div class="card-action text-center"> {# Centered button #}
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-plus"></i> Ajouter Projet
+                            </button>
+                        </div>
+                        {{ form_end(creation_form) }}
+                    </div>
+                </div>
+            </div>
+
+
+            {# --- Project List Card --- #}
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center"> {# Use flex-wrap #}
+                                <h4 class="card-title mb-2 mb-md-0">Liste Des Projets</h4> {# Adjust margin bottom #}
+                                {# Filter Form #}
+                                <form method="get" action="{{ path('app_projet_manage') }}" class="form-inline">
+                                    <div class="d-flex flex-wrap align-items-center gap-2"> {# Use gap for spacing #}
+                                        <label for="filter_month" class="form-label mb-0 me-1">Mois:</label>
+                                        <select name="filter_month" id="filter_month" class="form-select form-select-sm me-2" style="width: auto;">
+                                            <option value="">-- Tous --</option>
+                                            {% for num, name in filter_months %}
+                                                <option value="{{ num }}" {{ num == current_filter_month ? 'selected' : '' }}>{{ name }}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <label for="filter_year" class="form-label mb-0 me-1">Année:</label>
+                                        <select name="filter_year" id="filter_year" class="form-select form-select-sm me-2" style="width: auto;">
+                                            <option value="">-- Toutes --</option>
+                                            {% for year in filter_years %}
+                                                <option value="{{ year }}" {{ year == current_filter_year ? 'selected' : '' }}>{{ year }}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <div class="form-check me-2">
+                                            {# Checkbox name matches controller check 'has' #}
+                                            <input class="form-check-input" type="checkbox" name="filter_in_progress" id="filter_in_progress" {{ current_filter_in_progress ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="filter_in_progress">
+                                                Projets en cours
+                                            </label>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
+                                        {# Reset button clears query parameters #}
+                                        <a href="{{ path('app_projet_manage') }}" class="btn btn-warning btn-sm">
+                                            Réinitialiser
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {# Project List Container with Scroll #}
+                            <div class="project-list-container border rounded p-3" style="max-height: 500px; overflow-y: auto;">
+                                {% if projets is not empty %}
+                                    {% for projet in projets %}
+                                        <div class="project-item mb-3 border-bottom pb-3"> {# Style each item - use border-bottom #}
+                                            <div class="row"> {# Use row for layout #}
+                                                <div class="col-md-8"> {# Column for details #}
+                                                    <h5 class="mb-1 fw-bold">Project Name: {{ projet.nomProjet }}</h5>
+                                                    <p class="mb-1 text-muted">
+                                                        {# Access team name via the relationship #}
+                                                        Team: {{ projet.equipe ? projet.equipe.name : 'N/A' }} {# ADJUST 'nom' if property name is different #}
+                                                    </p>
+                                                    <p class="mb-1 text-muted">Project Manager: {{ projet.responsable|default('N/A') }}</p>
+                                                    <p class="mb-0 text-muted"> {# Removed mb-1 #}
+                                                        Dates:
+                                                        {{ projet.dateDebut ? projet.dateDebut|date('Y-m-d') : 'N/A' }}
+                                                        to
+                                                        {{ projet.dateFin ? projet.dateFin|date('Y-m-d') : 'N/A' }}
+                                                        {% if projet.isInProgress() %}
+                                                            <span class="badge bg-success ms-1">En cours</span>
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                                {# Column for Action Buttons #}
+                                                <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                                                    {# Edit Button #}
+                                                    <a href="{{ path('app_projet_edit', {'id': projet.id}) }}" class="btn btn-primary btn-sm me-1 mb-1"> {# Added mb-1 #}
+                                                        <i class="fa fa-edit"></i> Update
+                                                    </a>
+
+                                                    {# Delete Button Form #}
+                                                    <form method="post" action="{{ path('app_projet_delete', {'id': projet.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');" class="d-inline-block me-1 mb-1"> {# Added mb-1 #}
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
+                                                        <button type="submit" class="btn btn-danger btn-sm">
+                                                            <i class="fa fa-trash"></i> Delete
+                                                        </button>
+                                                    </form>
+
+                                                    {# Add to Calendar Button #}
+                                                    <a href="{{ path('app_projet_add_to_calendar', {'id': projet.id}) }}" class="btn btn-success btn-sm mb-1"> {# Added mb-1 #}
+                                                        <i class="fa fa-calendar-plus"></i> Add to Calendar
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="project-item"> {# Remove margin if only this shows #}
+                                            <div class="alert alert-info mb-0" role="alert"> {# Removed margin #}
+                                                Aucun projet trouvé {% if current_filter_month or current_filter_year or current_filter_in_progress %}avec les filtres actuels{% endif %}.
+                                            </div>
+                                        </div>
+                                    {% endfor %} {# Corrected closing tag position #}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> {# End page-inner #}
+    </div> {# End container #}
+{% endblock %}

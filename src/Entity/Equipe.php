@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 use App\Entity\Department;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\User;
 
@@ -17,9 +18,9 @@ class Equipe
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
-        #[ORM\ManyToOne(targetEntity: Department::class, inversedBy: "equipes")]
+    #[ORM\ManyToOne(targetEntity: Department::class, inversedBy: "equipes")]
     #[ORM\JoinColumn(name: 'department_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private Department $department_id;
+    private ?Department $department = null;
 
     #[ORM\Column(type: "string", length: 255)]
     private string $name;
@@ -27,73 +28,76 @@ class Equipe
     #[ORM\Column(type: "bigint")]
     private string $members;
 
-    public function getId()
+    #[ORM\OneToMany(mappedBy: "id_equipe", targetEntity: User::class)]
+    private Collection $users;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
+
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId($value)
+    public function getDepartment(): ?Department
     {
-        $this->id = $value;
+        return $this->department;
     }
 
-    public function getDepartment_id()
+    public function setDepartment(?Department $department): self
     {
-        return $this->department_id;
+        $this->department = $department;
+        return $this;
     }
 
-    public function setDepartment_id($value)
-    {
-        $this->department_id = $value;
-    }
-
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName($value)
+    public function setName(string $name): self
     {
-        $this->name = $value;
+        $this->name = $name;
+        return $this;
     }
 
-    public function getMembers()
+    public function getMembers(): string
     {
         return $this->members;
     }
 
-    public function setMembers($value)
+    public function setMembers(string $members): self
     {
-        $this->members = $value;
+        $this->members = $members;
+        return $this;
     }
 
-    #[ORM\OneToMany(mappedBy: "id_equipe", targetEntity: User::class)]
-    private Collection $users;
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
 
-        public function getUsers(): Collection
-        {
-            return $this->users;
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setId_equipe($this);
         }
-    
-        public function addUser(User $user): self
-        {
-            if (!$this->users->contains($user)) {
-                $this->users[] = $user;
-                $user->setId_equipe($this);
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getId_equipe() === $this) {
+                $user->setId_equipe(null);
             }
-    
-            return $this;
         }
-    
-        public function removeUser(User $user): self
-        {
-            if ($this->users->removeElement($user)) {
-                // set the owning side to null (unless already changed)
-                if ($user->getId_equipe() === $this) {
-                    $user->setId_equipe(null);
-                }
-            }
-    
-            return $this;
-        }
+
+        return $this;
+    }
 }

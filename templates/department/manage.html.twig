@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Départements{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            {# Page Header - Adapt breadcrumbs as needed #}
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Gestion des Départements</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Administration</a> {# Example Parent #}
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ path('app_department_manage') }}">Départements</a>
+                    </li>
+                </ul>
+            </div>
+
+            {# Display Flash Messages #}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {# Creation Form Card #}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Ajouter un Département</div>
+                        </div>
+                        {{ form_start(creation_form, {'attr': {'class': 'form-horizontal'}}) }}
+                        <div class="card-body">
+                            {# Use form-group for structure like in forms.html, but make it inline-like #}
+                            <div class="row align-items-end mb-3"> {# align-items-end helps align button #}
+                                <div class="col-md-5">
+                                    {# Render Name field - Use form_row for label + input or manually #}
+                                    <div class="form-group mb-0"> {# mb-0 on form-group as row has mb-3 #}
+                                        {{ form_label(creation_form.name, 'Nom:') }}
+                                        {{ form_widget(creation_form.name, {'attr': {'class': 'form-control', 'placeholder': 'Nom du département'}}) }}
+                                        {{ form_errors(creation_form.name) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    {# Render Description field #}
+                                    <div class="form-group mb-0">
+                                        {{ form_label(creation_form.description, 'Description:') }}
+                                        {{ form_widget(creation_form.description, {'attr': {'class': 'form-control', 'placeholder': 'Description'}}) }}
+                                        {{ form_errors(creation_form.description) }}
+                                    </div>
+                                </div>
+                                {# Render other fields if needed #}
+                                {# {{ form_row(creation_form.totalEquipe) }} #}
+                                <div class="col-md-2">
+                                    {# Submit Button - styled like forms.html examples #}
+                                    <div class="form-group mb-0">
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fa fa-plus"></i> Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {# Automatically include CSRF token and any hidden fields #}
+                            {{ form_rest(creation_form) }}
+                        </div>
+                        {{ form_end(creation_form) }}
+                    </div>
+                </div>
+            </div>
+
+            {# Department List Card #}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Liste des Départements</div>
+                        </div>
+                        <div class="card-body">
+                            {% if departments is not empty %}
+                                {% for department in departments %}
+                                    <div class="list-group-item mb-3 border rounded p-3"> {# Style each item like the image #}
+                                        <div class="d-flex w-100 justify-content-between align-items-start">
+                                            <div>
+                                                <h5 class="mb-1 fw-bold">{{ department.name }}</h5>
+                                                <p class="mb-1">{{ department.description|default('Aucune description')|nl2br }}</p>
+                                                <small class="text-muted">Total Équipe: {{ department.totalEquipe|default(0) }}</small>
+                                            </div>
+                                            <div class="ms-3 text-nowrap"> {# ms-3 for margin, text-nowrap to prevent wrapping #}
+                                                {# Edit Button - styled like forms.html examples #}
+                                                <a href="{{ path('app_department_edit', {'id': department.id}) }}" class="btn btn-warning btn-sm me-1">
+                                                    <i class="fa fa-edit"></i> Modifier
+                                                </a>
+
+                                                {# Delete Button Form - styled like forms.html examples #}
+                                                <form method="post" action="{{ path('app_department_delete', {'id': department.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce département ?');" class="d-inline-block">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ department.id) }}">
+                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                        <i class="fa fa-trash"></i> Supprimer
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-info" role="alert">
+                                    Aucun département trouvé. Vous pouvez en ajouter un en utilisant le formulaire ci-dessus.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
