@@ -1,0 +1,181 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Quiz{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-list me-2"></i> Liste des Quiz
+                        </h4>
+                        <a href="{{ path('app_quiz_new') }}" class="btn btn-light">
+                            <i class="fas fa-plus"></i> Nouveau Quiz
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>Titre</th>
+                                <th>Catégorie</th>
+                                <th>Difficulté</th>
+                                <th>% Réussite</th>
+                                <th>Temps</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for quiz in quizzes %}
+                                <tr>
+                                    <td>{{ quiz.title }}</td>
+                                    <td>{{ quiz.category }}</td>
+                                    <td>
+                                        <span class="badge {% if quiz.difficultylevel == 'Facile' %}bg-success{% elseif quiz.difficultylevel == 'Moyen' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ quiz.difficultylevel }}
+                                        </span>
+                                    </td>
+                                    <td>{{ quiz.minimumSuccessPercentage }}%</td>
+                                    <td>{{ quiz.quizTime }} min</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#questionsModal{{ quiz.id }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ quiz.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteQuiz({{ quiz.id }}, this)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Modal Questions -->
+                                <div class="modal fade" id="questionsModal{{ quiz.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-secondary text-white">
+                                                <h5 class="modal-title">Questions du Quiz</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <ul class="list-group">
+                                                    {% for question in quiz.quiz_questionss %}
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            <strong>{{ question.questions_id.questionTitle }}</strong>
+                                                            <button class="btn btn-danger btn-sm" onclick="deleteQuestion({{ quiz.id }}, {{ question.questions_id.id }}, this)">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </li>
+                                                    {% else %}
+                                                        <li class="list-group-item text-center text-danger">Aucune question disponible</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal Update Quiz -->
+                                <div class="modal fade" id="editModal{{ quiz.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-warning text-white">
+                                                <h5 class="modal-title">Modifier le Quiz</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="updateQuizForm{{ quiz.id }}">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Titre</label>
+                                                        <input type="text" class="form-control" name="title" value="{{ quiz.title }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Catégorie</label>
+                                                        <input type="text" class="form-control" name="category" value="{{ quiz.category }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Difficulté</label>
+                                                        <select class="form-control" name="difficultylevel">
+                                                            <option {% if quiz.difficultylevel == 'Facile' %}selected{% endif %}>Facile</option>
+                                                            <option {% if quiz.difficultylevel == 'Moyen' %}selected{% endif %}>Moyen</option>
+                                                            <option {% if quiz.difficultylevel == 'Difficile' %}selected{% endif %}>Difficile</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3 text-end">
+                                                        <button type="button" class="btn btn-success" onclick="updateQuiz({{ quiz.id }})">Enregistrer</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Aucun quiz trouvé</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function deleteQuiz(quizId, button) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce quiz ?')) {
+                fetch(`/quiz/${quizId}/delete`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => { if (data.status === 'success') button.closest('tr').remove(); })
+                    .catch(error => alert('Erreur de suppression.'));
+            }
+        }
+
+        function deleteQuestion(quizId, questionId, button) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) {
+                fetch(`/quiz/${quizId}/question/${questionId}/delete`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => { if (data.status === 'success') button.closest('li').remove(); })
+                    .catch(error => alert('Erreur de suppression.'));
+            }
+        }
+
+        function updateQuiz(quizId) {
+            const form = document.getElementById(`updateQuizForm${quizId}`);
+            const formData = new FormData(form);
+            fetch(`/quiz/${quizId}/edit`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById(`editModal${quizId}`));
+                        modal.hide();
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Une erreur est survenue lors de la mise à jour');
+                });
+        }
+    </script>
+{% endblock %}

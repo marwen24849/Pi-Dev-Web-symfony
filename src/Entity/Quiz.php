@@ -64,12 +64,12 @@ class Quiz
         $this->difficultylevel = $value;
     }
 
-    public function getMinimum_success_percentage()
+    public function getMinimumSuccessPercentage()
     {
         return $this->minimum_success_percentage;
     }
 
-    public function setMinimum_success_percentage($value)
+    public function setMinimumSuccessPercentage($value)
     {
         $this->minimum_success_percentage = $value;
     }
