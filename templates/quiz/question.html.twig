@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz Question{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .question-card {
+            margin-top: 20px;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeLimit = {{ timeLimit }};
+            let timeRemaining = {{ timeRemaining }};
+            const timerElement = document.getElementById('timer');
+            const progressBar = document.getElementById('progress-bar');
+
+            function updateTimer() {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+                const progressPercent = (timeRemaining / timeLimit) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+
+                if (timeRemaining <= 0) {
+                    window.location.href = "{{ path('quiz_timeout') }}";
+                    return;
+                }
+
+                timeRemaining--;
+                setTimeout(updateTimer, 1000);
+            }
+
+            updateTimer();
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+
+        {# Timer #}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body text-center">
+                <div class="timer" id="timer">
+                    {{ (timeRemaining // 60) }}:{{ "%02d"|format(timeRemaining % 60) }}
+                </div>
+                <div class="progress mt-2">
+                    <div id="progress-bar" class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        {# Question Card #}
+        <div class="card shadow question-card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    Question {{ questionNumber }} sur {{ totalQuestions }}
+                </h5>
+                <p class="card-text mb-4">
+                    {{ question.getQuestions_id().getQuestionTitle() }}
+                </p>
+
+                <form action="{{ path('quiz_answer') }}" method="post">
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="option1" name="answer" value="{{ question.getQuestions_id().getOption1() }}">
+                            <label class="form-check-label" for="option1">{{ question.getQuestions_id().getOption1() }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="option2" name="answer" value="{{ question.getQuestions_id().getOption2() }}">
+                            <label class="form-check-label" for="option2">{{ question.getQuestions_id().getOption2() }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="option3" name="answer" value="{{ question.getQuestions_id().getOption3() }}">
+                            <label class="form-check-label" for="option3">{{ question.getQuestions_id().getOption3() }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="option4" name="answer" value="{{ question.getQuestions_id().getOption4() }}">
+                            <label class="form-check-label" for="option4">{{ question.getQuestions_id().getOption4() }}</label>
+                        </div>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        {% if questionNumber == totalQuestions %}
+                            <button type="submit" class="btn btn-success">Soumettre le quiz</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-primary">Question Suivante</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -12,6 +12,7 @@ class Response_responses
 
     #[ORM\Id]
     #[ORM\Column(type: "integer")]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
     private int $id;
 
         #[ORM\ManyToOne(targetEntity: Response::class, inversedBy: "response_responsess")]

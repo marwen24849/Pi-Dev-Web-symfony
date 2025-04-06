@@ -1,0 +1,32 @@
+{# templates/quiz/result.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz Results{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Quiz Results: {{ quiz.title }}</h1>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">
+                    {% if passed %}
+                        <span class="text-success">Congratulations! You passed!</span>
+                    {% else %}
+                        <span class="text-danger">Sorry, you didn't pass this time.</span>
+                    {% endif %}
+                </h2>
+
+                <div class="result-details">
+                    <p><strong>Your Score:</strong> {{ score }} / {{ maxScore }}</p>
+                    <p><strong>Percentage:</strong> {{ percentage|number_format(2) }}%</p>
+                    <p><strong>Passing Percentage:</strong> {{ quiz.minimumSuccessPercentage }}%</p>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{{ path('app_home') }}" class="btn btn-primary">Return to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
