@@ -69,7 +69,8 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
+    <script >
+
         document.addEventListener('DOMContentLoaded', function() {
             const categorySelect = document.getElementById('{{ form.category.vars.id }}');
             const difficultySelect = document.getElementById('{{ form.difficultylevel.vars.id }}');
@@ -84,6 +85,7 @@
                         .then(response => response.json())
                         .then(data => {
                             questionCountInput.value = data.count;
+
                         });
                 } else {
                     questionCountInput.value = 0;
