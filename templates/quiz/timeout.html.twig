@@ -1,0 +1,19 @@
+{# templates/quiz/timeout.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz Timeout{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Time's Up!</h1>
+
+        <div class="alert alert-warning">
+            <p>You have exceeded the time limit of {{ quizTime }} minutes for the quiz "{{ quiz.title }}".</p>
+            <p>Unfortunately, your answers could not be submitted as the time has expired.</p>
+        </div>
+
+        <div class="mt-4">
+            <a href="{{ path('app_home') }}" class="btn btn-primary">Return to Home</a>
+        </div>
+    </div>
+{% endblock %}

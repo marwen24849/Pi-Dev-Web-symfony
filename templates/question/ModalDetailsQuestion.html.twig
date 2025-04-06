@@ -1,0 +1,75 @@
+<!-- Modal for Question Details -->
+<div class="modal fade" id="questionDetailsModal{{ question.id }}" tabindex="-1" aria-labelledby="questionDetailsModalLabel{{ question.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="questionDetailsModalLabel{{ question.id }}">Détails de la Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-primary">Informations de base</h5>
+                        <ul class="list-group mb-4">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>ID:</strong>
+                                <span class="text-muted">{{ question.id }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Titre:</strong>
+                                <span>{{ question.questionTitle }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Catégorie:</strong>
+                                <span>{{ question.category }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Difficulté:</strong>
+                                <span>
+                                    <span class="badge
+                                        {% if question.difficultylevel == 'Facile' %} bg-success
+                                        {% elseif question.difficultylevel == 'Moyen' %} bg-warning
+                                        {% else %} bg-danger {% endif %}">
+                                        {{ question.difficultylevel }}
+                                    </span>
+                                </span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Score:</strong>
+                                <span>{{ question.score }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Réponse correcte:</strong>
+                                <span>{{ question.rightAnswer }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-primary">Options de la Question</h5>
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-check-circle me-2 text-success"></i> Option A: {{ question.option1 }}
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-check-circle me-2 text-success"></i> Option B: {{ question.option2 }}
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-check-circle me-2 text-success"></i> Option C: {{ question.option3 }}
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-check-circle me-2 text-success"></i> Option D: {{ question.option4 }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Quiz;
 use App\Entity\Quiz_questions;
+use App\Form\QuizEditType;
 use App\Form\QuizType;
 use App\Repository\QuestionRepository;
 use App\Repository\Quiz_questionsRepository;
@@ -21,7 +22,10 @@ class QuizController extends AbstractController
     public function index(EntityManagerInterface $em): Response
     {
         $quizzes = $em->getRepository(Quiz::class)->findAll();
-        return $this->render('quiz/index.html.twig', ['quizzes' => $quizzes]);
+        $categories = array_unique(array_map(fn($q) => $q->getCategory(), $quizzes));
+        return $this->render('quiz/index.html.twig', ['quizzes' => $quizzes,
+            'categories' => $categories
+        ]);
     }
 
     #[Route('/quiz/new', name: 'app_quiz_new')]
@@ -55,6 +59,7 @@ class QuizController extends AbstractController
         return $this->render('quiz/new.html.twig', ['form' => $form->createView()]);
     }
 
+
     #[Route('/quiz/{id}/edit', name: 'quiz_edit', methods: ['POST'])]
     public function updateQuiz(int $id, Request $request, EntityManagerInterface $em, QuizRepository $quizRepository): JsonResponse
     {
@@ -66,8 +71,9 @@ class QuizController extends AbstractController
             ], 404);
         }
         $title = $request->request->get('title');
-        $category = $request->request->get('category');
-        $difficulty = $request->request->get('difficultylevel');
+        $minimumSuccessPercentage = $request->request->get('minimumSuccessPercentage');
+        $quizTime = $request->request->get('quizTime');
+
         if (empty($title)) {
             return $this->json([
                 'status' => 'error',
@@ -75,11 +81,10 @@ class QuizController extends AbstractController
             ], 400);
         }
 
-        // Mise à jour du quiz
         try {
             $quiz->setTitle($title);
-            $quiz->setCategory($category);
-            $quiz->setDifficultylevel($difficulty);
+            $quiz->setMinimumSuccessPercentage($minimumSuccessPercentage);
+            $quiz->setQuizTime($quizTime);
 
             $em->flush();
 
@@ -89,8 +94,6 @@ class QuizController extends AbstractController
                 'quiz' => [
                     'id' => $quiz->getId(),
                     'title' => $quiz->getTitle(),
-                    'category' => $quiz->getCategory(),
-                    'difficultylevel' => $quiz->getDifficultylevel(),
                     'minimumSuccessPercentage' => $quiz->getMinimumSuccessPercentage(),
                     'quizTime' => $quiz->getQuizTime()
                 ]
@@ -101,6 +104,32 @@ class QuizController extends AbstractController
                 'message' => 'Erreur lors de la mise à jour du quiz'
             ], 500);
         }
+    }
+
+    #[Route('/quiz/{id}/show', name: 'quiz_details', methods: ['GET'])]
+    public function showQuiz(int $id, QuizRepository $quizRepository): Response
+    {
+        $quiz = $quizRepository->find($id);
+        if (!$quiz) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Quiz introuvable'
+            ], 404);
+        }
+
+        return $this->json([
+            'status' => 'success',
+            'message' => 'Quiz mis à jour avec succès',
+            'quiz' => [
+                'id' => $quiz->getId(),
+                'title' => $quiz->getTitle(),
+                'category' => $quiz->getCategory(),
+                'minimumSuccessPercentage' => $quiz->getMinimumSuccessPercentage(),
+                'quizTime' => $quiz->getQuizTime()
+            ]
+        ]);
+
+
     }
 
     #[Route('/quiz/{quizId}/delete', name: 'quiz_delete', methods: ['POST'])]
