@@ -1,73 +1,102 @@
 <?php
 
+// src/Controller/AuthController.php
+
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Entity\Equipe;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Routing\Annotation\Route;
 
 class AuthController extends AbstractController
 {
     #[Route('/auth', name: 'app_auth', methods: ['GET', 'POST'])]
-    public function showAuthPage(
+    public function auth(
         Request $request,
         EntityManagerInterface $em,
         UserPasswordHasherInterface $passwordHasher,
-        AuthenticationUtils $authenticationUtils
-    ): Response {
+        MailerInterface $mailer,
+        SessionInterface $session
+    ) {
         if ($request->isMethod('POST')) {
             $formType = $request->request->get('_form_type');
-            
+
             if ($formType === 'signup') {
-                return $this->handleSignUp($request, $em, $passwordHasher);
+                return $this->handleSignUp($request, $session, $mailer);
+            } elseif ($formType === 'verify_code') {
+                return $this->handleVerification($request, $session, $em, $passwordHasher);
             }
         }
 
         return $this->render('auth/auth.html.twig', [
-            'signin_error' => $authenticationUtils->getLastAuthenticationError()?->getMessageKey(),
+            'show_verification_modal' => false,
         ]);
     }
 
-    private function handleSignUp(
+    private function handleSignUp(Request $request, SessionInterface $session, MailerInterface $mailer)
+    {
+        $userData = [
+            'first_name' => $request->request->get('first_name'),
+            'last_name' => $request->request->get('last_name'),
+            'email' => $request->request->get('email'),
+            'password' => $request->request->get('password'),
+        ];
+
+        $verificationCode = random_int(100000, 999999);
+        $session->set('pending_user', $userData);
+        $session->set('verification_code', $verificationCode);
+
+        $email = (new Email())
+            ->from($_ENV['MAILER_FROM'])
+            ->to($userData['email'])
+            ->subject('Your Verification Code')
+            ->text("Your verification code is: $verificationCode");
+
+        $mailer->send($email);
+
+        return $this->render('auth/auth.html.twig', [
+            'show_verification_modal' => true,
+        ]);
+    }
+
+    private function handleVerification(
         Request $request,
+        SessionInterface $session,
         EntityManagerInterface $em,
         UserPasswordHasherInterface $passwordHasher
-    ): Response {
-        $user = new User();
-        
-        try {
-            $user->setFirstName($request->request->get('first_name'));
-            $user->setLastName($request->request->get('last_name'));
-            $user->setEmail($request->request->get('email'));
-            
-           
-            $user->setPassword(
-                $passwordHasher->hashPassword(
-                    $user,
-                    $request->request->get('password')
-                )
-            );
-            
-            $user->setRole('USER');
-            $user->setSoldeConge(30);  
-            
+    ) {
+        $submittedCode = $request->request->get('verification_code');
+        $storedCode = $session->get('verification_code');
+        $userData = $session->get('pending_user');
 
+        if ($submittedCode == $storedCode && $userData) {
+            $user = new User();
+            $user->setFirstName($userData['first_name']);
+            $user->setLastName($userData['last_name']);
+            $user->setEmail($userData['email']);
+            $user->setPassword(
+                $passwordHasher->hashPassword($user, $userData['password'])
+            );
+            $user->setRole('USER');
+            $user->setSoldeConge(30);
 
             $em->persist($user);
             $em->flush();
 
+            $session->remove('pending_user');
+            $session->remove('verification_code');
+
             $this->addFlash('success', 'Registration successful! Please login.');
             return $this->redirectToRoute('app_auth');
-            
-        } catch (\Exception $e) {
-            $this->addFlash('signup_error', 'Registration failed: '.$e->getMessage());
-            return $this->redirectToRoute('app_auth');
         }
+
+        $this->addFlash('signup_error', 'Invalid verification code.');
+        return $this->redirectToRoute('app_auth');
     }
 }
