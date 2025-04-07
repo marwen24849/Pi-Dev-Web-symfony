@@ -28,9 +28,12 @@ class AuthController extends AbstractController
             $formType = $request->request->get('_form_type');
 
             if ($formType === 'signup') {
-                return $this->handleSignUp($request, $session, $mailer);
+                return $this->handleSignUp($request, $session, $mailer,$em);
             } elseif ($formType === 'verify_code') {
                 return $this->handleVerification($request, $session, $em, $passwordHasher);
+            }
+            elseif($formType === 'signin'){
+                return $this->handleLogin($request, $em, $passwordHasher, $session);
             }
         }
 
@@ -39,8 +42,34 @@ class AuthController extends AbstractController
         ]);
     }
 
-    private function handleSignUp(Request $request, SessionInterface $session, MailerInterface $mailer)
+    private function handleLogin(Request $request , EntityManagerInterface $em , UserPasswordHasherInterface $passwordHasher, sessionInterface $session){
+        $email = $request->request->get('email') ; 
+        $password = $request->request->get('password') ;
+        
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $email]) ; 
+
+        if(!$user || !$passwordHasher->isPasswordValid($user, $password)){
+            $this->addFlash('signin_error', 'Invalid email or password.');
+            return $this->redirectToRoute('app_auth');
+        }
+        $session->set('user_id', $user->getId());
+        $session->set('user_email', $user->getEmail());
+        $session->set('user_role', $user->getRole());
+        $session->set('user_last_name', $user->getLastName());
+    
+       
+        return $this->redirectToRoute('app_home');
+    }
+
+
+    private function handleSignUp(Request $request, SessionInterface $session, MailerInterface $mailer ,EntityManagerInterface $em)
     {
+        $exist = $em->getRepository(User::class)->findOneBy(['email' =>  $request->request->get('email')]) ; 
+        if($exist){
+            $this->addFlash('signup_error', 'Email is already in use.');
+            return $this->redirectToRoute('app_auth');
+
+        }
         $userData = [
             'first_name' => $request->request->get('first_name'),
             'last_name' => $request->request->get('last_name'),
@@ -99,4 +128,13 @@ class AuthController extends AbstractController
         $this->addFlash('signup_error', 'Invalid verification code.');
         return $this->redirectToRoute('app_auth');
     }
+
+    #[Route('/logout', name: 'app_logout')]
+    public function signout(SessionInterface $session)
+    {
+        $session->clear();
+        return $this->redirectToRoute('app_auth');
+    }
+    
+    
 }
