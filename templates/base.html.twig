@@ -47,6 +47,10 @@
         {% endblock %}
     </head>
     <body>
+    {% set user_id = app.session.get('user_id') %}
+    {% set user_email = app.session.get('user_email') %}
+    {% set user_role = app.session.get('user_role') %}
+    {% set user_last_name = app.session.get('user_last_name') %}
     <div class="wrapper">
 
         <!-- Sidebar -->
@@ -674,7 +678,7 @@
                                     </div>
                                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
-                      <span class="fw-bold">Hizrian</span>
+                      <span class="fw-bold">{{ app.session.get('user_last_name') }}</span>
                     </span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -689,8 +693,8 @@
                                                     />
                                                 </div>
                                                 <div class="u-text">
-                                                    <h4>Hizrian</h4>
-                                                    <p class="text-muted">hello@example.com</p>
+                                                    <h4>{{ app.session.get('user_last_name') }}</h4>
+                                                   <p class="text-muted">{{ app.session.get('user_email') }}</p>
                                                     <a
                                                             href="profile.html"
                                                             class="btn btn-xs btn-secondary btn-sm"
@@ -707,7 +711,7 @@
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="#">Account Setting</a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Logout</a>
+                                            <a class="dropdown-item" href="{{ path('app_logout') }}">Logout</a>
                                         </li>
                                     </div>
                                 </ul>
