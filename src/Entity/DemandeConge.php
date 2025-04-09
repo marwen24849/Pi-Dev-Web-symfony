@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use App\Entity\Conge;
 
 #[ORM\Entity]
-class Demande_conge
+class DemandeConge
 {
 
     #[ORM\Id]
@@ -17,12 +17,12 @@ class Demande_conge
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
-        #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "demande_conges")]
+        #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "demandeConges")]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private User $user_id;
 
     #[ORM\Column(type: "text")]
-    private string $type_congé;
+    private string $typeConge;
 
     #[ORM\Column(type: "text")]
     private string $autre;
@@ -34,10 +34,10 @@ class Demande_conge
     private string $status;
 
     #[ORM\Column(type: "date")]
-    private \DateTimeInterface $date_debut;
+    private \DateTimeInterface $dateDebut;
 
     #[ORM\Column(type: "date")]
-    private \DateTimeInterface $date_fin;
+    private \DateTimeInterface $dateFin;
 
     #[ORM\Column(type: "string", length: 255)]
     private string $certificate;
@@ -62,14 +62,14 @@ class Demande_conge
         $this->user_id = $value;
     }
 
-    public function getType_congé()
+    public function getTypeConge()
     {
-        return $this->type_congé;
+        return $this->typeConge;
     }
 
-    public function setType_congé($value)
+    public function setTypeConge($value)
     {
-        $this->type_congé = $value;
+        $this->typeConge = $value;
     }
 
     public function getAutre()
@@ -102,24 +102,24 @@ class Demande_conge
         $this->status = $value;
     }
 
-    public function getDate_debut()
+    public function getDateDebut()
     {
-        return $this->date_debut;
+        return $this->dateDebut;
     }
 
-    public function setDate_debut($value)
+    public function setDateDebut($value)
     {
-        $this->date_debut = $value;
+        $this->dateDebut = $value;
     }
 
-    public function getDate_fin()
+    public function getDateFin()
     {
-        return $this->date_fin;
+        return $this->dateFin;
     }
 
-    public function setDate_fin($value)
+    public function setDateFin($value)
     {
-        $this->date_fin = $value;
+        $this->dateFin = $value;
     }
 
     public function getCertificate()
