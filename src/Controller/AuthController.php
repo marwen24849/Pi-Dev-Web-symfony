@@ -1,7 +1,5 @@
 <?php
 
-// src/Controller/AuthController.php
-
 namespace App\Controller;
 
 use App\Entity\User;
@@ -28,66 +26,83 @@ class AuthController extends AbstractController
             $formType = $request->request->get('_form_type');
 
             if ($formType === 'signup') {
-                return $this->handleSignUp($request, $session, $mailer,$em);
+                return $this->handleSignUp($request, $session, $mailer, $em);
             } elseif ($formType === 'verify_code') {
                 return $this->handleVerification($request, $session, $em, $passwordHasher);
-            }
-            elseif($formType === 'signin'){
+            } elseif ($formType === 'signin') {
                 return $this->handleLogin($request, $em, $passwordHasher, $session);
+            } elseif ($formType === 'forgot_password') {
+                return $this->handleForgotPassword($request, $em, $mailer, $session);
+            } elseif ($formType === 'forgot_verify') {
+                return $this->handleForgotVerify($request, $session);
+            } elseif ($formType === 'reset_password') {
+                return $this->handleResetPassword($request, $session, $em, $passwordHasher);
             }
         }
 
+        // On GET, render the page with no modals active initially.
         return $this->render('auth/auth.html.twig', [
-            'show_verification_modal' => false,
+            'show_verification_modal'         => false,
+            'show_forgot_verification_modal'  => false,
+            'show_reset_password_modal'       => false,
         ]);
     }
 
-    private function handleLogin(Request $request , EntityManagerInterface $em , UserPasswordHasherInterface $passwordHasher, sessionInterface $session){
-        $email = $request->request->get('email') ; 
-        $password = $request->request->get('password') ;
-        
-        $user = $em->getRepository(User::class)->findOneBy(['email' => $email]) ; 
+    private function handleLogin(
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher,
+        SessionInterface $session
+    ) {
+        $email = $request->request->get('email');
+        $passwordInput = $request->request->get('password');
 
-        if(!$user || !$passwordHasher->isPasswordValid($user, $password)){
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+
+        if (!$user || !$passwordHasher->isPasswordValid($user, $passwordInput)) {
             $this->addFlash('signin_error', 'Invalid email or password.');
             return $this->redirectToRoute('app_auth');
         }
+
+        // Set session variables
         $session->set('user_id', $user->getId());
         $session->set('user_email', $user->getEmail());
         $session->set('user_role', $user->getRole());
         $session->set('user_last_name', $user->getLastName());
-    
-       
+
         return $this->redirectToRoute('app_home');
     }
 
-
-    private function handleSignUp(Request $request, SessionInterface $session, MailerInterface $mailer ,EntityManagerInterface $em)
-    {
-        $exist = $em->getRepository(User::class)->findOneBy(['email' =>  $request->request->get('email')]) ; 
-        if($exist){
+    private function handleSignUp(
+        Request $request,
+        SessionInterface $session,
+        MailerInterface $mailer,
+        EntityManagerInterface $em
+    ) {
+        $exist = $em->getRepository(User::class)->findOneBy(['email' => $request->request->get('email')]);
+        if ($exist) {
             $this->addFlash('signup_error', 'Email is already in use.');
             return $this->redirectToRoute('app_auth');
-
         }
+
         $userData = [
             'first_name' => $request->request->get('first_name'),
-            'last_name' => $request->request->get('last_name'),
-            'email' => $request->request->get('email'),
-            'password' => $request->request->get('password'),
+            'last_name'  => $request->request->get('last_name'),
+            'email'      => $request->request->get('email'),
+            'password'   => $request->request->get('password'),
         ];
 
         $verificationCode = random_int(100000, 999999);
         $session->set('pending_user', $userData);
         $session->set('verification_code', $verificationCode);
 
-        $email = (new Email())
+        $emailMessage = (new Email())
             ->from($_ENV['MAILER_FROM'])
             ->to($userData['email'])
             ->subject('Your Verification Code')
             ->text("Your verification code is: $verificationCode");
 
-        $mailer->send($email);
+        $mailer->send($emailMessage);
 
         return $this->render('auth/auth.html.twig', [
             'show_verification_modal' => true,
@@ -129,12 +144,83 @@ class AuthController extends AbstractController
         return $this->redirectToRoute('app_auth');
     }
 
+    private function handleForgotPassword(
+        Request $request,
+        EntityManagerInterface $em,
+        MailerInterface $mailer,
+        SessionInterface $session
+    ) {
+        $emailInput = $request->request->get('forgot_email');
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $emailInput]);
+
+        if (!$user) {
+            $this->addFlash('forgot_error', 'Email does not exist.');
+            return $this->redirectToRoute('app_auth');
+        }
+
+        $forgotCode = random_int(100000, 999999);
+        $session->set('forgot_code', $forgotCode);
+        $session->set('forgot_email', $emailInput);
+
+        $emailMessage = (new Email())
+            ->from($_ENV['MAILER_FROM'])
+            ->to($user->getEmail())
+            ->subject('Password Reset Verification Code')
+            ->text("Your password reset verification code is: $forgotCode");
+
+        $mailer->send($emailMessage);
+
+        return $this->render('auth/auth.html.twig', [
+            'show_forgot_verification_modal' => true,
+        ]);
+    }
+
+    private function handleForgotVerify(
+        Request $request,
+        SessionInterface $session,
+    ) {
+        $submittedCode = $request->request->get('forgot_verification_code');
+        $storedCode = $session->get('forgot_code');
+
+        if ($submittedCode != $storedCode) {
+            $this->addFlash('forgot_error', 'Invalid verification code.');
+            return $this->redirectToRoute('app_auth');
+        }
+
+        return $this->render('auth/auth.html.twig', [
+            'show_reset_password_modal' => true,
+        ]);
+    }
+
+    private function handleResetPassword(
+        Request $request,
+        SessionInterface $session,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher
+    ) {
+        $newPassword = $request->request->get('new_password');
+        $email = $session->get('forgot_email');
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            $this->addFlash('forgot_error', 'User not found.');
+            return $this->redirectToRoute('app_auth');
+        }
+
+        $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
+        $em->flush();
+
+        $session->remove('forgot_code');
+        $session->remove('forgot_email');
+
+        $this->addFlash('success', 'Password reset successfully! Please login with your new password.');
+        return $this->redirectToRoute('app_auth');
+    }
+
     #[Route('/logout', name: 'app_logout')]
     public function signout(SessionInterface $session)
     {
         $session->clear();
         return $this->redirectToRoute('app_auth');
     }
-    
-    
 }
