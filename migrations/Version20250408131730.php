@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250406173352 extends AbstractMigration
+final class Version20250408131730 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,7 +21,7 @@ final class Version20250406173352 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE response_responses ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)
+            ALTER TABLE response_responses CHANGE id id INT AUTO_INCREMENT NOT NULL
         SQL);
     }
 
@@ -29,13 +29,7 @@ final class Version20250406173352 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE response_responses MODIFY id INT NOT NULL
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP INDEX `primary` ON response_responses
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE response_responses DROP id
+            ALTER TABLE response_responses CHANGE id id INT NOT NULL
         SQL);
     }
 }
