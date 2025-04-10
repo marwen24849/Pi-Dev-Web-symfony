@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login/Signup</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ asset('login.css') }}">
+
+  <style>
+    .modal-overlay {
+      display: none; 
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5); 
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.4s ease-out;
+      text-align: center;
+    }
+    .modal-content input[type="text"],
+    .modal-content input[type="email"],
+    .modal-content input[type="password"] {
+      width: 100%;
+      padding: 0.7rem;
+      margin: 1rem 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .modal-content button {
+      background-color: #333333;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.2s ease;
+    }
+    .modal-content button:hover {
+      background-color: #3a3a66;
+    }
+    @keyframes fadeIn {
+      from { background-color: rgba(0, 0, 0, 0); }
+      to   { background-color: rgba(0, 0, 0, 0.5); }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="form-container sign-up">
+      <form method="POST" action="{{ path('app_auth') }}">
+        <input type="hidden" name="_form_type" value="signup">
+        <input type="hidden" name="_token" value="{{ csrf_token('signup') }}">
+        <h1>Create Account</h1>
+        <input type="text" name="first_name" placeholder="First Name" required>
+        <input type="text" name="last_name" placeholder="Last Name" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+
+    <div class="form-container sign-in">
+      <form method="POST" action="{{ path('app_auth') }}">
+        <input type="hidden" name="_form_type" value="signin">
+        <input type="hidden" name="_token" value="{{ csrf_token('signin') }}">
+        <h1>Sign In</h1>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <a href="#" id="forgotPasswordLink">Forgot Your Password?</a><br>
+        <button type="submit">Sign In</button>
+      </form>
+    </div>
+
+    <div class="toggle-container">
+      <div class="toggle">
+        <div class="toggle-panel toggle-left">
+          <h1>Welcome Back!</h1>
+          <p>Enter your personal details to use all of site features</p>
+          <button class="hidden" id="login">Sign In</button>
+        </div>
+        <div class="toggle-panel toggle-right">
+          <h1>Hello Friend!</h1>
+          <p>Register with your personal details to use all of site features</p>
+          <button class="hidden" id="register">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if show_verification_modal is defined and show_verification_modal %}
+    <div id="verificationModal" class="modal-overlay active">
+      <div class="modal-content">
+        <h2>Email Verification</h2>
+        <p>Please check your email for the 6-digit verification code, then enter it below:</p>
+        <form method="POST" action="{{ path('app_auth') }}">
+          <input type="hidden" name="_form_type" value="verify_code">
+          <input type="text" name="verification_code" maxlength="6" placeholder="Verification Code" required>
+          <button type="submit">Verify</button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  <div id="forgotPasswordModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Forgot Password</h2>
+      <p>Enter your email address to reset your password:</p>
+      <form method="POST" action="{{ path('app_auth') }}">
+        <input type="hidden" name="_form_type" value="forgot_password">
+        <input type="email" name="forgot_email" placeholder="Your Email" required>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  {% if show_forgot_verification_modal is defined and show_forgot_verification_modal %}
+    <div id="forgotVerificationModal" class="modal-overlay active">
+      <div class="modal-content">
+        <h2>Password Reset Code</h2>
+        <p>Enter the verification code sent to your email:</p>
+        <form method="POST" action="{{ path('app_auth') }}">
+          <input type="hidden" name="_form_type" value="forgot_verify">
+          <input type="text" name="forgot_verification_code" maxlength="6" placeholder="Verification Code" required>
+          <button type="submit">Verify</button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+
+  {% if show_reset_password_modal is defined and show_reset_password_modal %}
+    <div id="resetPasswordModal" class="modal-overlay active">
+      <div class="modal-content">
+        <h2>Reset Password</h2>
+        <p>Enter your new password:</p>
+        <form method="POST" action="{{ path('app_auth') }}">
+          <input type="hidden" name="_form_type" value="reset_password">
+          <input type="password" name="new_password" placeholder="New Password" required>
+          <button type="submit">Reset Password</button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    const container = document.getElementById('container');
+    const registerBtn = document.getElementById('register');
+    const loginBtn = document.getElementById('login');
+    const forgotLink = document.getElementById('forgotPasswordLink');
+
+    if(registerBtn){
+      registerBtn.addEventListener('click', () => {
+        container.classList.add("active");
+      });
+    }
+    if(loginBtn){
+      loginBtn.addEventListener('click', () => {
+        container.classList.remove("active");
+      });
+    }
+    if(forgotLink) {
+      forgotLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Show the Forgot Password modal by adding the active class
+        document.getElementById('forgotPasswordModal').classList.add("active");
+      });
+    }
+  </script>
+
+  
+  {% set signupErrors = app.flashes('signup_error') %}
+  {% for message in signupErrors %}
+    <script>
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: '{{ message|e("js") }}',
+        confirmButtonColor: '#3085d6'
+      });
+    </script>
+  {% endfor %}
+
+  {% set signinErrors = app.flashes('signin_error') %}
+  {% for message in signinErrors %}
+    <script>
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: '{{ message|e("js") }}',
+        confirmButtonColor: '#d33'
+      });
+    </script>
+  {% endfor %}
+
+  {% set forgotErrors = app.flashes('forgot_error') %}
+  {% for message in forgotErrors %}
+    <script>
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '{{ message|e("js") }}',
+        confirmButtonColor: '#d33'
+      });
+    </script>
+  {% endfor %}
+
+  {% set successMessages = app.flashes('success') %}
+  {% for message in successMessages %}
+    <script>
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '{{ message|e("js") }}',
+        confirmButtonColor: '#28a745',
+        timer: 2500,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
+    </script>
+  {% endfor %}
+</body>
+</html>
