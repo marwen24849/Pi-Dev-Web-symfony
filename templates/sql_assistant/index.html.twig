@@ -1,0 +1,206 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Assistant SQL IA{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        #sqlQuery {
+            font-family: monospace;
+            min-height: 100px;
+        }
+
+        .result-card {
+            margin-top: 30px;
+        }
+
+        .alert-info p,
+        .alert-info li {
+            margin-bottom: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h1 class="display-5">Assistant SQL IA</h1>
+            <p class="lead text-muted">Posez votre question en langage naturel, générez une requête SQL et visualisez les résultats.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        Question en langage naturel
+                    </div>
+                    <div class="card-body">
+                        <form id="questionForm">
+                            <div class="mb-3">
+                                <textarea class="form-control" id="questionInput" rows="3"
+                                          placeholder="Exemple : Donne-moi la liste des employés avec un salaire supérieur à 50000"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Générer la requête SQL</button>
+                        </form>
+
+                        <div class="mt-4">
+                            <h5>Requête SQL générée :</h5>
+                            <textarea id="sqlQuery" class="form-control" readonly></textarea>
+                            <button id="executeBtn" class="btn btn-success mt-2" disabled>Exécuter la requête</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card result-card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        Résultats et analyse
+                    </div>
+                    <div class="card-body">
+                        <div id="resultsContainer">
+                            <p class="text-muted">Entrez une question et exécutez une requête pour voir les résultats ici.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#questionForm').on('submit', function (e) {
+                e.preventDefault();
+                const question = $('#questionInput').val().trim();
+
+                if (question) {
+                    generateSql(question);
+                }
+            });
+
+            $('#executeBtn').on('click', function () {
+                const sql = $('#sqlQuery').val();
+                const question = $('#questionInput').val();
+
+                if (sql) {
+                    executeSql(sql, question);
+                }
+            });
+        });
+
+        function generateSql(question) {
+            $.ajax({
+                url: '{{ path('generate_sql') }}',
+                method: 'POST',
+                data: {question: question},
+                success: function (response) {
+                    if (response.success) {
+                        $('#sqlQuery').val(response.sql);
+                        $('#executeBtn').prop('disabled', false);
+                    } else {
+                        alert('Erreur: ' + response.error);
+                    }
+                },
+                error: function () {
+                    alert('Une erreur est survenue lors de la génération de la requête.');
+                }
+            });
+        }
+
+        function executeSql(sql, question) {
+            $.ajax({
+                url: '{{ path('execute_sql') }}',
+                method: 'POST',
+                data: {
+                    sql: sql,
+                    question: question
+                },
+                success: function (response) {
+                    if (response.success) {
+                        displayResults(response.results, response.analysis);
+                    } else {
+                        alert('Erreur: ' + response.error);
+                    }
+                },
+                error: function () {
+                    alert('Une erreur est survenue lors de l\'exécution de la requête.');
+                }
+            });
+        }
+
+        function cleanText(text) {
+            return text.replace(/\*\*/g, '').replace(/\|/g, '').trim();
+        }
+
+        function displayResults(results, analysis) {
+            let html = `<div class="mb-4">
+                            <h5>Analyse des résultats :</h5>
+                            <div class="alert alert-info">${cleanText(analysis).replace(/\n/g, '<br>')}</div>
+                        </div>`;
+
+            if (results.length > 0) {
+                html += `<h5>Données brutes :</h5>
+                         <table id="resultsTable" class="table table-striped table-bordered">
+                             <thead>
+                                 <tr>
+                                     ${Object.keys(results[0]).map(col => `<th>${col}</th>`).join('')}
+                                 </tr>
+                             </thead>
+                             <tbody>
+                                 ${results.map(row =>
+                    `<tr>${Object.values(row).map(val =>
+                        `<td>${val !== null ? val : 'NULL'}</td>`).join('')}</tr>`).join('')}
+                             </tbody>
+                         </table>`;
+
+                if (Object.keys(results[0]).length === 2 && typeof Object.values(results[0])[1] === 'number') {
+                    html += `<div class="mt-4">
+                                <h5>Visualisation :</h5>
+                                <canvas id="resultsChart" width="400" height="200"></canvas>
+                            </div>`;
+                }
+            } else {
+                html += '<div class="alert alert-warning">Aucun résultat trouvé.</div>';
+            }
+
+            $('#resultsContainer').html(html);
+
+            if ($('#resultsTable').length) {
+                $('#resultsTable').DataTable();
+            }
+
+            if ($('#resultsChart').length) {
+                const ctx = document.getElementById('resultsChart').getContext('2d');
+                const labels = results.map(row => Object.values(row)[0]);
+                const data = results.map(row => Object.values(row)[1]);
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: Object.keys(results[0])[1],
+                            data: data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock %}
