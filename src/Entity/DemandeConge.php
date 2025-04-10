@@ -24,11 +24,11 @@ class DemandeConge
     #[ORM\Column(type: "text")]
     private string $typeConge;
 
-    #[ORM\Column(type: "text")]
-    private string $autre;
+    #[ORM\Column(type: "text", nullable: true)]
+    private ?string $autre = null ;
 
-    #[ORM\Column(type: "text")]
-    private string $justification;
+    #[ORM\Column(type: "text", nullable: true)]
+    private ?string $justification = null;
 
     #[ORM\Column(type: "string")]
     private string $status;
@@ -39,7 +39,7 @@ class DemandeConge
     #[ORM\Column(type: "date")]
     private \DateTimeInterface $dateFin;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private string $certificate;
 
     public function getId()

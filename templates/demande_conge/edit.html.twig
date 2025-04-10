@@ -1,26 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Demande de Congé{% endblock %}
+{% block title %}Modifier la Demande{% endblock %}
 
 {% block body %}
     <div class="row">
         <div class="col-md-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="card-title mb-0">
-                        <i class="fas fa-plane-departure me-2"></i> Demande de Congé
-                    </h4>
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="card-title mb-0"><i class="fas fa-edit me-2"></i> Modifier la demande de congé</h4>
                 </div>
                 <div class="card-body">
 
                     {% for message in app.flashes('success') %}
-                        <div class="alert alert-success mt-2">{{ message }}</div>
+                        <div class="alert alert-success">{{ message }}</div>
                     {% endfor %}
                     {% for message in app.flashes('error') %}
-                        <div class="alert alert-danger mt-2">{{ message }}</div>
+                        <div class="alert alert-danger">{{ message }}</div>
                     {% endfor %}
 
-                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                    {{ form_start(form, {
+                        'attr': {'enctype': 'multipart/form-data'},
+                        'method': 'POST'
+                    }) }}
 
                     <div class="row">
                         <div class="col-md-6">
@@ -59,11 +60,11 @@
                     </div>
 
                     <div class="text-end mt-4">
-                        <a href="{{ path('app_demande_conge') }}" class="btn btn-success" onclick="document.querySelector('form').submit(); return false;">
-                            <i class="fas fa-paper-plane me-2"></i> Envoyer la demande
+                        <a href="#" class="btn btn-warning me-2" onclick="submitEditForm(event)">
+                            <i class="fas fa-save me-1"></i> Mettre à jour
                         </a>
-                        <a href="{{ path('app_liste_conges') }}" class="btn btn-secondary ms-2 force-refresh">
-                            <i class="fas fa-arrow-left me-1"></i> Liste Des Demandes
+                        <a href="{{ path('app_liste_conges') }}" class="btn btn-secondary force-refresh">
+                            <i class="fas fa-arrow-left me-1"></i> Annuler
                         </a>
                     </div>
 
@@ -78,10 +79,20 @@
             const typeField = document.querySelector('[name$="[typeConge]"]');
             const autreGroup = document.getElementById('autre_conge_group');
             const certGroup = document.getElementById('certificate_group');
-            const type = typeField.value;
 
+            if (!typeField || !autreGroup || !certGroup) return;
+
+            const type = typeField.value;
             autreGroup.style.display = (type === 'Autre') ? 'block' : 'none';
             certGroup.style.display = (type === 'Maladie') ? 'block' : 'none';
+        }
+
+        function submitEditForm(e) {
+            e.preventDefault();
+            const form = document.querySelector('form');
+            if (form) {
+                form.submit();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

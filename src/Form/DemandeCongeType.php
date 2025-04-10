@@ -39,6 +39,7 @@ class DemandeCongeType extends AbstractType
                 'label' => 'Date de fin'
             ])
             ->add('justification', TextareaType::class, [
+                'required' => false,
                 'label' => 'Justification',
             ])
             ->add('certificate', FileType::class, [

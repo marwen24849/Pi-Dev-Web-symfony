@@ -9,49 +9,143 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
 final class DemandeCongeController extends AbstractController
 {
     #[Route('/demandeconge', name: 'app_demande_conge')]
     public function index(Request $request, EntityManagerInterface $em): Response
     {
-        $soldeConge = 30;
-
         $demande = new DemandeConge();
         $form = $this->createForm(DemandeCongeType::class, $demande);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $joursDemandes = $demande->getDateDebut()->diff($demande->getDateFin())->days + 1;
+            $soldeConge = 30;
+            $type = $demande->getTypeConge();
 
             if ($joursDemandes > $soldeConge) {
-                $this->addFlash('error', 'Solde de congé insuffisant. Il vous reste 30 jours.');
+                $this->addFlash('error', 'Solde insuffisant. Il vous reste 30 jours.');
+            } elseif ($type === 'Maladie') {
+                $certificate = $form->get('certificate')->getData();
+                if (!$certificate) {
+                    $this->addFlash('error', 'Certificat médical requis pour congé maladie.');
+                } else {
+                    $this->handleCertificateUpload($certificate, $demande);
+                    $demande->setStatus('PENDING');
+                    $em->persist($demande);
+                    $em->flush();
+
+                    $this->addFlash('success', 'Votre demande de congé maladie a été envoyée avec succès.');
+                    return $this->redirectToRoute('app_liste_conges');
+                }
+            } elseif ($type === 'Autre') {
+                $autre = $demande->getAutre();
+                if (empty($autre)) {
+                    $this->addFlash('error', 'Veuillez spécifier le type de congé dans le champ "Autre".');
+                } else {
+                    $demande->setStatus('PENDING');
+                    $em->persist($demande);
+                    $em->flush();
+
+                    $this->addFlash('success', 'Votre demande de congé personnalisé a été envoyée avec succès.');
+                    return $this->redirectToRoute('app_liste_conges');
+                }
             } else {
                 $demande->setStatus('PENDING');
-
-                // Récupération du fichier (non mappé)
-                $certificate = $form->get('certificate')->getData();
-                if ($certificate) {
-                    $filename = uniqid().'.'.$certificate->guessExtension();
-                    try {
-                        $certificate->move($this->getParameter('kernel.project_dir') . '/public/uploads', $filename);
-                        $demande->setCertificate($filename);
-                    } catch (FileException $e) {
-                        $this->addFlash('error', 'Erreur de téléchargement du fichier.');
-                    }
-                }
-
                 $em->persist($demande);
                 $em->flush();
 
-                $this->addFlash('success', 'Demande de congé envoyée avec succès. Jours restants : ' . ($soldeConge - $joursDemandes));
-                return $this->redirectToRoute('app_demande_conge');
+                $this->addFlash('success', 'Votre demande de congé a été envoyée avec succès.');
+                return $this->redirectToRoute('app_liste_conges');
             }
         }
 
         return $this->render('demande_conge/index.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+    #[Route('/liste-conges', name: 'app_liste_conges')]
+    public function liste(Request $request, EntityManagerInterface $em): Response
+    {
+        $search = $request->query->get('search');
+
+        $queryBuilder = $em->getRepository(DemandeConge::class)->createQueryBuilder('d');
+
+        if ($search) {
+            $queryBuilder
+                ->where('d.typeConge LIKE :search OR d.autre LIKE :search OR d.justification LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        $conges = $queryBuilder->getQuery()->getResult();
+
+        return $this->render('demande_conge/liste.html.twig', [
+            'conges' => $conges,
+            'search' => $search,
+        ]);
+    }
+
+    #[Route('/demandeconge/delete/{id}', name: 'app_conge_delete', methods: ['POST'])]
+    public function delete(Request $request, DemandeConge $conge, EntityManagerInterface $em): Response
+    {
+        $em->remove($conge);
+        $em->flush();
+        $this->addFlash('success', 'Demande supprimée avec succès.');
+        return $this->redirectToRoute('app_liste_conges');
+    }
+
+    #[Route('/demandeconge/edit/{id}', name: 'app_demande_conge_edit')]
+    public function edit(Request $request, DemandeConge $demande, EntityManagerInterface $em): Response
+    {
+        $form = $this->createForm(DemandeCongeType::class, $demande);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $type = $demande->getTypeConge();
+            $joursDemandes = $demande->getDateDebut()->diff($demande->getDateFin())->days + 1;
+            $soldeConge = 30;
+
+            if ($joursDemandes > $soldeConge) {
+                $this->addFlash('error', 'Solde insuffisant.');
+            } elseif ($type === 'Maladie' && !$form->get('certificate')->getData()) {
+                $this->addFlash('error', 'Certificat médical requis.');
+            } elseif ($type === 'Autre' && empty($demande->getAutre())) {
+                $this->addFlash('error', 'Veuillez spécifier le type de congé.');
+            } else {
+                $certificate = $form->get('certificate')->getData();
+                if ($certificate) {
+                    $this->handleCertificateUpload($certificate, $demande);
+                }
+
+                $demande->setStatus('PENDING');
+                $em->flush();
+
+                $this->addFlash('success', 'Demande modifiée avec succès.');
+                return $this->redirectToRoute('app_liste_conges');
+            }
+        }
+
+        return $this->render('demande_conge/edit.html.twig', [
+            'form' => $form->createView(),
+            'demande' => $demande,
+        ]);
+    }
+
+    private function handleCertificateUpload($certificate, DemandeConge $demande): void
+    {
+        if ($certificate) {
+            $filename = uniqid() . '.' . $certificate->guessExtension();
+            try {
+                $certificate->move(
+                    $this->getParameter('kernel.project_dir') . '/public/uploads',
+                    $filename
+                );
+                $demande->setCertificate($filename);
+            } catch (FileException $e) {
+                $this->addFlash('error', 'Erreur de téléchargement du fichier.');
+            }
+        }
     }
 }
