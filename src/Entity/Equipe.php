@@ -26,7 +26,7 @@ class Equipe
     private string $name;
 
     #[ORM\Column(type: "bigint")]
-    private string $members;
+    private int $members;
 
     #[ORM\OneToMany(mappedBy: "id_equipe", targetEntity: User::class)]
     private Collection $users;
@@ -63,12 +63,12 @@ class Equipe
         return $this;
     }
 
-    public function getMembers(): string
+    public function getMembers(): int
     {
         return $this->members;
     }
 
-    public function setMembers(string $members): self
+    public function setMembers(int $members): self
     {
         $this->members = $members;
         return $this;
