@@ -100,7 +100,7 @@
                                             <div>
                                                 <h5 class="mb-1 fw-bold">{{ department.name }}</h5>
                                                 <p class="mb-1">{{ department.description|default('Aucune description')|nl2br }}</p>
-                                                <small class="text-muted">Total Équipe: {{ department.totalEquipe|default(0) }}</small>
+                                                <small class="text-muted">Total Équipe: {{ department.equipes|length }}</small>
                                             </div>
                                             <div class="ms-3 text-nowrap"> {# ms-3 for margin, text-nowrap to prevent wrapping #}
                                                 {# Edit Button - styled like forms.html examples #}

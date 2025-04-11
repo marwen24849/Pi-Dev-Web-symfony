@@ -8,6 +8,8 @@ use App\Entity\Department;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\User;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity]
 class Equipe
@@ -23,9 +25,16 @@ class Equipe
     private ?Department $department = null;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "Le nom de l'équipe est obligatoire.")]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z][A-Za-z0-9_]*$/',
+        message: "Le nom doit commencer par une lettre et ne peut contenir que des lettres, chiffres et le caractère souligné."
+    )]
     private string $name;
 
     #[ORM\Column(type: "bigint")]
+    #[Assert\NotBlank(message: "Le nombre maximal de membres doit être spécifié.")]
+    #[Assert\Positive(message: "Le nombre de membres doit être un entier positif supérieur à 0.")]
     private int $members;
 
     #[ORM\OneToMany(mappedBy: "id_equipe", targetEntity: User::class)]

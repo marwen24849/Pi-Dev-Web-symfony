@@ -17,9 +17,9 @@ class User
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
-        #[ORM\ManyToOne(targetEntity: Equipe::class, inversedBy: "users")]
-    #[ORM\JoinColumn(name: 'id_equipe', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private Equipe $id_equipe;
+    #[ORM\ManyToOne(targetEntity: Equipe::class, inversedBy: "users")]
+    #[ORM\JoinColumn(name: 'id_equipe', referencedColumnName: 'id', onDelete: 'CASCADE', nullable: true)]
+    private ?Equipe $id_equipe = null;
 
     #[ORM\Column(type: "string", length: 255)]
     private string $first_name;
@@ -49,14 +49,15 @@ class User
         $this->id = $value;
     }
 
-    public function getId_equipe()
+    public function getId_equipe(): ?Equipe
     {
         return $this->id_equipe;
     }
 
-    public function setId_equipe($value)
+    public function setId_equipe(?Equipe $equipe): self
     {
-        $this->id_equipe = $value;
+        $this->id_equipe = $equipe;
+        return $this;
     }
 
     public function getFirst_name()
