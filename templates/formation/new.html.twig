@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une Formation{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0"><i class="fas fa-chalkboard-teacher me-2"></i> Ajouter une Formation</h4>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Titre</label>
+                                {{ form_widget(form.title, {
+                                    'attr': {'class': 'form-control', 'placeholder': 'Titre de la formation'}
+                                }) }}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label class="form-label">Description</label>
+                                {{ form_widget(form.description, {
+                                    'attr': {'class': 'form-control', 'placeholder': 'Description de la formation'}
+                                }) }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Durée (en jours)</label>
+                                {{ form_widget(form.duration, {
+                                    'attr': {'class': 'form-control'}
+                                }) }}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label class="form-label">Capacité</label>
+                                {{ form_widget(form.capacity, {
+                                    'attr': {'class': 'form-control'}
+                                }) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12 text-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i> Enregistrer
+                            </button>
+                            <a href="{{ path('app_formation_index') }}" class="btn btn-secondary ms-2">
+                                <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                            </a>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

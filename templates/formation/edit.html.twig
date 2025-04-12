@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la Formation{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-edit me-2"></i> Modifier la Formation
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+
+                    <div class="row">
+                        <!-- Colonne de gauche -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Titre</label>
+                                {{ form_widget(form.title, {
+                                    'attr': {'class': 'form-control', 'placeholder': 'Entrez le titre'}
+                                }) }}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label class="form-label">Durée (heures)</label>
+                                {{ form_widget(form.duration, {
+                                    'attr': {'class': 'form-control'}
+                                }) }}
+                            </div>
+                        </div>
+
+                        <!-- Colonne de droite -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Capacité</label>
+                                {{ form_widget(form.capacity, {
+                                    'attr': {'class': 'form-control'}
+                                }) }}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label class="form-label">Description</label>
+                                {{ form_widget(form.description, {
+                                    'attr': {'class': 'form-control', 'rows': 4}
+                                }) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12 text-end">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-sync-alt me-2"></i> Mettre à jour
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <div class="text-end mt-3">
+                <a href="{{ path('app_formation_index') }}" class="btn btn-secondary ms-2">
+                    <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
