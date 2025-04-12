@@ -38,6 +38,7 @@
                                     <th>Durée</th>
                                     <th>Capacité</th>
                                     <th>Actions</th>
+                                    <th>Sessions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -47,24 +48,32 @@
                                         <td>{{ formation.description }}</td>
                                         <td>{{ formation.duration }} h</td>
                                         <td>{{ formation.capacity }}</td>
+                                        
                                         <td>
-                                            <div class="btn-group">
-                                                <a href="{{ path('app_formation_show', {'id': formation.id}) }}" 
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_formation_show', {'id': formation.id}) }}"
                                                    class="btn btn-sm btn-secondary" title="Voir">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="{{ path('app_formation_edit', {'id': formation.id}) }}" 
+                                                <a href="{{ path('app_formation_edit', {'id': formation.id}) }}"
                                                    class="btn btn-sm btn-primary" title="Modifier">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form method="post" action="{{ path('app_formation_delete', {'id': formation.id}) }}" 
-                                                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette formation ?');">
+                                                <form method="post" action="{{ path('app_formation_delete', {'id': formation.id}) }}"
+                                                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette formation ?');" style="display:inline;">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ formation.id) }}">
                                                     <button class="btn btn-sm btn-danger" title="Supprimer">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </form>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('app_session_index', {'formation_id': formation.id}) }}"
+                                                class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-calendar-alt"></i> Sessions
+                                                </a>
+
                                         </td>
                                     </tr>
                                 {% else %}
