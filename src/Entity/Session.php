@@ -19,13 +19,14 @@ class Session
     private Formation $formation_id;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $salle;
+    private ?string $salle = null;
 
     #[ORM\Column(type: "date")]
     private \DateTimeInterface $date;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $link;
+    private ?string $link = null;
+
 
     #[ORM\Column(type: "boolean")]
     private bool $is_online;

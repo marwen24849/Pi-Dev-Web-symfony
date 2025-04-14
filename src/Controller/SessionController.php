@@ -48,6 +48,7 @@ final class SessionController extends AbstractController
         $session->setFormation_id($formation);
         $session->setIs_online(false);
         $session->setLink(''); // Initialize with empty string
+        $session->setSalle('');
         
         $form = $this->createForm(SessionType::class, $session);
         $form->handleRequest($request);
@@ -89,45 +90,50 @@ final class SessionController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_session_edit', methods: ['GET', 'POST'])]
-    public function edit(
-        Request $request,
-        Session $session,
-        EntityManagerInterface $entityManager
-    ): Response {
-        // Ensure link is never null before form handling
-        if ($session->getLink() === null) {
+public function edit(
+    Request $request,
+    Session $session,
+    EntityManagerInterface $entityManager
+): Response {
+    $formation = $session->getFormation_id();
+
+    // Ensure default values for link and salle
+    if ($session->getLink() === null) {
+        $session->setLink('');
+    }
+    if ($session->getSalle() === null) {
+        $session->setSalle('');
+    }
+
+    $form = $this->createForm(SessionType::class, $session);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $isOnline = $form->get('is_online')->getData() ?? false;
+        $session->setIs_online($isOnline);
+
+        if ($isOnline) {
+            $session->setSalle(null);
+            if (empty(trim($session->getLink()))) {
+                $session->setLink('online-session-' . uniqid());
+            }
+        } else {
             $session->setLink('');
         }
 
-        $form = $this->createForm(SessionType::class, $session);
-        $form->handleRequest($request);
+        $entityManager->flush();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $isOnline = $form->get('is_online')->getData() ?? false;
-            $session->setIs_online($isOnline);
-            
-            if ($session->getIs_online()) {
-                $session->setSalle(null);
-                if (empty(trim($session->getLink()))) {
-                    $session->setLink('online-session-' . uniqid());
-                }
-            } else {
-                $session->setLink(''); // Set empty string for in-person sessions
-            }
-
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_session_index', [
-                'formation_id' => $session->getFormation_id()->getId(),
-            ], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('session/edit.html.twig', [
-            'session' => $session,
-            'formation' => $session->getFormation_id(),
-            'form' => $form->createView(),
-        ]);
+        return $this->redirectToRoute('app_session_index', [
+            'formation_id' => $formation->getId(),
+        ], Response::HTTP_SEE_OTHER);
     }
+
+    return $this->render('session/edit.html.twig', [
+        'session' => $session,
+        'formation' => $formation,
+        'form' => $form->createView(),
+    ]);
+}
 
     #[Route('/{id}', name: 'app_session_delete', methods: ['POST'])]
     public function delete(
