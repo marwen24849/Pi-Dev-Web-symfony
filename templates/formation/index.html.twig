@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des Formations{% endblock %}
+{% block title %}Training Programs list{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -9,21 +9,21 @@
                 <div class="card-header bg-primary text-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="card-title mb-0">
-                            <i class="fas fa-chalkboard-teacher me-2"></i> Liste des Formations
+                            <i class="fas fa-chalkboard-teacher me-2"></i> Training Programs list
                         </h4>
                         <a href="{{ path('app_formation_new') }}" class="btn btn-light">
-                            <i class="fas fa-plus"></i> Nouvelle Formation
+                            <i class="fas fa-plus"></i> New Training Program
                         </a>
                     </div>
                 </div>
                 <div class="card-body">
                     <!-- Search Bar -->
                     <div class="mb-3">
-                        <label for="searchFormation" class="form-label">Rechercher par Titre :</label>
+                        <label for="searchFormation" class="form-label">Search by Title :</label>
                         <div class="input-group">
-                            <input type="text" id="searchFormation" class="form-control" placeholder="Entrez un titre de formation..." aria-label="Search Formations" value="{{ app.request.get('search') }}">
+                            <input type="text" id="searchFormation" class="form-control" placeholder="Enter a Program Title..." aria-label="Search Formations" value="{{ app.request.get('search') }}">
                             <button class="btn btn-outline-primary" type="submit">
-                                <i class="fas fa-search"></i> Chercher
+                                <i class="fas fa-search"></i> Search
                             </button>
                         </div>
                     </div>
@@ -33,10 +33,10 @@
                         <table class="table table-striped align-middle">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Titre</th>
+                                    <th>Title</th>
                                     <th>Description</th>
-                                    <th>Durée</th>
-                                    <th>Capacité</th>
+                                    <th>Duration</th>
+                                    <th>Capacity</th>
                                     <th>Actions</th>
                                     <th>Sessions</th>
                                 </tr>
@@ -46,7 +46,7 @@
                                     <tr>
                                         <td>{{ formation.title }}</td>
                                         <td>{{ formation.description }}</td>
-                                        <td>{{ formation.duration }} h</td>
+                                        <td>{{ formation.duration }} sessions</td>
                                         <td>{{ formation.capacity }}</td>
                                         
                                         <td>

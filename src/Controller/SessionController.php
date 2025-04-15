@@ -44,41 +44,98 @@ final class SessionController extends AbstractController
             throw $this->createNotFoundException('Formation not found');
         }
 
-        $session = new Session();
-        $session->setFormation_id($formation);
-        $session->setIs_online(false);
-        $session->setLink(''); // Initialize with empty string
-        $session->setSalle('');
-        
-        $form = $this->createForm(SessionType::class, $session);
-        $form->handleRequest($request);
+    $session = new Session();
+    $session->setFormation_id($formation);
+    $session->setIs_online(false);
+    $session->setLink('');
+    $session->setSalle('');
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $isOnline = $form->get('is_online')->getData() ?? false;
-            $session->setIs_online($isOnline);
-            
-            if ($session->getIs_online()) {
-                $session->setSalle(null);
-                if (empty(trim($session->getLink()))) {
-                    $session->setLink('online-session-' . uniqid());
-                }
-            } else {
-                $session->setLink(''); // Set empty string for in-person sessions
-            }
+    $form = $this->createForm(SessionType::class, $session);
+    $form->handleRequest($request);
 
-            $entityManager->persist($session);
-            $entityManager->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
+        $isOnline = $form->get('is_online')->getData() ?? false;
+        $session->setIs_online($isOnline);
 
-            return $this->redirectToRoute('app_session_index', [
-                'formation_id' => $formation->getId(),
-            ], Response::HTTP_SEE_OTHER);
+        // Get date and salle from form
+        $date = $form->get('date')->getData();
+        $salle = $form->get('salle')->getData();
+
+        // Required field check
+        if (!$isOnline && (empty($salle) || $date === null)) {
+            $this->addFlash('error', 'Tous les champs doivent être remplis.');
+            return $this->render('session/new.html.twig', [
+                'form' => $form->createView(),
+                'formation' => $formation,
+            ]);
         }
 
-        return $this->render('session/new.html.twig', [
-            'form' => $form->createView(),
-            'formation' => $formation,
+        // Validate salle number
+        if (!$isOnline && (!is_numeric($salle) || (int)$salle <= 0)) {
+            $this->addFlash('error', 'La salle doit être un nombre entier positif.');
+            return $this->render('session/new.html.twig', [
+                'form' => $form->createView(),
+                'formation' => $formation,
+            ]);
+        }
+
+        // Conflict check: same salle and date
+        if (!$isOnline) {
+            $conflict = $entityManager->getRepository(Session::class)->createQueryBuilder('s')
+                ->select('count(s.id)')
+                ->where('s.date = :date')
+                ->andWhere('s.salle = :salle')
+                ->setParameter('date', $date)
+                ->setParameter('salle', $salle)
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            if ($conflict > 0) {
+                $this->addFlash('error', 'Une session avec la même date et salle existe déjà.');
+                return $this->render('session/new.html.twig', [
+                    'form' => $form->createView(),
+                    'formation' => $formation,
+                ]);
+            }
+        }
+
+        // Max session check based on duration
+        $sessionCount = $entityManager->getRepository(Session::class)->count([
+            'formation_id' => $formation,
         ]);
+
+        if ($sessionCount >= $formation->getDuration()) {
+            $this->addFlash('error', 'Le nombre maximum de sessions pour cette formation est atteint.');
+            return $this->render('session/new.html.twig', [
+                'form' => $form->createView(),
+                'formation' => $formation,
+            ]);
+        }
+
+        // Link generation or reset depending on session type
+        if ($isOnline) {
+            $session->setSalle(null);
+            if (empty(trim($session->getLink()))) {
+                $session->setLink('online-session-' . uniqid());
+            }
+        } else {
+            $session->setLink('');
+        }
+
+        $entityManager->persist($session);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_session_index', [
+            'formation_id' => $formation->getId(),
+        ], Response::HTTP_SEE_OTHER);
     }
+
+    return $this->render('session/new.html.twig', [
+        'form' => $form->createView(),
+        'formation' => $formation,
+    ]);
+}
+
 
     #[Route('/{id}', name: 'app_session_show', methods: ['GET'])]
     public function show(Session $session): Response
@@ -112,6 +169,70 @@ public function edit(
         $isOnline = $form->get('is_online')->getData() ?? false;
         $session->setIs_online($isOnline);
 
+        // Get date and salle from form
+        $date = $form->get('date')->getData();
+        $salle = $form->get('salle')->getData();
+
+        // Required field check
+        if (!$isOnline && (empty($salle) || $date === null)) {
+            $this->addFlash('error', 'All fields must be filled in.');
+            return $this->render('session/edit.html.twig', [
+                'session' => $session,
+                'form' => $form->createView(),
+                'formation' => $formation,
+            ]);
+        }
+
+        // Validate salle number
+        if (!$isOnline && (!is_numeric($salle) || (int)$salle <= 0)) {
+            $this->addFlash('error', 'The room must be a positive integer.');
+            return $this->render('session/edit.html.twig', [
+                'session' => $session,
+                'form' => $form->createView(),
+                'formation' => $formation,
+            ]);
+        }
+
+        // Conflict check: same salle and date (excluding current session)
+        if (!$isOnline) {
+            $conflict = $entityManager->getRepository(Session::class)->createQueryBuilder('s')
+                ->select('count(s.id)')
+                ->where('s.date = :date')
+                ->andWhere('s.salle = :salle')
+                ->andWhere('s.id != :currentId')
+                ->setParameter('date', $date)
+                ->setParameter('salle', $salle)
+                ->setParameter('currentId', $session->getId())
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            if ($conflict > 0) {
+                $this->addFlash('error', 'A session with the same date and room already exists.');
+                return $this->render('session/edit.html.twig', [
+                    'session' => $session,
+                    'form' => $form->createView(),
+                    'formation' => $formation,
+                ]);
+            }
+        }
+
+        // Max session check based on duration (only if creating a new session for the formation)
+        // Note: This check might not be needed for edit since we're modifying an existing session
+        // If you want to keep it, you might need to adjust the logic
+        $sessionCount = $entityManager->getRepository(Session::class)->count([
+            'formation_id' => $formation,
+        ]);
+
+        if ($sessionCount > $formation->getDuration()) {
+            $this->addFlash('error', 'The maximum number of sessions for this training is reached.');
+            return $this->render('session/edit.html.twig', [
+                'session' => $session,
+                'form' => $form->createView(),
+                'formation' => $formation,
+            ]);
+        }
+
+        // Link generation or reset depending on session type
         if ($isOnline) {
             $session->setSalle(null);
             if (empty(trim($session->getLink()))) {
