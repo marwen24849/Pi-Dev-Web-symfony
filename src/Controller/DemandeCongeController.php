@@ -20,51 +20,36 @@ final class DemandeCongeController extends AbstractController
         $form = $this->createForm(DemandeCongeType::class, $demande);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $joursDemandes = $demande->getDateDebut()->diff($demande->getDateFin())->days + 1;
-            $soldeConge = 30;
-            $type = $demande->getTypeConge();
-
-            if ($joursDemandes > $soldeConge) {
-                $this->addFlash('error', 'Solde insuffisant. Il vous reste 30 jours.');
-            } elseif ($type === 'Maladie') {
-                $certificate = $form->get('certificate')->getData();
-                if (!$certificate) {
-                    $this->addFlash('error', 'Certificat médical requis pour congé maladie.');
-                } else {
-                    $this->handleCertificateUpload($certificate, $demande);
-                    $demande->setStatus('PENDING');
-                    $em->persist($demande);
-                    $em->flush();
-
-                    $this->addFlash('success', 'Votre demande de congé maladie a été envoyée avec succès.');
-                    return $this->redirectToRoute('app_liste_conges');
-                }
-            } elseif ($type === 'Autre') {
-                $autre = $demande->getAutre();
-                if (empty($autre)) {
-                    $this->addFlash('error', 'Veuillez spécifier le type de congé dans le champ "Autre".');
-                } else {
-                    $demande->setStatus('PENDING');
-                    $em->persist($demande);
-                    $em->flush();
-
-                    $this->addFlash('success', 'Votre demande de congé personnalisé a été envoyée avec succès.');
-                    return $this->redirectToRoute('app_liste_conges');
-                }
-            } else {
+        if ($form->isSubmitted() ) {
+            if ($form->isValid()) {
                 $demande->setStatus('PENDING');
+
+
+                $certificateFile = $form->get('certificate')->getData();
+                if ($certificateFile) {
+                    try {
+                        $contents = file_get_contents($certificateFile->getPathname());
+                        $demande->setCertificate(base64_encode($contents));
+                    } catch (FileException $e) {
+                        $this->addFlash('error', 'Erreur lors du téléchargement du certificat.');
+                        return $this->render('demande_conge/index.html.twig', [
+                            'form' => $form->createView(),
+                        ]);
+                    }
+                }
+
                 $em->persist($demande);
                 $em->flush();
 
                 $this->addFlash('success', 'Votre demande de congé a été envoyée avec succès.');
-                return $this->redirectToRoute('app_liste_conges');
+                return $this->redirectToRoute('app_demande_conge');
             }
         }
 
         return $this->render('demande_conge/index.html.twig', [
             'form' => $form->createView(),
         ]);
+
     }
     #[Route('/liste-conges', name: 'app_liste_conges')]
     public function liste(Request $request, EntityManagerInterface $em): Response
@@ -86,16 +71,6 @@ final class DemandeCongeController extends AbstractController
             'search' => $search,
         ]);
     }
-
-    #[Route('/demandeconge/delete/{id}', name: 'app_conge_delete', methods: ['POST'])]
-    public function delete(Request $request, DemandeConge $conge, EntityManagerInterface $em): Response
-    {
-        $em->remove($conge);
-        $em->flush();
-        $this->addFlash('success', 'Demande supprimée avec succès.');
-        return $this->redirectToRoute('app_liste_conges');
-    }
-
     #[Route('/demandeconge/edit/{id}', name: 'app_demande_conge_edit')]
     public function edit(Request $request, DemandeConge $demande, EntityManagerInterface $em): Response
     {
@@ -132,7 +107,14 @@ final class DemandeCongeController extends AbstractController
             'demande' => $demande,
         ]);
     }
-
+    #[Route('/demandeconge/delete/{id}', name: 'app_conge_delete', methods: ['POST'])]
+    public function delete(Request $request, DemandeConge $conge, EntityManagerInterface $em): Response
+    {
+        $em->remove($conge);
+        $em->flush();
+        $this->addFlash('success', 'Demande supprimée avec succès.');
+        return $this->redirectToRoute('app_liste_conges');
+    }
     private function handleCertificateUpload($certificate, DemandeConge $demande): void
     {
         if ($certificate) {

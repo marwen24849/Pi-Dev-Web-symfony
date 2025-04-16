@@ -9,14 +9,15 @@
                 <div class="card-header bg-warning text-dark">
                     <h4 class="card-title mb-0"><i class="fas fa-edit me-2"></i> Modifier la demande de congé</h4>
                 </div>
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
                 <div class="card-body">
 
-                    {% for message in app.flashes('success') %}
-                        <div class="alert alert-success">{{ message }}</div>
-                    {% endfor %}
-                    {% for message in app.flashes('error') %}
-                        <div class="alert alert-danger">{{ message }}</div>
-                    {% endfor %}
+
 
                     {{ form_start(form, {
                         'attr': {'enctype': 'multipart/form-data'},
@@ -60,10 +61,13 @@
                     </div>
 
                     <div class="text-end mt-4">
-                        <a href="#" class="btn btn-warning me-2" onclick="submitEditForm(event)">
-                            <i class="fas fa-save me-1"></i> Mettre à jour
-                        </a>
-                        <a href="{{ path('app_liste_conges') }}" class="btn btn-secondary force-refresh">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-2"></i> Mettre à jour
+                        </button>
+
+
+
+                        <a href="{{ path('app_liste_conges') }}" class="btn btn-secondary ">
                             <i class="fas fa-arrow-left me-1"></i> Annuler
                         </a>
                     </div>

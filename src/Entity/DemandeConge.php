@@ -2,163 +2,205 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 use App\Entity\User;
-use Doctrine\Common\Collections\Collection;
 use App\Entity\Conge;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity]
 class DemandeConge
 {
-
     #[ORM\Id]
-    #[ORM\Column(type: "bigint")]
     #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private ?int $id = null;
 
-        #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "demandeConges")]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "demandeConges")]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private User $user_id;
 
-    #[ORM\Column(type: "text")]
-    private string $typeConge;
+    #[ORM\Column(type: "text", nullable: true)]
+    #[Assert\NotBlank(message: "Le type de congé est obligatoire.")]
+    private ?string $typeConge = null;
 
     #[ORM\Column(type: "text", nullable: true)]
-    private ?string $autre = null ;
+    #[Assert\NotBlank(message:"donner le type de conge")]
+    private ?string $autre = null;
 
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $justification = null;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: "string", nullable: true)]
     private string $status;
 
-    #[ORM\Column(type: "date")]
-    private \DateTimeInterface $dateDebut;
+    #[ORM\Column(type: "date" , nullable: true)]
+    #[Assert\NotBlank(message: "La date de début est obligatoire.")]
+    private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column(type: "date")]
-    private \DateTimeInterface $dateFin;
+    #[ORM\Column(type: "date",nullable: true )]
+    #[Assert\NotBlank(message: "La date de fin est obligatoire.")]
+    #[Assert\Expression(
+        "this.getDateFin() >= this.getDateDebut()",
+        message: "La date de fin doit être supérieure ou égale à la date de début."
+    )]
+    private ?\DateTimeInterface $dateFin = null;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private string $certificate;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setId($value)
-    {
-        $this->id = $value;
-    }
-
-    public function getUser_id()
-    {
-        return $this->user_id;
-    }
-
-    public function setUser_id($value)
-    {
-        $this->user_id = $value;
-    }
-
-    public function getTypeConge()
-    {
-        return $this->typeConge;
-    }
-
-    public function setTypeConge($value)
-    {
-        $this->typeConge = $value;
-    }
-
-    public function getAutre()
-    {
-        return $this->autre;
-    }
-
-    public function setAutre($value)
-    {
-        $this->autre = $value;
-    }
-
-    public function getJustification()
-    {
-        return $this->justification;
-    }
-
-    public function setJustification($value)
-    {
-        $this->justification = $value;
-    }
-
-    public function getStatus()
-    {
-        return $this->status;
-    }
-
-    public function setStatus($value)
-    {
-        $this->status = $value;
-    }
-
-    public function getDateDebut()
-    {
-        return $this->dateDebut;
-    }
-
-    public function setDateDebut($value)
-    {
-        $this->dateDebut = $value;
-    }
-
-    public function getDateFin()
-    {
-        return $this->dateFin;
-    }
-
-    public function setDateFin($value)
-    {
-        $this->dateFin = $value;
-    }
-
-    public function getCertificate()
-    {
-        return $this->certificate;
-    }
-
-    public function setCertificate($value)
-    {
-        $this->certificate = $value;
-    }
+    #[ORM\Column(type: "blob", nullable: true, options: ["length" => 4294967295])]
+    private $certificate = null;
 
     #[ORM\OneToMany(mappedBy: "conge_id", targetEntity: Conge::class)]
     private Collection $conges;
 
-        public function getConges(): Collection
-        {
-            return $this->conges;
+    public function __construct()
+    {
+        $this->conges = new ArrayCollection();
+    }
+
+    // === Getters & Setters ===
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getUser_id(): User
+    {
+        return $this->user_id;
+    }
+
+    public function setUser_id(User $user): void
+    {
+        $this->user_id = $user;
+    }
+
+    public function getTypeConge(): string
+    {
+        return $this->typeConge;
+    }
+
+    public function setTypeConge(string $typeConge): void
+    {
+        $this->typeConge = $typeConge;
+    }
+
+    public function getAutre(): ?string
+    {
+        return $this->autre;
+    }
+
+    public function setAutre(?string $autre): void
+    {
+        $this->autre = $autre;
+    }
+
+    public function getJustification(): ?string
+    {
+        return $this->justification;
+    }
+
+    public function setJustification(?string $justification): void
+    {
+        $this->justification = $justification;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+    }
+
+    public function getDateDebut(): ?\DateTimeInterface
+    {
+        return $this->dateDebut;
+    }
+
+    public function setDateDebut(?\DateTimeInterface $dateDebut): void
+    {
+        $this->dateDebut = $dateDebut;
+    }
+
+    public function getDateFin(): ?\DateTimeInterface
+    {
+        return $this->dateFin;
+    }
+
+    public function setDateFin(?\DateTimeInterface $dateFin): void
+    {
+        $this->dateFin = $dateFin;
+    }
+
+    public function getCertificate(): ?string
+    {
+        if (is_resource($this->certificate)) {
+            return stream_get_contents($this->certificate);
         }
-    
-        public function addConge(Conge $conge): self
-        {
-            if (!$this->conges->contains($conge)) {
-                $this->conges[] = $conge;
-                $conge->setConge_id($this);
+        return $this->certificate;
+    }
+
+
+    public function setCertificate(?string $certificate): void
+    {
+        $this->certificate = $certificate;
+    }
+
+    public function getConges(): Collection
+    {
+        return $this->conges;
+    }
+
+    public function addConge(Conge $conge): self
+    {
+        if (!$this->conges->contains($conge)) {
+            $this->conges[] = $conge;
+            $conge->setConge_id($this);
+        }
+
+        return $this;
+    }
+
+    public function removeConge(Conge $conge): self
+    {
+        if ($this->conges->removeElement($conge)) {
+            if ($conge->getConge_id() === $this) {
+                $conge->setConge_id(null);
             }
-    
-            return $this;
         }
-    
-        public function removeConge(Conge $conge): self
-        {
-            if ($this->conges->removeElement($conge)) {
-                // set the owning side to null (unless already changed)
-                if ($conge->getConge_id() === $this) {
-                    $conge->setConge_id(null);
-                }
+
+        return $this;
+    }
+
+    // === Validation personnalisée ===
+
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
+        if ($this->typeConge === 'Autre' && empty($this->autre)) {
+            $context->buildViolation('Veuillez préciser le type de congé.')
+                ->atPath('autre')
+                ->addViolation();
+        }
+
+        if ($this->typeConge === 'Maladie' && empty($this->certificate)) {
+            $context->buildViolation('Le certificat médical est obligatoire pour un congé maladie.')
+                ->atPath('certificate')
+                ->addViolation();
+        }
+
+        if ($this->dateDebut && $this->dateFin) {
+            $jours = $this->dateDebut->diff($this->dateFin)->days + 1;
+            if ($jours > 30) {
+                $context->buildViolation('La durée maximale autorisée est de 30 jours.')
+                    ->atPath('dateFin')
+                    ->addViolation();
             }
-    
-            return $this;
         }
+    }
+
 }

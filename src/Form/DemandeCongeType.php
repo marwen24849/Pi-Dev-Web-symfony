@@ -18,6 +18,7 @@ class DemandeCongeType extends AbstractType
     {
         $builder
             ->add('typeConge', ChoiceType::class, [
+                'required' => false,
                 'choices' => [
                     'Vacances' => 'Vacances',
                     'Maladie' => 'Maladie',
@@ -28,24 +29,28 @@ class DemandeCongeType extends AbstractType
             ])
             ->add('autre', TextType::class, [
                 'required' => false,
+
                 'label' => 'Précisez le type'
             ])
             ->add('dateDebut', DateType::class, [
+                'required' => false,
                 'widget' => 'single_text',
                 'label' => 'Date de début'
             ])
             ->add('dateFin', DateType::class, [
+                'required' => false,
                 'widget' => 'single_text',
                 'label' => 'Date de fin'
             ])
             ->add('justification', TextareaType::class, [
                 'required' => false,
+
                 'label' => 'Justification',
             ])
             ->add('certificate', FileType::class, [
                 'required' => false,
                 'label' => 'Certificat médical',
-                'mapped' => false,
+                'mapped' => true,
             ]);
     }
 
