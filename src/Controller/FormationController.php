@@ -24,6 +24,13 @@ final class FormationController extends AbstractController
             'formations' => $formations,
         ]);
     }
+    #[Route('/test', name: 'app_test_route')]
+    public function testRoute(): Response
+    {
+        return $this->render('formation/index.html.twig', [
+            'message' => 'Controller is working!'
+        ]);
+    }
 
     #[Route('/new', name: 'app_formation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
