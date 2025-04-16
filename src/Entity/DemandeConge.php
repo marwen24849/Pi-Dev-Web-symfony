@@ -27,7 +27,6 @@ class DemandeConge
     private ?string $typeConge = null;
 
     #[ORM\Column(type: "text", nullable: true)]
-    #[Assert\NotBlank(message:"donner le type de conge")]
     private ?string $autre = null;
 
     #[ORM\Column(type: "text", nullable: true)]
@@ -48,8 +47,9 @@ class DemandeConge
     )]
     private ?\DateTimeInterface $dateFin = null;
 
-    #[ORM\Column(type: "blob", nullable: true, options: ["length" => 4294967295])]
-    private $certificate = null;
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private ?string $certificate = null;
+
 
     #[ORM\OneToMany(mappedBy: "conge_id", targetEntity: Conge::class)]
     private Collection $conges;
@@ -138,12 +138,8 @@ class DemandeConge
 
     public function getCertificate(): ?string
     {
-        if (is_resource($this->certificate)) {
-            return stream_get_contents($this->certificate);
-        }
         return $this->certificate;
     }
-
 
     public function setCertificate(?string $certificate): void
     {
@@ -202,5 +198,6 @@ class DemandeConge
             }
         }
     }
+
 
 }
