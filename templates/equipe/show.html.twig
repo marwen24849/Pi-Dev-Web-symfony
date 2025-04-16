@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Equipe{% endblock %}
+
+{% block body %}
+    <h1>Equipe</h1>
+
+    <table class="table">
+        <tbody>
+        <tr>
+            <th>Id</th>
+            <td>{{ equipe.id }}</td>
+        </tr>
+        <tr>
+            <th>Nom</th>
+            <td>{{ equipe.name }}</td>
+        </tr>
+        <tr>
+            <th> Max Membres</th>
+            <td>{{ equipe.members }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Membres de l'équipe</h2>
+    {% if equipe.users|length > 0 %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Prénom</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in equipe.users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <form method="post" action="{{ path('app_equipe_remove_member', {'id': equipe.id, 'userId': user.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer ce membre ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('remove_member' ~ user.id) }}">
+                            <button class="btn btn-danger btn-sm" type="submit">Retirer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            Aucun membre assigné à cette équipe.
+        </div>
+    {% endif %}
+
+    <a href="{{ path('app_equipe_index') }}" class="btn btn-secondary">Retour à la liste</a>
+    <a href="{{ path('app_equipe_edit', {'id': equipe.id}) }}" class="btn btn-primary">Modifier</a>
+{% endblock %}

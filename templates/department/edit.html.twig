@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Département{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            {# Page Header #}
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Modifier Département: {{ department.name }}</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Administration</a> {# Example Parent #}
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ path('app_department_manage') }}">Départements</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Modifier</a>
+                    </li>
+                </ul>
+            </div>
+
+            {# Display Flash Messages (Optional here, maybe only needed on manage page) #}
+            {# ... flash message loop ... #}
+
+            {# Edit Form Card #}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Modifier les informations</div>
+                        </div>
+                        {{ form_start(edit_form) }}
+                        <div class="card-body">
+                            {# Render form fields using Kaiadmin structure #}
+                            {# Example using form_row (includes label, widget, errors) #}
+                            <div class="form-group">
+                                {{ form_row(edit_form.name, {'label': 'Nom', 'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group">
+                                {{ form_row(edit_form.description, {'label': 'Description', 'attr': {'class': 'form-control', 'rows': 4}}) }}
+                            </div>
+                            {# Render other fields as needed #}
+                            {# {{ form_row(edit_form.totalEquipe) }} #}
+
+                            {# Render rest of the form (hidden fields, CSRF) #}
+                            {{ form_rest(edit_form) }}
+                        </div>
+                        <div class="card-action">
+                            {# Submit Button styled like forms.html examples #}
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-save"></i> Enregistrer les modifications
+                            </button>
+                            {# Cancel Button linking back #}
+                            <a href="{{ path('app_department_manage') }}" class="btn btn-danger">
+                                <i class="fa fa-times"></i> Annuler
+                            </a>
+                        </div>
+                        {{ form_end(edit_form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

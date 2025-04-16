@@ -11,7 +11,7 @@
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         {# --- ADJUST path to your actual home/dashboard route --- #}
-                        <a href="{{ path('app_home') }}">
+                        <a href="{{ path('app_home') }}"> {# <-- Replace 'app_home' with your actual route #}
                             <i class="icon-home"></i>
                         </a>
                     </li>
@@ -49,36 +49,51 @@
                                 {# Use label from form type #}
                                 {{ form_label(creation_form.nomProjet, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
                                 <div class="col-md-10">
-                                    {{ form_widget(creation_form.nomProjet, {'attr': {'class': 'form-control'}}) }}
-                                    {{ form_errors(creation_form.nomProjet) }}
+                                    {# Add is-invalid class for Bootstrap validation styling #}
+                                    {{ form_widget(creation_form.nomProjet, {'attr': {'class': 'form-control' ~ (creation_form.nomProjet.vars.errors|length > 0 ? ' is-invalid' : '') }}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(creation_form.nomProjet) }}
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group row mb-3 align-items-center">
                                 {{ form_label(creation_form.equipe, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
                                 <div class="col-md-4"> {# Smaller width for select #}
-                                    {{ form_widget(creation_form.equipe, {'attr': {'class': 'form-select'}}) }} {# Ensure form-select class #}
-                                    {{ form_errors(creation_form.equipe) }}
+                                    {# Add is-invalid class for Bootstrap validation styling #}
+                                    {{ form_widget(creation_form.equipe, {'attr': {'class': 'form-select' ~ (creation_form.equipe.vars.errors|length > 0 ? ' is-invalid' : '') }}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(creation_form.equipe) }}
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group row mb-3 align-items-center">
                                 {{ form_label(creation_form.responsable, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
                                 <div class="col-md-10">
-                                    {{ form_widget(creation_form.responsable, {'attr': {'class': 'form-control'}}) }}
-                                    {{ form_errors(creation_form.responsable) }}
+                                    {# Add is-invalid class for Bootstrap validation styling #}
+                                    {{ form_widget(creation_form.responsable, {'attr': {'class': 'form-control' ~ (creation_form.responsable.vars.errors|length > 0 ? ' is-invalid' : '') }}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(creation_form.responsable) }}
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group row mb-3 align-items-center">
                                 {{ form_label(creation_form.dateDebut, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
                                 <div class="col-md-4"> {# Smaller width for date #}
-                                    {{ form_widget(creation_form.dateDebut, {'attr': {'class': 'form-control'}}) }}
-                                    {{ form_errors(creation_form.dateDebut) }}
+                                    {# Add is-invalid class for Bootstrap validation styling #}
+                                    {{ form_widget(creation_form.dateDebut, {'attr': {'class': 'form-control' ~ (creation_form.dateDebut.vars.errors|length > 0 ? ' is-invalid' : '') }}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(creation_form.dateDebut) }}
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group row mb-3 align-items-center">
                                 {{ form_label(creation_form.dateFin, null, {'label_attr': {'class': 'col-md-2 col-form-label text-md-end'}}) }}
                                 <div class="col-md-4"> {# Smaller width for date #}
-                                    {{ form_widget(creation_form.dateFin, {'attr': {'class': 'form-control'}}) }}
-                                    {{ form_errors(creation_form.dateFin) }}
+                                    {# Add is-invalid class for Bootstrap validation styling #}
+                                    {{ form_widget(creation_form.dateFin, {'attr': {'class': 'form-control' ~ (creation_form.dateFin.vars.errors|length > 0 ? ' is-invalid' : '') }}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(creation_form.dateFin) }}
+                                    </div>
                                 </div>
                             </div>
 
@@ -150,7 +165,7 @@
                                                     <h5 class="mb-1 fw-bold">Project Name: {{ projet.nomProjet }}</h5>
                                                     <p class="mb-1 text-muted">
                                                         {# Access team name via the relationship #}
-                                                        Team: {{ projet.equipe ? projet.equipe.name : 'N/A' }} {# ADJUST 'nom' if property name is different #}
+                                                        Team: {{ projet.equipe ? projet.equipe.name : 'N/A' }} {# ADJUST 'name' if property name is different #}
                                                     </p>
                                                     <p class="mb-1 text-muted">Project Manager: {{ projet.responsable|default('N/A') }}</p>
                                                     <p class="mb-0 text-muted"> {# Removed mb-1 #}
@@ -178,10 +193,14 @@
                                                         </button>
                                                     </form>
 
-                                                    {# Add to Calendar Button #}
-                                                    <a href="{{ path('app_projet_add_to_calendar', {'id': projet.id}) }}" class="btn btn-success btn-sm mb-1"> {# Added mb-1 #}
+                                                    {# --- MODIFIED Add to Calendar Button --- #}
+                                                    <button type="button" {# Changed from <a> to <button> #}
+                                                            class="btn btn-success btn-sm mb-1 js-add-to-calendar" {# Added js- class #}
+                                                            data-project-id="{{ projet.id }}" {# Added data attribute #}
+                                                            data-url="{{ path('app_projet_add_to_calendar', {'id': projet.id}) }}"> {# Added data attribute #}
                                                         <i class="fa fa-calendar-plus"></i> Add to Calendar
-                                                    </a>
+                                                    </button>
+                                                    {# --- END MODIFICATION --- #}
                                                 </div>
                                             </div>
                                         </div>
@@ -191,14 +210,168 @@
                                                 Aucun projet trouvé {% if current_filter_month or current_filter_year or current_filter_in_progress %}avec les filtres actuels{% endif %}.
                                             </div>
                                         </div>
-                                    {% endfor %} {# Corrected closing tag position #}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                    {% endfor %} {# Make sure this is outside the 'else' block #}
+                                {% endif %} {# Close if projets is not empty #}
+                            </div> {# End project-list-container #}
+                        </div> {# End card-body #}
+                    </div> {# End card #}
+                </div> {# End col-md-12 #}
+            </div> {# End row mt-4 #}
 
         </div> {# End page-inner #}
     </div> {# End container #}
+
+    {# --- MODAL STRUCTURE (Initially Hidden - Place outside main container or at end of body) --- #}
+    <div class="modal fade" id="calendarEventModal" tabindex="-1" aria-labelledby="calendarEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="calendarEventModalLabel">Event Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="calendarEventModalBody">
+                    {# Content will be populated by JavaScript #}
+                    <p><strong>Status:</strong> <span id="event-status"></span></p>
+                    <p><strong>Message:</strong> <span id="event-message"></span></p>
+                    <div id="event-success-details" style="display: none;">
+                        <p><strong>Summary:</strong> <span id="event-summary"></span></p>
+                        <p><strong>Start:</strong> <span id="event-start"></span></p>
+                        <p><strong>End:</strong> <span id="event-end"></span></p>
+                        <p><strong>Google Calendar Link:</strong> <a id="event-calendar-link" href="#" target="_blank">View Event</a></p>
+                        <p id="event-meet-paragraph" style="display: none;"> {# Hide paragraph if no link #}
+                            <strong>Google Meet Link:</strong> <a id="event-meet-link" href="#" target="_blank">Join Meeting</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# --- END MODAL STRUCTURE --- #}
+
+{% endblock %} {# End block body #}
+
+{% block javascripts %}
+    {{ parent() }} {# Include base template JS #}
+
+    {# --- JAVASCRIPT FOR AJAX & MODAL --- #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get the modal element
+            const eventModalElement = document.getElementById('calendarEventModal');
+            // Ensure Bootstrap Modal class is available
+            if (typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined') {
+                const eventModal = new bootstrap.Modal(eventModalElement);
+
+                // Get elements inside the modal to update
+                const statusEl = document.getElementById('event-status');
+                const messageEl = document.getElementById('event-message');
+                const successDetailsEl = document.getElementById('event-success-details');
+                const summaryEl = document.getElementById('event-summary');
+                const startEl = document.getElementById('event-start');
+                const endEl = document.getElementById('event-end');
+                const calendarLinkEl = document.getElementById('event-calendar-link');
+                const meetLinkEl = document.getElementById('event-meet-link');
+                const meetParagraphEl = document.getElementById('event-meet-paragraph'); // Target the paragraph
+
+                // Add click listener to all 'Add to Calendar' buttons
+                document.querySelectorAll('.js-add-to-calendar').forEach(button => {
+                    button.addEventListener('click', function (event) {
+                        event.preventDefault(); // Prevent default button action
+
+                        const projectId = this.dataset.projectId;
+                        const url = this.dataset.url; // Get URL from button data attribute
+                        const buttonRef = this; // Reference to the clicked button
+
+                        // Optional: Add loading state to button
+                        buttonRef.disabled = true;
+                        buttonRef.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Adding...';
+
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest', // Identify as AJAX
+                                'Accept': 'application/json',
+                                // If your controller requires CSRF for this POST, you need to add it.
+                                // Get the token from a meta tag or data attribute set elsewhere in your main layout.
+                                // 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Example
+                            }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    // Handle HTTP errors (like 403, 500)
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                // Reset button state
+                                buttonRef.disabled = false;
+                                buttonRef.innerHTML = '<i class="fa fa-calendar-plus"></i> Add to Calendar';
+
+                                // --- Handle Response ---
+                                statusEl.textContent = data.status || 'Unknown';
+                                messageEl.textContent = data.message || 'An error occurred.';
+                                successDetailsEl.style.display = 'none'; // Hide details by default
+                                meetParagraphEl.style.display = 'none'; // Hide meet link paragraph by default
+
+                                if (data.status === 'success') {
+                                    statusEl.className = 'text-success fw-bold';
+                                    successDetailsEl.style.display = 'block'; // Show success details section
+                                    summaryEl.textContent = data.summary || 'N/A';
+                                    startEl.textContent = data.start || 'N/A';
+                                    endEl.textContent = data.end || 'N/A';
+
+                                    if(data.eventUrl) {
+                                        calendarLinkEl.href = data.eventUrl;
+                                        calendarLinkEl.parentElement.style.display = 'block'; // Show calendar link paragraph
+                                    } else {
+                                        calendarLinkEl.parentElement.style.display = 'none'; // Hide paragraph
+                                    }
+
+                                    if(data.meetUrl) {
+                                        meetLinkEl.href = data.meetUrl;
+                                        meetParagraphEl.style.display = 'block'; // Show the paragraph containing the link
+                                    } // else it remains hidden
+
+                                } else if (data.status === 'auth_required') {
+                                    // Redirect the whole page for Google OAuth
+                                    statusEl.className = 'text-warning fw-bold';
+                                    messageEl.textContent = 'Authorization required. Redirecting to Google...';
+                                    // Don't show the modal, just redirect
+                                    window.location.href = data.authUrl;
+                                    return; // Stop further processing
+                                } else {
+                                    // General error reported by the backend
+                                    statusEl.className = 'text-danger fw-bold';
+                                }
+
+                                // Show the modal (unless redirected for auth)
+                                eventModal.show();
+
+                            })
+                            .catch(error => {
+                                console.error('Error adding event to calendar:', error);
+                                // Reset button state
+                                buttonRef.disabled = false;
+                                buttonRef.innerHTML = '<i class="fa fa-calendar-plus"></i> Add to Calendar';
+
+                                // Show error in modal
+                                statusEl.textContent = 'Error';
+                                statusEl.className = 'text-danger fw-bold';
+                                messageEl.textContent = 'An unexpected network or server error occurred. Please check the console or server logs.';
+                                successDetailsEl.style.display = 'none';
+                                meetParagraphEl.style.display = 'none';
+                                eventModal.show();
+                            });
+                    });
+                });
+            } else {
+                console.error('Bootstrap Modal component not found. Make sure Bootstrap JS is loaded.');
+            }
+        });
+    </script>
+    {# --- END JAVASCRIPT --- #}
 {% endblock %}

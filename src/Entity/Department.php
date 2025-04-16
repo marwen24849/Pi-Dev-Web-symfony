@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\Equipe;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 class Department
@@ -16,15 +17,24 @@ class Department
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "Le nom du department est obligatoire.")]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z][A-Za-z0-9_]*$/',
+        message: "Le nom doit commencer par une lettre et ne peut contenir que des lettres, chiffres et le caractère souligné."
+    )]
     private string $name;
 
     #[ORM\Column(type: "text")]
+    #[Assert\NotBlank(message: "La description est obligatoire.")]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z][A-Za-z0-9\s]*$/',
+        message: "La description doit commencer par une lettre et ne peut contenir que des caractères alphanumériques."
+    )]
     private string $description;
 
     #[ORM\Column(type: "bigint")]
     private int $total_equipe = 0;
 
-    // Modifié pour pointer vers la propriété department dans Equipe
     #[ORM\OneToMany(mappedBy: "department", targetEntity: Equipe::class)]
     private Collection $equipes;
 
@@ -80,22 +90,18 @@ class Department
     {
         if (!$this->equipes->contains($equipe)) {
             $this->equipes[] = $equipe;
-            // Utiliser setDepartment au lieu de setDepartment_id
             $equipe->setDepartment($this);
         }
-
         return $this;
     }
 
     public function removeEquipe(Equipe $equipe): self
     {
         if ($this->equipes->removeElement($equipe)) {
-            // Utiliser getDepartment au lieu de getDepartment_id
             if ($equipe->getDepartment() === $this) {
                 $equipe->setDepartment(null);
             }
         }
-
         return $this;
     }
 }
