@@ -39,7 +39,7 @@ final class QuestionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($question);
             $entityManager->flush();
-
+            $this->addFlash('success', 'Question créé avec succès!');
             return $this->redirectToRoute('app_question_index', [], Response::HTTP_SEE_OTHER);
         }
 

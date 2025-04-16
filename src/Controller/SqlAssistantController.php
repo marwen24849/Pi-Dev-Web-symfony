@@ -16,11 +16,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class SqlAssistantController extends AbstractController
 {
     public function __construct(
-        private SqlGeneratorService $sqlGenerator,
-        private ResultAnalyzerService $resultAnalyzer,
-        private DatabaseSchemaService $schemaService,
+        private SqlGeneratorService    $sqlGenerator,
+        private ResultAnalyzerService  $resultAnalyzer,
+        private DatabaseSchemaService  $schemaService,
         private EntityManagerInterface $em
-    ) {}
+    )
+    {
+    }
 
     #[Route('/sql-assistant', name: 'sql_assistant')]
     public function index(): Response
@@ -32,7 +34,9 @@ class SqlAssistantController extends AbstractController
         ]);
     }
 
-     Route('/generate-sql', name: 'generate_sql', methods: ['POST'])]
+
+
+    #[Route('/generate-sql', name: 'generate_sql', methods: ['POST'])]
     public function generateSql(Request $request): JsonResponse
     {
         $question = $request->request->get('question');
@@ -84,4 +88,5 @@ class SqlAssistantController extends AbstractController
     {
 
     }
+
 }

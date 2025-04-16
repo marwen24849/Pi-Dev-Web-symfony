@@ -4,6 +4,16 @@
 
 {% block body %}
     <div class="row">
+        <div class="col-12">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label == 'success' ? 'success' : (label == 'error' ? 'danger' : label) }} alert-dismissible fade show mt-3" role="alert">
+                        <i class="fas fa-check-circle me-2"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
         <div class="col-md-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
@@ -94,4 +104,13 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('js/question.js') }}"></script>
+    <script>
+        setTimeout(function () {
+            let alerts = document.querySelectorAll('.flash-message');
+            alerts.forEach(function (alert) {
+                let bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 4000);
+    </script>
 {% endblock %}
