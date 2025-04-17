@@ -40,7 +40,7 @@ class AuthController extends AbstractController
             }
         }
 
-        // On GET, render the page with no modals active initially.
+       
         return $this->render('auth/auth.html.twig', [
             'show_verification_modal'         => false,
             'show_forgot_verification_modal'  => false,
@@ -64,7 +64,6 @@ class AuthController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
-        // Set session variables
         $session->set('user_id', $user->getId());
         $session->set('user_email', $user->getEmail());
         $session->set('user_role', $user->getRole());
@@ -100,7 +99,22 @@ class AuthController extends AbstractController
             ->from($_ENV['MAILER_FROM'])
             ->to($userData['email'])
             ->subject('Your Verification Code')
-            ->text("Your verification code is: $verificationCode");
+            ->html("
+    <div style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px; text-align: center;'>
+        <div style='max-width: 500px; margin: auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);'>
+            <h2 style='color: #333333;'>🔐 Email Verification</h2>
+            <p style='font-size: 16px; color: #666666;'>Hey there! Thanks for signing up. Use the code below to verify your email:</p>
+            <div style='margin: 30px 0;'>
+                <span style='display: inline-block; font-size: 28px; font-weight: bold; color: #ffffff; background-color: #007bff; padding: 15px 30px; border-radius: 8px; letter-spacing: 2px;'>
+                    $verificationCode
+                </span>
+            </div>
+            <hr style='margin: 30px 0;'>
+            <p style='font-size: 12px; color: #cccccc;'>If you didn’t request this, just ignore this email.</p>
+        </div>
+    </div>
+");
+
 
         $mailer->send($emailMessage);
 
@@ -166,7 +180,22 @@ class AuthController extends AbstractController
             ->from($_ENV['MAILER_FROM'])
             ->to($user->getEmail())
             ->subject('Password Reset Verification Code')
-            ->text("Your password reset verification code is: $forgotCode");
+            ->html("
+            <div style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px; text-align: center;'>
+                <div style='max-width: 500px; margin: auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);'>
+                    <h2 style='color: #333333;'>🔑 Password Reset Request</h2>
+                    <p style='font-size: 16px; color: #666666;'>Hey there! We received a request to reset your password. Use the code below to complete the process:</p>
+                    <div style='margin: 30px 0;'>
+                        <span style='display: inline-block; font-size: 28px; font-weight: bold; color: #ffffff; background-color: #007bff; padding: 15px 30px; border-radius: 8px; letter-spacing: 2px;'>
+                            $forgotCode
+                        </span>
+                    </div>
+                    <hr style='margin: 30px 0;'>
+                    <p style='font-size: 12px; color: #cccccc;'>If you didn’t request this, just ignore this email. Your password won’t be changed.</p>
+                </div>
+            </div>
+        ");
+        
 
         $mailer->send($emailMessage);
 

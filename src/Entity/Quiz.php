@@ -5,6 +5,8 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
+
 use App\Entity\Response;
 
 #[ORM\Entity]
@@ -17,22 +19,38 @@ class Quiz
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "La catégorie ne peut pas être vide.")]
     private string $category;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "Le niveau de difficulté est requis.")]
     private string $difficultylevel;
 
     #[ORM\Column(type: "float")]
+    #[Assert\NotBlank(message: "Le pourcentage de succès minimal est requis.")]
+    #[Assert\Range(
+        notInRangeMessage: "La valeur doit être entre {{ min }} et {{ max }}.",
+        min: 0,
+        max: 100
+    )]
     private float $minimum_success_percentage;
 
     #[ORM\Column(type: "string", length: 1)]
     private string $passer;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "Le titre est obligatoire.")]
+    #[Assert\Length(
+        min: 3,
+        minMessage: "Le titre doit contenir au moins {{ limit }} caractères."
+    )]
     private string $title;
 
     #[ORM\Column(type: "integer")]
+    #[Assert\NotBlank(message: "La durée du quiz est requise.")]
+    #[Assert\Positive(message: "Le temps du quiz doit être un nombre positif.")]
     private int $quizTime;
+
 
     public function getId()
     {

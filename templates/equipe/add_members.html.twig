@@ -1,0 +1,44 @@
+{# templates/equipe/add_members.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter des Membres à l'Equipe{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h2>Ajouter des Membres &agrave; l'Equipe : {{ equipe.name }}</h2>
+        <form method="post">
+            <table class="table table-striped mt-3">
+                <thead>
+                <tr>
+                    <th>S&eacute;lectionner</th>
+                    <th>ID</th>
+                    <th>Pr&eacute;nom</th>
+                    <th>Nom</th>
+                    <th>Email</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in availableUsers %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selected_users[]" value="{{ user.id }}" />
+                        </td>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.first_name }}</td>
+                        <td>{{ user.last_name }}</td>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Aucun utilisateur disponible</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save me-2"></i>Valider la s&eacute;lection
+            </button>
+            <a href="{{ path('app_equipe_index') }}" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+{% endblock %}
