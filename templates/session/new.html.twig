@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Session pour {{ formation.title }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-calendar-plus me-2"></i>
+                            Nouvelle Session pour {{ formation.title }}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        {{ form_start(form) }}
+                            <div class="mb-3">
+                                {{ form_row(form.date, {
+                                    'attr': {
+                                        'min': "now"|date("Y-m-d"),
+                                        'class': 'form-control'
+                                    },
+                                    'widget': 'single_text'
+                                }) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_row(form.is_online, {
+                                    'label': 'Session En Ligne ? ',
+                                    'attr': {
+                                        'class': 'form-check-input',
+                                        'data-bs-toggle': 'collapse',
+                                        'data-bs-target': '.session-type-fields'
+                                    }
+                                }) }}
+                            </div>
+
+                            <div id="in-person-fields" class="session-type-fields collapse {% if not form.vars.value.is_online %}show{% endif %}">
+                                {{ form_row(form.salle, {
+                                    'label': 'Salle',
+                                    'attr': {
+                                        'placeholder': 'Entrez le numéro de la salle',
+                                        'class': 'form-control'
+                                    }
+                                }) }}
+                            </div>
+
+                            <div id="online-fields" class="session-type-fields collapse {% if form.vars.value.is_online %}show{% endif %}">
+                                {{ form_row(form.link, {
+                                    'label': 'Online Meeting Link',
+                                    'attr': {
+                                        'placeholder': 'Will be auto-generated if left blank',
+                                        'class': 'form-control'
+                                    },
+                                    'required': false
+                                }) }}
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                <a href="{{ path('app_session_index', {'formation_id': formation.id}) }}" 
+                                   class="btn btn-secondary me-md-2">
+                                    <i class="fas fa-arrow-left me-1"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Créer Session
+                                </button>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isOnlineCheckbox = document.querySelector('#{{ form.is_online.vars.id }}');
+            const onlineFields = document.getElementById('online-fields');
+            const inPersonFields = document.getElementById('in-person-fields');
+
+            function toggleFields() {
+                if (isOnlineCheckbox.checked) {
+                    onlineFields.classList.add('show');
+                    inPersonFields.classList.remove('show');
+                } else {
+                    onlineFields.classList.remove('show');
+                    inPersonFields.classList.add('show');
+                }
+            }
+
+            isOnlineCheckbox.addEventListener('change', toggleFields);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {%set errors = app.flashes('error')%}
+    {%for e in errors%}
+    <script>
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '{{ e|e("js") }}',
+        confirmButtonColor: '#d33'
+      });
+    </script>
+    {%endfor%}
+{% endblock %}

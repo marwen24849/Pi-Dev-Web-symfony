@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Formation;
 
 #[ORM\Entity]
@@ -19,13 +19,19 @@ class Session
     private Formation $formation_id;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $salle;
-
+    #[Assert\NotBlank(message: "Le champ salle est obligatoire.")]
+    #[Assert\Regex(
+        pattern: '/^[1-9]\d*$/',
+        message: "La salle doit être un nombre entier positif."
+    )]
+    private ?string $salle = null;
+    
     #[ORM\Column(type: "date")]
     private \DateTimeInterface $date;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $link;
+    private ?string $link = null;
+
 
     #[ORM\Column(type: "boolean")]
     private bool $is_online;

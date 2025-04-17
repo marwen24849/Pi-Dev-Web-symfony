@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Formations{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0 text-white">  
+                            <i class="fas fa-chalkboard-teacher me-2"></i> Liste des Formations
+                        </h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Search Bar -->
+                    <div class="mb-3">
+                        <label for="searchFormation" class="form-label">Rechercher par Titre</label>
+                        <div class="input-group">
+                            <input type="text" id="searchFormation" class="form-control" placeholder="Enter a Program Title..." aria-label="Search Formations" value="{{ app.request.get('search') }}">
+                            <button class="btn btn-outline-primary" type="submit">
+                                <i class="fas fa-search"></i> Rechercher
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Table for displaying the formations -->
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Description</th>
+                                    <th>Durée</th>
+                                    <th>Capacité</th>
+                                    <th>Actions</th>
+                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for formation in formations %}
+                                    <tr>
+                                        <td>{{ formation.title }}</td>
+                                        <td>{{ formation.description }}</td>
+                                        <td>{{ formation.duration }} Jours</td>
+                                        <td>{{ formation.capacity }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                               <a href="{{ path('app_formation_enroll', {'id': formation.id}) }}" class="btn btn-sm btn-success" title="Enroll">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center text-danger">Aucune formation trouvée</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Check if there are any flash messages and display them using SweetAlert #}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {# Check for success messages #}
+    {% set successMessages = app.flashes('success') %}
+    {% for message in successMessages %}
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ message|e("js") }}',
+                confirmButtonColor: '#4CAF50'
+            });
+        </script>
+    {% endfor %}
+
+    {# Check for info messages (already enrolled) #}
+    {% set infoMessages = app.flashes('info') %}
+    {% for message in infoMessages %}
+        <script>
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: '{{ message|e("js") }}',
+                confirmButtonColor: '#17a2b8'
+            });
+        </script>
+    {% endfor %}
+{% endblock %}
