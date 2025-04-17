@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250401173248 extends AbstractMigration
+final class Version20250417082405 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -66,7 +66,7 @@ final class Version20250401173248 extends AbstractMigration
             CREATE TABLE response (id VARCHAR(255) NOT NULL, quiz_id BIGINT DEFAULT NULL, resultat_id BIGINT DEFAULT NULL, user_id BIGINT DEFAULT NULL, INDEX IDX_3E7B0BFB853CD175 (quiz_id), INDEX IDX_3E7B0BFBD233E95C (resultat_id), INDEX IDX_3E7B0BFBA76ED395 (user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE TABLE response_responses (id INT NOT NULL, response_id VARCHAR(255) DEFAULT NULL, answer VARCHAR(255) NOT NULL, question VARCHAR(255) NOT NULL, INDEX IDX_1F5C84F3FBF32840 (response_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
+            CREATE TABLE response_responses (id INT AUTO_INCREMENT NOT NULL, response_id VARCHAR(255) DEFAULT NULL, answer VARCHAR(255) NOT NULL, question VARCHAR(255) NOT NULL, INDEX IDX_1F5C84F3FBF32840 (response_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
         SQL);
         $this->addSql(<<<'SQL'
             CREATE TABLE resultat (id BIGINT AUTO_INCREMENT NOT NULL, score INT NOT NULL, percentage DOUBLE PRECISION NOT NULL, resultat INT NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB

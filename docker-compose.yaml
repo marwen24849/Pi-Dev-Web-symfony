@@ -11,7 +11,7 @@ services:
   php:
     build: .
     environment:
-      - DATABASE_URL="mysql://root:root@mysql:3306/SGRH1?serverVersion=8.0.27&charset=utf8mb4"
+      - DATABASE_URL=mysql://root:root@mysql:3306/SGRH1?serverVersion=8.0.27&charset=utf8mb4
     volumes:
       - ./:/code
   mysql:
@@ -31,6 +31,7 @@ services:
       - 8081:8080
     depends_on:
       - mysql
+
 networks:
   default:
     name: shared

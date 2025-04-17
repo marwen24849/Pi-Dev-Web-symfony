@@ -6,6 +6,5 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 # Installe Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN wget https://get.symfony.com/cli/installer -O - | sh && \
-    mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+
 
