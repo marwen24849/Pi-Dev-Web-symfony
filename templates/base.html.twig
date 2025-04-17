@@ -104,13 +104,13 @@
                             <div class="collapse" id="base">
                                 <ul class="nav nav-collapse">
                                     <li>
-                                        <a href="add-question.html">
+                                        <a href="{{ path('app_question_new') }}">
                                             <i class="fas fa-plus-circle"></i>
                                             <span class="sub-item">Ajouter Question</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="list-questions.html">
+                                        <a href="{{ path('app_question_index')}}" >
                                             <i class="fas fa-list"></i>
                                             <span class="sub-item">Liste Questions</span>
                                         </a>
@@ -121,19 +121,21 @@
                         <li class="nav-item">
                             <a data-bs-toggle="collapse" href="#sidebarLayouts">
                                 <i class="fas fa-th-list"></i>
-                                <p>Sidebar Layouts</p>
+                                <p>Gestion Quiz</p>
                                 <span class="caret"></span>
                             </a>
                             <div class="collapse" id="sidebarLayouts">
                                 <ul class="nav nav-collapse">
                                     <li>
-                                        <a href="sidebar-style-2.html">
-                                            <span class="sub-item">Sidebar Style 2</span>
+                                        <a href="{{ path('app_quiz_new') }}">
+                                            <i class="fas fa-pen-alt"></i>
+                                            <span class="sub-item">Ajouter Quiz</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="icon-menu.html">
-                                            <span class="sub-item">Icon Menu</span>
+                                        <a href="{{ path('app_quiz_index') }}">
+                                            <i class="fas fa-th-list"></i>
+                                            <span class="sub-item">Liste Quiz</span>
                                         </a>
                                     </li>
                                 </ul>
