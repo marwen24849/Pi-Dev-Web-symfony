@@ -29,8 +29,8 @@ class QuestionType extends AbstractType
                     'Moyen' => 'Moyen',
                     'Difficile' => 'Difficile',
                 ],
-                'expanded' => false, // Utilise un select
-                'multiple' => false, // Une seule valeur sélectionnable
+                'expanded' => false,
+                'multiple' => false,
                 'attr' => ['class' => 'form-control']
             ])
             ->add('option1', TextType::class, [
