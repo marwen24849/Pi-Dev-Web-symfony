@@ -23,3 +23,11 @@ services:
 
     # add more Service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Service\GoogleCalendarService:
+        arguments:
+            $googleClientId: '%env(GOOGLE_CLIENT_ID)%'
+            $googleClientSecret: '%env(GOOGLE_CLIENT_SECRET)%'
+            $googleRedirectUri: '%env(GOOGLE_REDIRECT_URI)%'
+            $requestStack: '@request_stack'
+            $router: '@router'
+            $logger: '@logger'

@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Equipe{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card shadow-lg border-0">
+            {# START the form wrapper HERE, before the card content that needs saving #}
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+            <!-- Modified Header -->
+            <div class="card-header bg-white text-dark py-3 d-flex justify-content-between align-items-center border-bottom">
+                <h3 class="card-title mb-0">Edit Team</h3>
+                <a href="{{ path('app_equipe_index') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+
+            <div class="card-body p-4">
+                {# INCLUDE the modified _form.html.twig HERE - it now only renders fields #}
+                {{ include('equipe/_form.html.twig') }}
+            </div>
+
+            <!-- Card Action Section - Contains ONLY the submit button for THIS form -->
+            <div class="card-action p-3 border-top bg-light">
+                {# Removed the row structure here, place button directly or adjust as needed #}
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+
+                {# You might place the back button here too if desired #}
+                {# <a href="{{ path('app_equipe_index') }}" class="btn btn-link">Cancel</a> #}
+            </div>
+
+            {# Render hidden fields (like _token) and CLOSE the form wrapper HERE #}
+            {{ form_rest(form) }} {# Crucial for hidden fields and CSRF #}
+            {{ form_end(form, {'render_rest': false}) }} {# Close form #}
+
+            {# --- EDIT FORM ENDS HERE --- #}
+
+        </div> {# End card #}
+
+        {# --- DELETE FORM SECTION (Separate) --- #}
+        {# Optionally, place the delete button outside the main card or in a separate footer #}
+        {# OR, style it to appear alongside, e.g., in another card/div below #}
+        <div class="mt-3 text-end"> {# Example: Place delete button below the card #}
+            {{ include('equipe/_delete_form.html.twig') }}
+        </div>
+
+        {# Alternative: If you want delete inside a visually similar footer but separate form #}
+        {#
+        <div class="card shadow-lg border-0 mt-3">
+             <div class="card-body p-3 text-end">
+                 {{ include('equipe/_delete_form.html.twig') }}
+             </div>
+        </div>
+        #}
+
+    </div> {# End container #}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Styles remain the same */
+        .card {
+            border-radius: 10px;
+            overflow: hidden; /* Keep this */
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0 !important; /* Keep this */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        /* Ensure card-action also respects bottom radius if it's the last element */
+        .card-action:last-child {
+            border-radius: 0 0 10px 10px !important; /* Adjust if needed */
+        }
+        .form-control {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 0.75rem 1rem;
+        }
+        .btn-outline-secondary {
+            border-color: #dee2e6;
+        }
+        /* Styles for form groups if needed */
+        .form-group {
+            margin-bottom: 1rem; /* Add spacing between form groups */
+        }
+        /* Inline form label alignment (adjust if using Bootstrap 5 grid instead) */
+        .form-inline .col-form-label {
+            justify-content: flex-end;
+            text-align: right;
+            padding-right: 15px; /* Align label nicely */
+        }
+        .form-inline .col-md-9 {
+            padding-left: 0; /* Remove default padding if needed */
+        }
+
+    </style>
+{% endblock %}

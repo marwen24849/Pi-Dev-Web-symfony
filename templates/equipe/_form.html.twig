@@ -1,0 +1,35 @@
+{# templates/equipe/_form.html.twig #}
+<div class="row">
+    {# --- Team Name Field --- #}
+    <div class="col-md-6">
+        <div class="mb-3">
+            {{ form_label(form.name, "Team Name", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.name, {'attr': {'class': 'form-control' ~ (form.name.vars.errors|length > 0 ? ' is-invalid' : '') }}) }}
+            <div class="invalid-feedback">
+                {{ form_errors(form.name) }}
+            </div>
+        </div>
+    </div>
+
+    {# --- Members (Max Count) Field --- #}
+    <div class="col-md-6">
+        <div class="mb-3">
+            {{ form_label(form.members, "Max Members Allowed", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.members, {'attr': {'class': 'form-control' ~ (form.members.vars.errors|length > 0 ? ' is-invalid' : '') }}) }}
+            <div class="invalid-feedback">
+                {{ form_errors(form.members) }}
+            </div>
+        </div>
+    </div>
+
+    {# --- Department Field --- #}
+    <div class="col-md-12">
+        <div class="mb-3">
+            {{ form_label(form.department, "Department", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.department, {'attr': {'class': 'form-select' ~ (form.department.vars.errors|length > 0 ? ' is-invalid' : '') }}) }}
+            <div class="invalid-feedback">
+                {{ form_errors(form.department) }}
+            </div>
+        </div>
+    </div>
+</div>

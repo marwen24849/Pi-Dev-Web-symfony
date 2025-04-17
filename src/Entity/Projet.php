@@ -2,90 +2,117 @@
 
 namespace App\Entity;
 
+use App\Repository\ProjetRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Equipe;
 
-
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ProjetRepository::class)]
 class Projet
 {
-
     #[ORM\Id]
-    #[ORM\Column(type: "bigint")]
     #[ORM\GeneratedValue]
+    #[ORM\Column(type: Types::BIGINT)]
     private ?int $id = null;
 
-    #[ORM\Column(type: "string", length: 255)]
-    private string $nom_projet;
+    #[ORM\Column(name: "nom_projet", type: Types::STRING, length: 255)]
+    #[Assert\NotBlank(message: "Le nom du projet est obligatoire.")]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z][A-Za-z0-9_]*$/',
+        message: "Le nom du projet doit commencer par une lettre et ne peut contenir que des lettres, chiffres et le caractère souligné."
+    )]
+    private ?string $nomProjet = null;
 
-    #[ORM\Column(type: "string", length: 255)]
-    private string $equipe;
+    #[ORM\OneToOne(targetEntity: Equipe::class)]
+    #[ORM\JoinColumn(name: "equipe_id", referencedColumnName: "id", nullable: true, unique: true)]
+    private ?Equipe $equipe = null;
 
-    #[ORM\Column(type: "string", length: 255)]
-    private string $responsable;
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "Le responsable est obligatoire.")]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z][A-Za-z]*$/',
+        message: "Le nom du responsable doit commencer par une lettre et ne contenir que des lettres."
+    )]
+    private ?string $responsable = null;
 
-    #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $date_debut;
+    #[ORM\Column(name: "date_debut", type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Assert\NotBlank(message: "La date de début est obligatoire.")]
+    #[Assert\GreaterThanOrEqual("today", message: "La date de début ne peut être antérieure à aujourd'hui.")]
+    private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $date_fin;
+    #[ORM\Column(name: "date_fin", type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Assert\NotBlank(message: "La date de fin est obligatoire.")]
+    #[Assert\GreaterThan(
+        propertyPath: "dateDebut",
+        message: "La date de fin doit être postérieure à la date de début."
+    )]
+    private ?\DateTimeInterface $dateFin = null;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId($value)
+    public function getNomProjet(): ?string
     {
-        $this->id = $value;
+        return $this->nomProjet;
     }
 
-    public function getNom_projet()
+    public function setNomProjet(?string $nomProjet): static
     {
-        return $this->nom_projet;
+        $this->nomProjet = $nomProjet;
+        return $this;
     }
 
-    public function setNom_projet($value)
-    {
-        $this->nom_projet = $value;
-    }
-
-    public function getEquipe()
+    public function getEquipe(): ?Equipe
     {
         return $this->equipe;
     }
 
-    public function setEquipe($value)
+    public function setEquipe(?Equipe $equipe): static
     {
-        $this->equipe = $value;
+        $this->equipe = $equipe;
+        return $this;
     }
 
-    public function getResponsable()
+    public function getResponsable(): ?string
     {
         return $this->responsable;
     }
 
-    public function setResponsable($value)
+    public function setResponsable(?string $responsable): static
     {
-        $this->responsable = $value;
+        $this->responsable = $responsable;
+        return $this;
     }
 
-    public function getDate_debut()
+    public function getDateDebut(): ?\DateTimeInterface
     {
-        return $this->date_debut;
+        return $this->dateDebut;
     }
 
-    public function setDate_debut($value)
+    public function setDateDebut(?\DateTimeInterface $dateDebut): static
     {
-        $this->date_debut = $value;
+        $this->dateDebut = $dateDebut;
+        return $this;
     }
 
-    public function getDate_fin()
+    public function getDateFin(): ?\DateTimeInterface
     {
-        return $this->date_fin;
+        return $this->dateFin;
     }
 
-    public function setDate_fin($value)
+    public function setDateFin(?\DateTimeInterface $dateFin): static
     {
-        $this->date_fin = $value;
+        $this->dateFin = $dateFin;
+        return $this;
+    }
+
+    public function isInProgress(): bool
+    {
+        $now = new \DateTime();
+        return ($this->dateDebut !== null && $this->dateDebut <= $now) &&
+            ($this->dateFin === null || ($this->dateFin instanceof \DateTimeInterface && $this->dateFin >= $now));
     }
 }
