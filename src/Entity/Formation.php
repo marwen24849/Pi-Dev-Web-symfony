@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use Doctrine\Common\Collections\Collection;
 use App\Entity\Formation_user;
@@ -17,15 +18,22 @@ class Formation
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "Title is required.")]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z_]+$/',
+        message: "Title can only contain letters and underscores (_)."
+    )]
     private string $title;
 
     #[ORM\Column(type: "text")]
     private string $description;
 
     #[ORM\Column(type: "integer")]
+    #[Assert\Positive(message: "Duration must be a positive integer.")]
     private int $duration;
 
     #[ORM\Column(type: "integer")]
+    #[Assert\Positive(message: "Capacity must be a positive integer.")]
     private int $capacity;
 
     public function getId()
