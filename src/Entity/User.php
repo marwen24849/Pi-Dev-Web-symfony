@@ -3,15 +3,17 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
 use App\Entity\Equipe;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\Reclamation;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity]
-class User
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-
     #[ORM\Id]
     #[ORM\Column(type: "bigint")]
     #[ORM\GeneratedValue]
@@ -60,22 +62,22 @@ class User
         return $this;
     }
 
-    public function getFirst_name()
+    public function getFirstName()
     {
         return $this->first_name;
     }
 
-    public function setFirst_name($value)
+    public function setFirstName($value)
     {
         $this->first_name = $value;
     }
 
-    public function getLast_name()
+    public function getLastName()
     {
         return $this->last_name;
     }
 
-    public function setLast_name($value)
+    public function setLastName($value)
     {
         $this->last_name = $value;
     }
@@ -90,7 +92,7 @@ class User
         $this->email = $value;
     }
 
-    public function getPassword()
+    public function getPassword() : ?string 
     {
         return $this->password;
     }
@@ -110,14 +112,37 @@ class User
         $this->role = $value;
     }
 
-    public function getSolde_conge()
+    public function getSoldeConge()
     {
         return $this->solde_conge;
     }
 
-    public function setSolde_conge($value)
+    public function setSoldeConge($value)
     {
         $this->solde_conge = $value;
+    }
+
+    // Required by UserInterface
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+    // For backwards compatibility with Symfony versions <5.3
+    public function getUsername(): string
+    {
+        return $this->email;
+    }
+
+    public function getRoles(): array
+    {
+        // Return the role as an array.
+        return [$this->role];
+    }
+
+    public function eraseCredentials()
+    {
+        // If you store any temporary sensitive data, clear it here.
     }
 
     #[ORM\OneToMany(mappedBy: "user_id", targetEntity: Demande_conge::class)]
@@ -146,4 +171,6 @@ class User
 
     #[ORM\OneToMany(mappedBy: "user_id", targetEntity: Response::class)]
     private Collection $responses;
+
+    
 }

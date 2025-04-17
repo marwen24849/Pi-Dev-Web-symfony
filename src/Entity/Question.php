@@ -43,7 +43,7 @@ class Question
     #[ORM\Column(type: "string", length: 255)]
     private string $right_answer;
 
-    public function getId()
+    public  function getId(): ?int
     {
         return $this->id;
     }

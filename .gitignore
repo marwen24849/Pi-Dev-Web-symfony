@@ -25,3 +25,5 @@
 ###< symfony/asset-mapper ###
 # Ignorer le client_secret.json
 /client_secret.json
+.env
+

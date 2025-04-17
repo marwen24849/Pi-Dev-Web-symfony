@@ -19,10 +19,14 @@ final class QuestionController extends AbstractController
         $questions = $entityManager
             ->getRepository(Question::class)
             ->findAll();
+        $categories = array_unique(array_map(fn($q) => $q->getCategory(), $questions));
 
         return $this->render('question/index.html.twig', [
             'questions' => $questions,
+            'categories' => $categories,
         ]);
+
+
     }
 
     #[Route('/new', name: 'app_question_new', methods: ['GET', 'POST'])]
@@ -61,7 +65,6 @@ final class QuestionController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
             return $this->redirectToRoute('app_question_index', [], Response::HTTP_SEE_OTHER);
         }
 
