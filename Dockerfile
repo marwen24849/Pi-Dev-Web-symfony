@@ -1,21 +1,11 @@
-FROM php:8.2-cli
+FROM php:8.2-fpm-alpine
 
-# Installer quelques dépendances nécessaires
-RUN apt-get update && apt-get install -y git unzip curl zip libzip-dev libonig-dev libpng-dev && \
-    docker-php-ext-install pdo pdo_mysql zip mbstring
+# Installe les extensions PHP nécessaires
+RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Installer Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+# Installe Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copier le code
-WORKDIR /app
-COPY . .
+RUN wget https://get.symfony.com/cli/installer -O - | sh && \
+    mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
 
-# Installer les dépendances Symfony
-RUN composer install
-
-# Exposer le port 8000
-EXPOSE 8000
-
-# Lancer le serveur Symfony intégré
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
