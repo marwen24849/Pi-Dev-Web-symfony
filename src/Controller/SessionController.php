@@ -78,6 +78,7 @@ final class SessionController extends AbstractController
                 'formation' => $formation,
             ]);
         }
+        
 
         // Conflict check: same salle and date
         if (!$isOnline) {
@@ -185,7 +186,7 @@ public function edit(
 
         // Validate salle number
         if (!$isOnline && (!is_numeric($salle) || (int)$salle <= 0)) {
-            $this->addFlash('error', 'The room must be a positive integer.');
+            $this->addFlash('error', 'La salle doit être un nombre entier positif.');
             return $this->render('session/edit.html.twig', [
                 'session' => $session,
                 'form' => $form->createView(),
@@ -207,7 +208,7 @@ public function edit(
                 ->getSingleScalarResult();
 
             if ($conflict > 0) {
-                $this->addFlash('error', 'A session with the same date and room already exists.');
+                $this->addFlash('error', 'Une session avec la même date et salle existe déjà.');
                 return $this->render('session/edit.html.twig', [
                     'session' => $session,
                     'form' => $form->createView(),

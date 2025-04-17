@@ -8,12 +8,9 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="card-title mb-0 text-white">  <!-- Added text-white here -->
+                        <h4 class="card-title mb-0 text-white">  
                             <i class="fas fa-chalkboard-teacher me-2"></i> Liste des Formations
                         </h4>
-                        <a href="{{ path('app_formation_new') }}" class="btn btn-light">
-                            <i class="fas fa-plus"></i> Nouvelle Formation
-                        </a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -38,7 +35,7 @@
                                     <th>Durée</th>
                                     <th>Capacité</th>
                                     <th>Actions</th>
-                                    <th>Sessions</th>
+                                  
                                 </tr>
                             </thead>
                             <tbody>
@@ -46,31 +43,14 @@
                                     <tr>
                                         <td>{{ formation.title }}</td>
                                         <td>{{ formation.description }}</td>
-                                        <td>{{ formation.duration }} sessions</td>
+                                        <td>{{ formation.duration }} Jours</td>
                                         <td>{{ formation.capacity }}</td>
-                                        
                                         <td>
                                             <div class="btn-group" role="group">
-                                                
-                                                <a href="{{ path('app_formation_edit', {'id': formation.id}) }}"
-                                                   class="btn btn-sm btn-primary" title="Modifier">
-                                                    <i class="fas fa-edit"></i>
+                                               <a href="{{ path('app_formation_enroll', {'id': formation.id}) }}" class="btn btn-sm btn-success" title="Enroll">
+                                                    <i class="fas fa-user-plus"></i>
                                                 </a>
-                                                <form method="post" action="{{ path('app_formation_delete', {'id': formation.id}) }}"
-                                                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette formation ?');" style="display:inline;">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ formation.id) }}">
-                                                    <button class="btn btn-sm btn-danger" title="Supprimer">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
-                                                </form>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <a href="{{ path('app_session_index', {'formation_id': formation.id}) }}"
-                                                class="btn btn-sm btn-outline-info">
-                                                    <i class="fas fa-calendar-alt"></i> Sessions
-                                                </a>
-
                                         </td>
                                     </tr>
                                 {% else %}
@@ -85,4 +65,33 @@
             </div>
         </div>
     </div>
+
+    {# Check if there are any flash messages and display them using SweetAlert #}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {# Check for success messages #}
+    {% set successMessages = app.flashes('success') %}
+    {% for message in successMessages %}
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ message|e("js") }}',
+                confirmButtonColor: '#4CAF50'
+            });
+        </script>
+    {% endfor %}
+
+    {# Check for info messages (already enrolled) #}
+    {% set infoMessages = app.flashes('info') %}
+    {% for message in infoMessages %}
+        <script>
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: '{{ message|e("js") }}',
+                confirmButtonColor: '#17a2b8'
+            });
+        </script>
+    {% endfor %}
 {% endblock %}

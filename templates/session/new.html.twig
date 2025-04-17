@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Session for {{ formation.title }}{% endblock %}
+{% block title %}Nouvelle Session pour {{ formation.title }}{% endblock %}
 
 {% block body %}
     <div class="container">
@@ -10,7 +10,7 @@
                     <div class="card-header bg-primary text-white">
                         <h4 class="mb-0">
                             <i class="fas fa-calendar-plus me-2"></i>
-                            New Session for {{ formation.title }}
+                            Nouvelle Session pour {{ formation.title }}
                         </h4>
                     </div>
                     <div class="card-body">
@@ -27,7 +27,7 @@
 
                             <div class="mb-3">
                                 {{ form_row(form.is_online, {
-                                    'label': 'Online Session?',
+                                    'label': 'Session En Ligne ? ',
                                     'attr': {
                                         'class': 'form-check-input',
                                         'data-bs-toggle': 'collapse',
@@ -38,9 +38,9 @@
 
                             <div id="in-person-fields" class="session-type-fields collapse {% if not form.vars.value.is_online %}show{% endif %}">
                                 {{ form_row(form.salle, {
-                                    'label': 'Room Number',
+                                    'label': 'Salle',
                                     'attr': {
-                                        'placeholder': 'Enter room number for in-person session',
+                                        'placeholder': 'Entrez le numéro de la salle',
                                         'class': 'form-control'
                                     }
                                 }) }}
@@ -60,10 +60,10 @@
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                                 <a href="{{ path('app_session_index', {'formation_id': formation.id}) }}" 
                                    class="btn btn-secondary me-md-2">
-                                    <i class="fas fa-arrow-left me-1"></i> Cancel
+                                    <i class="fas fa-arrow-left me-1"></i> Annuler
                                 </a>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-1"></i> Create Session
+                                    <i class="fas fa-save me-1"></i> Créer Session
                                 </button>
                             </div>
                         {{ form_end(form) }}
@@ -92,4 +92,16 @@
             isOnlineCheckbox.addEventListener('change', toggleFields);
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {%set errors = app.flashes('error')%}
+    {%for e in errors%}
+    <script>
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '{{ e|e("js") }}',
+        confirmButtonColor: '#d33'
+      });
+    </script>
+    {%endfor%}
 {% endblock %}

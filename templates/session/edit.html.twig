@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Session for {{ formation.title }}{% endblock %}
+{% block title %}Modifier Session pour {{ formation.title }}{% endblock %}
 
 {% block body %}
     <div class="container">
@@ -14,7 +14,7 @@
                                 Edit Session: {{ formation.title }}
                             </h3>
                             <div class="badge bg-white text-primary fs-6">
-                                {{ session.is_online ? 'Online' : 'In-Person' }}
+                                {{ session.is_online ? 'En-Ligne' : 'Sur-Place' }}
                             </div>
                         </div>
                     </div>
@@ -34,7 +34,7 @@
                                         },
                                         'widget': 'single_text'
                                     }) }}
-                                    <label for="{{ form.date.vars.id }}">Session Date</label>
+                                    <label for="{{ form.date.vars.id }}">Date De Session</label>
                                 </div>
                                 
                                 <div class="form-check form-switch mb-4">
@@ -47,7 +47,7 @@
                                         }
                                     }) }}
                                     <label class="form-check-label" for="{{ form.is_online.vars.id }}">
-                                        Online Session?
+                                         Session En-Ligne ?
                                     </label>
                                 </div>
                             </div>
@@ -59,10 +59,10 @@
                                         {{ form_widget(form.salle, {
                                             'attr': {
                                                 'class': 'form-control',
-                                                'placeholder': 'Room number'
+                                                'placeholder': 'Salle'
                                             }
                                         }) }}
-                                        <label for="{{ form.salle.vars.id }}">Room Number</label>
+                                        <label for="{{ form.salle.vars.id }}">Salle</label>
                                     </div>
                                 </div>
                                 
@@ -71,11 +71,11 @@
                                         {{ form_widget(form.link, {
                                             'attr': {
                                                 'class': 'form-control',
-                                                'placeholder': 'Meeting link'
+                                                'placeholder': 'Lien Meet'
                                             }
                                         }) }}
-                                        <label for="{{ form.link.vars.id }}">Meeting Link</label>
-                                        <small class="text-muted">Leave blank to auto-generate</small>
+                                        <label for="{{ form.link.vars.id }}">Lien Meet</label>
+                                        <small class="text-muted">Laissez vide pour générer automatiquement</small>
                                     </div>
                                 </div>
                             </div>
@@ -84,14 +84,14 @@
                         <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
                             <a href="{{ path('app_session_index', {'formation_id': formation.id}) }}" 
                                class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i> Cancel
+                                <i class="fas fa-arrow-left me-2"></i> Annuler
                             </a>
                             
                             <div>
                                 
                                 
                                 <button type="submit" class="btn btn-primary ms-2">
-                                    <i class="fas fa-save me-2"></i> Save Changes
+                                    <i class="fas fa-save me-2"></i> Entregistrer
                                 </button>
                             </div>
                         </div>
@@ -126,6 +126,18 @@
             isOnlineCheckbox.addEventListener('change', toggleFields);
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {%set errors = app.flashes('error')%}
+    {%for e in errors%}
+    <script>
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '{{ e|e("js") }}',
+        confirmButtonColor: '#d33'
+      });
+    </script>
+    {%endfor%}
 
     <style>
         .card-header.bg-gradient-primary {
