@@ -145,8 +145,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // If you store any temporary sensitive data, clear it here.
     }
 
-    #[ORM\OneToMany(mappedBy: "user_id", targetEntity: Demande_conge::class)]
-    private Collection $demande_conges;
+    #[ORM\OneToMany(mappedBy: "user_id", targetEntity: DemandeConge::class)]
+    private Collection $demandeConges;
 
     #[ORM\OneToMany(mappedBy: "user_id", targetEntity: Demande_mobilite::class)]
     private Collection $demande_mobilites;

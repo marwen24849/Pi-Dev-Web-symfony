@@ -15,9 +15,9 @@ class Conge
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
-        #[ORM\ManyToOne(targetEntity: Demande_conge::class, inversedBy: "conges")]
+        #[ORM\ManyToOne(targetEntity: DemandeConge::class, inversedBy: "conges")]
     #[ORM\JoinColumn(name: 'conge_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private Demande_conge $conge_id;
+    private DemandeConge $conge_id;
 
         #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "conges")]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
