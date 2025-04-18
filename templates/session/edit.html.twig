@@ -28,13 +28,14 @@
                                 <div class="form-floating mb-4">
                                     {{ form_widget(form.date, {
                                         'attr': {
-                                            'class': 'form-control',
+                                            'class': 'form-control' ~ (form.date.vars.errors|length > 0 ? ' is-invalid' : ''),
                                             'min': "now"|date("Y-m-d"),
                                             'placeholder': 'Session date'
                                         },
                                         'widget': 'single_text'
                                     }) }}
                                     <label for="{{ form.date.vars.id }}">Date De Session</label>
+                                    {{ form_errors(form.date) }}
                                 </div>
                                 
                                 <div class="form-check form-switch mb-4">
@@ -49,6 +50,7 @@
                                     <label class="form-check-label" for="{{ form.is_online.vars.id }}">
                                          Session En-Ligne ?
                                     </label>
+                                    {{ form_errors(form.is_online) }}
                                 </div>
                             </div>
                             
@@ -58,11 +60,12 @@
                                     <div class="form-floating mb-4">
                                         {{ form_widget(form.salle, {
                                             'attr': {
-                                                'class': 'form-control',
+                                                'class': 'form-control' ~ (form.salle.vars.errors|length > 0 ? ' is-invalid' : ''),
                                                 'placeholder': 'Salle'
                                             }
                                         }) }}
                                         <label for="{{ form.salle.vars.id }}">Salle</label>
+                                        {{ form_errors(form.salle) }}
                                     </div>
                                 </div>
                                 
@@ -70,12 +73,13 @@
                                     <div class="form-floating mb-4">
                                         {{ form_widget(form.link, {
                                             'attr': {
-                                                'class': 'form-control',
+                                                'class': 'form-control' ~ (form.link.vars.errors|length > 0 ? ' is-invalid' : ''),
                                                 'placeholder': 'Lien Meet'
                                             }
                                         }) }}
                                         <label for="{{ form.link.vars.id }}">Lien Meet</label>
                                         <small class="text-muted">Laissez vide pour générer automatiquement</small>
+                                        {{ form_errors(form.link) }}
                                     </div>
                                 </div>
                             </div>
@@ -88,8 +92,6 @@
                             </a>
                             
                             <div>
-                                
-                                
                                 <button type="submit" class="btn btn-primary ms-2">
                                     <i class="fas fa-save me-2"></i> Entregistrer
                                 </button>
@@ -126,9 +128,10 @@
             isOnlineCheckbox.addEventListener('change', toggleFields);
         });
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    {%set errors = app.flashes('error')%}
-    {%for e in errors%}
+    {% set errors = app.flashes('error') %}
+    {% for e in errors %}
     <script>
       Swal.fire({
         icon: 'error',
@@ -137,7 +140,7 @@
         confirmButtonColor: '#d33'
       });
     </script>
-    {%endfor%}
+    {% endfor %}
 
     <style>
         .card-header.bg-gradient-primary {

@@ -18,16 +18,40 @@ use App\Entity\Formation_user;
 final class FormationUserController extends AbstractController
 {
     #[Route(name: 'app_formation_user', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
-    {
-        $formations = $entityManager
-            ->getRepository(Formation::class)
-            ->findAll();
+public function index(Request $request, EntityManagerInterface $entityManager): Response
+{
+    // Retrieve the search query from the request
+    $search = $request->query->get('search');
 
-        return $this->render('formation/front/index.html.twig', [
-            'formations' => $formations,
-        ]);
+    // Build the query to fetch formations
+    $queryBuilder = $entityManager->getRepository(Formation::class)->createQueryBuilder('f');
+
+    // If there's a search query, filter by title
+    if ($search) {
+        $queryBuilder->where('f.title LIKE :search')
+                     ->setParameter('search', '%' . $search . '%');
     }
+
+    // Execute the query and get the results
+    $formations = $queryBuilder->getQuery()->getResult();
+
+    // Calculate spots left for each formation
+    foreach ($formations as $formation) {
+        // Get the number of users enrolled in the current formation
+        $enrolledCount = $entityManager->getRepository(Formation_user::class)
+            ->count(['formation_id' => $formation]);
+
+        // Calculate spots left
+        $formation->spotsLeft = $formation->getCapacity() - $enrolledCount;
+    }
+
+    return $this->render('formation/front/index.html.twig', [
+        'formations' => $formations,
+        'search' => $search,  // Pass the search query to the view to retain it in the input field
+    ]);
+}
+
+
 
     #[Route('/enroll/{id}', name: 'app_formation_enroll', methods: ['GET'])]
 public function enroll(
