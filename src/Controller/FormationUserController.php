@@ -53,6 +53,7 @@ public function index(Request $request, EntityManagerInterface $entityManager): 
 
 
 
+
     #[Route('/enroll/{id}', name: 'app_formation_enroll', methods: ['GET'])]
 public function enroll(
     Formation $formation,
