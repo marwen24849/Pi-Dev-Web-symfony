@@ -15,9 +15,9 @@ class ZoomService
     public function __construct(HttpClientInterface $httpClient, ParameterBagInterface $params)
     {
         $this->httpClient = $httpClient;
-        $this->clientId = $params->get('ZOOM_CLIENT_ID');  // Use direct variable name
-        $this->clientSecret = $params->get('ZOOM_CLIENT_SECRET');
-        $this->accountId = $params->get('ZOOM_ACCOUNT_ID');
+        $this->clientId = $_ENV['ZOOM_CLIENT_ID'];  // Use direct variable name
+        $this->clientSecret = $_ENV['ZOOM_CLIENT_SECRET'];
+        $this->accountId = $_ENV['ZOOM_ACCOUNT_ID'];
     }
 
     public function getAccessToken(): string
