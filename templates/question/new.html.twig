@@ -1,112 +1,95 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajouter Question{% endblock %}
+{% block title %}Ajouter une Question{% endblock %}
+
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">Ajouter une Question</div>
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0"><i class="fas fa-question-circle me-2"></i> Ajouter une Question</h4>
                 </div>
                 <div class="card-body">
-                    {{ form_start(form) }}
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
                     <div class="row">
-
+                        <!-- Colonne de gauche -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="question_title" class="form-label">Titre de la Question</label>
-                                {{ form_widget(form.question_title, {
-                                    'attr': {
-                                        'class': 'form-control',
-                                        'placeholder': 'Entrez le titre de la question'
-                                    }
-                                }) }}
+                                <label class="form-label">Titre de la Question</label>
+                                {{ form_widget(form.question_title, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le titre de la question'}}) }}
+                                {% if form_errors(form.question_title) %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.question_title) }}
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <div class="form-group mt-3">
-                                <label for="category" class="form-label">Catégorie</label>
-                                {{ form_widget(form.category, {
-                                    'attr': {
-                                        'class': 'form-control',
-                                        'placeholder': 'Entrez la catégorie'
-                                    }
-                                }) }}
+                                <label class="form-label">Catégorie</label>
+                                {{ form_widget(form.category, {'attr': {'class': 'form-control', 'style': 'text-transform: uppercase;'}}) }}
+                                {% if form_errors(form.category) %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.category) }}
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <div class="form-group mt-3">
-                                <label for="difficultylevel" class="form-label">Niveau de difficulté</label>
-                                {{ form_widget(form.difficultylevel, {
-                                    'attr': {
-                                        'class': 'form-control'
-                                    }
-                                }) }}
+                                <label class="form-label">Niveau de difficulté</label>
+                                {{ form_widget(form.difficultylevel, {'attr': {'class': 'form-control'}}) }}
+                                {% if form_errors(form.difficultylevel) %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.difficultylevel) }}
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <div class="form-group mt-3">
-                                <label for="score" class="form-label">Score</label>
-                                {{ form_widget(form.score, {
-                                    'attr': {
-                                        'class': 'form-control'
-                                    }
-                                }) }}
+                                <label class="form-label">Score</label>
+                                {{ form_widget(form.score, {'attr': {'class': 'form-control'}}) }}
+                                {% if form_errors(form.score) %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.score) }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
 
-                        <!-- Colonne de droite -->
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Choix possibles</label>
-                                <div class="mb-3">
-                                    {{ form_widget(form.option1, {
-                                        'attr': {
-                                            'class': 'form-control',
-                                            'placeholder': 'Option 1'
-                                        }
-                                    }) }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form_widget(form.option2, {
-                                        'attr': {
-                                            'class': 'form-control',
-                                            'placeholder': 'Option 2'
-                                        }
-                                    }) }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form_widget(form.option3, {
-                                        'attr': {
-                                            'class': 'form-control',
-                                            'placeholder': 'Option 3'
-                                        }
-                                    }) }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form_widget(form.option4, {
-                                        'attr': {
-                                            'class': 'form-control',
-                                            'placeholder': 'Option 4'
-                                        }
-                                    }) }}
-                                </div>
+                                {% for i in 1..4 %}
+                                    <div class="mb-3">
+                                        {{ form_widget(attribute(form, 'option' ~ i), {
+                                            'attr': {'class': 'form-control', 'placeholder': 'Option ' ~ i}
+                                        }) }}
+                                        {% if form_errors(attribute(form, 'option' ~ i)) %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form_errors(attribute(form, 'option' ~ i)) }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
                             </div>
 
                             <div class="form-group">
-                                <label for="right_answer" class="form-label">Bonne réponse</label>
-                                {{ form_widget(form.right_answer, {
-                                    'attr': {
-                                        'class': 'form-control'
-                                    }
-                                }) }}
+                                <label class="form-label">Bonne réponse</label>
+                                {{ form_widget(form.right_answer, {'attr': {'class': 'form-control'}}) }}
+                                {% if form_errors(form.right_answer) %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.right_answer) }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
 
                     <div class="row mt-4">
                         <div class="col-md-12 text-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>
-                                Enregistrer
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i> Enregistrer
                             </button>
                         </div>
                     </div>
@@ -116,4 +99,13 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let categoryInput = document.querySelector('[name="{{ form.category.vars.full_name }}"]');
+            categoryInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        });
+    </script>
 {% endblock %}

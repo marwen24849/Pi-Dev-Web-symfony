@@ -5,6 +5,8 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
+
 use App\Entity\Quiz_questions;
 
 #[ORM\Entity]
@@ -17,33 +19,47 @@ class Question
     private ?int $id = null;
 
     #[ORM\Column(type: "integer")]
+    #[Assert\NotBlank(message: "Le score ne peut pas être vide.")]
+    #[Assert\PositiveOrZero(message: "Le score doit être un nombre positif ou zéro.")]
     private int $score;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "La catégorie est obligatoire.")]
+    #[Assert\Length(max: 255, maxMessage: "La catégorie ne peut pas dépasser 255 caractères.")]
     private string $category;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "Le niveau de difficulté est obligatoire.")]
+    #[Assert\Length(max: 255, maxMessage: "Le niveau de difficulté ne peut pas dépasser 255 caractères.")]
     private string $difficultylevel;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "L'option 1 est obligatoire.")]
     private string $option1;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "L'option 2 est obligatoire.")]
     private string $option2;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "L'option 3 est obligatoire.")]
     private string $option3;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "L'option 4 est obligatoire.")]
     private string $option4;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "Le titre de la question est obligatoire.")]
     private string $question_title;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "La bonne réponse est obligatoire.")]
     private string $right_answer;
 
-    public function getId()
+
+
+    public  function getId(): ?int
     {
         return $this->id;
     }

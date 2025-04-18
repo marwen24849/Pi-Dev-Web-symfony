@@ -1,0 +1,71 @@
+<!-- Modal détails Quiz -->
+<div class="modal fade" id="quizDetailsModal{{ quiz.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Détails du Quiz</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Informations de base</h5>
+                        <ul class="list-group mb-4">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Titre:</strong>
+                                <span>{{ quiz.title }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Catégorie:</strong>
+                                <span>{{ quiz.category }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Difficulté:</strong>
+                                <span>{{ quiz.difficultylevel }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>% Réussite requis:</strong>
+                                <span>{{ quiz.minimumSuccessPercentage }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Temps alloué:</strong>
+                                <span>{{ quiz.quizTime }} min</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Statistiques</h5>
+                        <ul class="list-group mb-4">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <strong>Nombre de questions:</strong>
+                                <span>{{ quiz.quiz_questionss|length }}</span>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h5>Questions</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <ul class="list-group" id="detail-questions">
+                                {% if quiz.quiz_questionss is not empty %}
+                                    {% for question in quiz.quiz_questionss %}
+                                        <li class="list-group-item">
+                                            {{ question.questions_id.questionTitle }}
+                                        </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li class="list-group-item text-center text-danger">Aucune question disponible</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>

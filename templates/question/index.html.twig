@@ -3,72 +3,98 @@
 {% block title %}Liste des Questions{% endblock %}
 
 {% block body %}
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title">Liste des Questions</h4>
-                <a href="{{ path('app_question_new') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Nouvelle Question
-                </a>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
- <table id="multi-filter-select" class="display table table-striped table-hover">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Titre</th>
-                            <th>Catégorie</th>
-                            <th>Difficulté</th>
-                            <th>Score</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tfoot>
-                        <tr>
-                            <th>ID</th>
-                            <th>Titre</th>
-                            <th>Catégorie</th>
-                            <th>Difficulté</th>
-                            <th>Score</th>
-                            <th>Actions</th>
-                        </tr>
-                        </tfoot>
-                        <tbody>
-                        {% for question in questions %}
+    <div class="row">
+        <div class="col-12">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label == 'success' ? 'success' : (label == 'error' ? 'danger' : label) }} alert-dismissible fade show mt-3" role="alert">
+                        <i class="fas fa-check-circle me-2"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-question-circle me-2"></i> Liste des Questions
+                        </h4>
+                        <a href="{{ path('app_question_new') }}" class="btn btn-light">
+                            <i class="fas fa-plus"></i> Nouvelle Question
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label for="categoryFilter" class="form-label">Filtrer par catégorie :</label>
+                        <select id="categoryFilter" class="form-select">
+                            <option value="">Toutes</option>
+                            {% for category in categories %}
+                                <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="questionsTable" class="table table-striped align-middle">
+                            <thead class="table-dark">
                             <tr>
-                                <td>{{ question.id }}</td>
-                                <td>{{ question.questionTitle }}</td>
-                                <td>{{ question.category }}</td>
-                                <td>
-                                    <span class="badge
-                                        {% if question.difficultylevel == 'Facile' %}bg-success
-                                        {% elseif question.difficultylevel == 'Moyen' %}bg-warning
-                                        {% else %}bg-danger{% endif %}">
-                                        {{ question.difficultylevel }}
-                                    </span>
-                                </td>
-                                <td>{{ question.score }}</td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a href="{{ path('app_question_show', {'id': question.id}) }}"
-                                           class="btn btn-sm btn-info" title="Voir">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ path('app_question_edit', {'id': question.id}) }}"
-                                           class="btn btn-sm btn-primary" title="Modifier">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </div>
-                                </td>
+                                <th>Titre</th>
+                                <th>Catégorie</th>
+                                <th>Difficulté</th>
+                                <th>Score</th>
+                                <th>Actions</th>
                             </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center">Aucune question trouvée</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="questionList">
+                            {% for question in questions %}
+                                <tr data-category="{{ question.category }}"
+                                    style="cursor: pointer;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#questionDetailsModal{{ question.id }}"
+                                >
+                                    <td>{{ question.questionTitle }}</td>
+                                    <td>{{ question.category }}</td>
+                                    <td>
+                                        <span class="badge
+                                            {% if question.difficultylevel == 'Facile' %} bg-success
+                                            {% elseif question.difficultylevel == 'Moyen' %} bg-warning
+                                            {% else %} bg-danger {% endif %}">
+                                            {{ question.difficultylevel }}
+                                        </span>
+                                    </td>
+                                    <td>{{ question.score }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ path('app_question_edit', {'id': question.id}) }}"
+                                               class="btn btn-sm btn-primary" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="post" action="{{ path('app_question_delete', {'id': question.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce question');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ question.id) }}">
+                                                <button class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% include 'question/ModalDetailsQuestion.html.twig' %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-danger">Aucune question trouvée</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <nav>
+                        <ul class="pagination justify-content-center" id="pagination"></ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -77,5 +103,14 @@
 
 {% block javascripts %}
     {{ parent() }}
-
+    <script src="{{ asset('js/question.js') }}"></script>
+    <script>
+        setTimeout(function () {
+            let alerts = document.querySelectorAll('.flash-message');
+            alerts.forEach(function (alert) {
+                let bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 4000);
+    </script>
 {% endblock %}
