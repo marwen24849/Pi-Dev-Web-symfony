@@ -127,7 +127,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    // For backwards compatibility with Symfony versions <5.3
+    
     public function getUsername(): string
     {
         return $this->email;
@@ -135,7 +135,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        // Return the role as an array.
+        
         return [$this->role];
     }
 
