@@ -24,7 +24,19 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
-
+        dql:
+            string_functions:
+            # Add any string functions you need from the library
+            # e.g., MD5: DoctrineExtensions\Query\Mysql\Md5
+            numeric_functions:
+            # Add any numeric functions you need
+            # e.g., RAND: DoctrineExtensions\Query\Mysql\Rand
+            datetime_functions:
+                # Register the functions you used
+                YEAR: DoctrineExtensions\Query\Mysql\Year # Adjust path if using different DB (e.g., Postgres\Year)
+                MONTH: DoctrineExtensions\Query\Mysql\Month
+                DAY: DoctrineExtensions\Query\Mysql\Day
+                DATE: DoctrineExtensions\Query\Mysql\Date # Useful for comparing only date parts
 when@test:
     doctrine:
         dbal:
