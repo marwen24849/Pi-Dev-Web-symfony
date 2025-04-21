@@ -47,7 +47,7 @@ class SqlGeneratorService
     private function buildPrompt(string $question, string $schemaText): array
     {
         return [
-            'model' => 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo-128K',
+            'model' => 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
             'messages' => [
                 [
                     'role' => 'system',

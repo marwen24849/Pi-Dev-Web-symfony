@@ -62,7 +62,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getfirst_name()
+    public function getFirstName()
     {
         return $this->first_name;
     }
@@ -72,7 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->first_name = $value;
     }
 
-    public function getlast_name()
+    public function getLastName()
     {
         return $this->last_name;
     }
