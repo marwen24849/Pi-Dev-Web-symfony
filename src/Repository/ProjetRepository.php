@@ -12,6 +12,31 @@ class ProjetRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Projet::class);
     }
+    public function findByFilters(?int $month, ?int $year, ?bool $inProgress): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->leftJoin('p.equipe', 'e') // Join equipe to potentially use its data or just ensure relation load
+            ->orderBy('p.dateDebut', 'DESC'); // Example: Order by start date descending
 
+        if ($month) {
+            $qb->andWhere('MONTH(p.dateDebut) = :month OR MONTH(p.dateFin) = :month')
+                ->setParameter('month', $month);
+        }
+
+        if ($year) {
+            $qb->andWhere('YEAR(p.dateDebut) = :year OR YEAR(p.dateFin) = :year')
+                ->setParameter('year', $year);
+        }
+
+        if ($inProgress === true) {
+            $now = new \DateTime();
+            // Check if start date is in the past/present AND (end date is null OR end date is in the future/present)
+            $qb->andWhere('p.dateDebut IS NOT NULL AND p.dateDebut <= :now')
+                ->andWhere('p.dateFin IS NULL OR p.dateFin >= :now')
+                ->setParameter('now', $now);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
     // Add custom methods as needed
 }

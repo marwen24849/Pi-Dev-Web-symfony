@@ -12,7 +12,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    {{ form_start(form) }}
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
                     <div class="row">
                         <!-- Colonne gauche -->
@@ -20,16 +20,19 @@
                             <div class="form-group">
                                 <label class="form-label">Titre du Quiz</label>
                                 {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le titre'}}) }}
+                                {{ form_errors(form.title) }}
                             </div>
 
                             <div class="form-group mt-3">
                                 <label class="form-label">Catégorie</label>
                                 {{ form_widget(form.category, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.category) }}
                             </div>
 
                             <div class="form-group mt-3">
                                 <label class="form-label">Niveau de difficulté</label>
                                 {{ form_widget(form.difficultylevel, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.difficultylevel) }}
                             </div>
                         </div>
 
@@ -38,16 +41,19 @@
                             <div class="form-group">
                                 <label class="form-label">Pourcentage minimum de succès</label>
                                 {{ form_widget(form.minimumSuccessPercentage, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.minimumSuccessPercentage) }}
                             </div>
 
                             <div class="form-group mt-3">
                                 <label class="form-label">Durée du Quiz (minutes)</label>
                                 {{ form_widget(form.quizTime, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.quizTime) }}
                             </div>
 
                             <div class="form-group mt-3">
                                 <label class="form-label">Nombre de Questions</label>
                                 {{ form_widget(form.questionCount, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.questionCount) }}
                             </div>
                         </div>
                     </div>
@@ -69,8 +75,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script >
-
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const categorySelect = document.getElementById('{{ form.category.vars.id }}');
             const difficultySelect = document.getElementById('{{ form.difficultylevel.vars.id }}');
@@ -85,7 +90,6 @@
                         .then(response => response.json())
                         .then(data => {
                             questionCountInput.value = data.count;
-
                         });
                 } else {
                     questionCountInput.value = 0;

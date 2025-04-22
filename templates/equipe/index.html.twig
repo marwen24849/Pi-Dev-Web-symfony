@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Équipes{% endblock %}
+
+{% block body %}
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title">Liste des Équipes</h4>
+                <a href="{{ path('app_equipe_new') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nouvelle Équipe
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="multi-filter-select" class="display table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Département</th>
+                            <th> Max Membres</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        </tfoot>
+                        <tbody>
+                        {% for equipe in equipes %}
+                            <tr>
+                                <td>{{ equipe.id }}</td>
+                                <td>{{ equipe.name }}</td>
+                                <td>{{ equipe.department ? equipe.department.name : 'Non assigné' }}</td>
+                                <td>{{ equipe.members }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ path('app_equipe_show', {'id': equipe.id}) }}"
+                                           class="btn btn-sm btn-info" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_equipe_edit', {'id': equipe.id}) }}"
+                                           class="btn btn-sm btn-primary" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{{ path('app_equipe_add_members', {'id': equipe.id}) }}" class="btn btn-sm btn-warning" title="Ajouter Membres">
+                                            <i class="fas fa-user-plus"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">Aucune équipe trouvée</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
