@@ -69,19 +69,7 @@
                                     </div>
                                 </div>
                                 
-                                <div id="online-fields" class="session-type-fields collapse {% if form.vars.value.is_online %}show{% endif %}">
-                                    <div class="form-floating mb-4">
-                                        {{ form_widget(form.link, {
-                                            'attr': {
-                                                'class': 'form-control' ~ (form.link.vars.errors|length > 0 ? ' is-invalid' : ''),
-                                                'placeholder': 'Lien Meet'
-                                            }
-                                        }) }}
-                                        <label for="{{ form.link.vars.id }}">Lien Meet</label>
-                                        <small class="text-muted">Laissez vide pour générer automatiquement</small>
-                                        {{ form_errors(form.link) }}
-                                    </div>
-                                </div>
+                               
                             </div>
                         </div>
                         

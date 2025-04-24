@@ -13,53 +13,68 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use App\Entity\User;
 use App\Entity\Formation_user;
 
-
 #[Route('/formation/user')]
 final class FormationUserController extends AbstractController
 {
     #[Route(name: 'app_formation_user', methods: ['GET'])]
-public function index(Request $request, EntityManagerInterface $entityManager): Response
-{
-    // Retrieve the search query from the request
-    $search = $request->query->get('search');
+    public function index(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $search = $request->query->get('search');
 
-    // Build the query to fetch formations
-    $queryBuilder = $entityManager->getRepository(Formation::class)->createQueryBuilder('f');
+        $queryBuilder = $entityManager->getRepository(Formation::class)->createQueryBuilder('f');
 
-    // If there's a search query, filter by title
-    if ($search) {
-        $queryBuilder->where('f.title LIKE :search')
-                     ->setParameter('search', '%' . $search . '%');
+        if ($search) {
+            $queryBuilder->where('f.title LIKE :search')
+                         ->setParameter('search', '%' . $search . '%');
+        }
+
+        $formations = $queryBuilder->getQuery()->getResult();
+
+        foreach ($formations as $formation) {
+            $enrolledCount = $entityManager->getRepository(Formation_user::class)
+                ->count(['formation_id' => $formation]);
+
+            $formation->spotsLeft = $formation->getCapacity() - $enrolledCount;
+        }
+
+        return $this->render('formation/front/index.html.twig', [
+            'formations' => $formations,
+            'search' => $search,
+        ]);
     }
 
-    // Execute the query and get the results
-    $formations = $queryBuilder->getQuery()->getResult();
+    #[Route('/list', name: 'app_formation_user_list', methods: ['GET'])]
+    public function list(EntityManagerInterface $entityManager): Response
+    {
+        $formations = $entityManager->getRepository(Formation::class)->findAll();
 
-    // Calculate spots left for each formation
-    foreach ($formations as $formation) {
-        // Get the number of users enrolled in the current formation
-        $enrolledCount = $entityManager->getRepository(Formation_user::class)
-            ->count(['formation_id' => $formation]);
+        $formationData = [];
+        foreach ($formations as $formation) {
+            $enrollments = $entityManager->getRepository(Formation_user::class)->findBy([
+                'formation_id' => $formation
+            ]);
 
-        // Calculate spots left
-        $formation->spotsLeft = $formation->getCapacity() - $enrolledCount;
+            $users = array_map(function($enrollment) {
+                return $enrollment->getUser_id();
+            }, $enrollments);
+
+            $formationData[] = [
+                'formation' => $formation,
+                'users' => $users
+            ];
+        }
+
+        return $this->render('formation/formationUserList.html.twig', [
+            'formationData' => $formationData,
+        ]);
     }
-
-    return $this->render('formation/front/index.html.twig', [
-        'formations' => $formations,
-        'search' => $search,  // Pass the search query to the view to retain it in the input field
-    ]);
-}
-
-
-
 
     #[Route('/enroll/{id}', name: 'app_formation_enroll', methods: ['GET'])]
 public function enroll(
     Formation $formation,
     EntityManagerInterface $entityManager,
     SessionInterface $session,
-    Request $request // ✅ ADD THIS
+    Request $request
 ): Response {
     $userId = $session->get('user_id');
     if (!$userId) {
@@ -71,6 +86,19 @@ public function enroll(
         throw $this->createNotFoundException('User not found.');
     }
 
+    // Check how many spots are left
+    $enrolledCount = $entityManager->getRepository(Formation_user::class)
+        ->count(['formation_id' => $formation]);
+
+    $spotsLeft = $formation->getCapacity() - $enrolledCount;
+
+    // If there are no spots left, show a flash message and redirect
+    if ($spotsLeft <= 0) {
+        $this->addFlash('danger', 'Désolé, il n\'y a plus de places disponibles pour cette formation.');
+        return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_formation_user'));
+    }
+
+    // Check if the user is already enrolled in the formation
     $existing = $entityManager->getRepository(Formation_user::class)->findOneBy([
         'formation_id' => $formation,
         'user_id' => $user,
@@ -78,22 +106,22 @@ public function enroll(
 
     if ($existing) {
         $this->addFlash('info', 'Vous êtes déjà inscrit dans cette formation.');
-        return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_formation_index'));
+    } else {
+        $enrollment = new Formation_user();
+        $enrollment->setFormation_id($formation);
+        $enrollment->setUser_id($user);
+
+        $entityManager->persist($enrollment);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Vous vous êtes inscrit avec succès!');
     }
 
-    $enrollment = new Formation_user();
-    $enrollment->setFormation_id($formation);
-    $enrollment->setUser_id($user);
-
-    $entityManager->persist($enrollment);
-    $entityManager->flush();
-
-    $this->addFlash('success', 'Vous vous êtes inscrit avec succès!');
-
-    return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_formation_index'));
+    return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_formation_user'));
 }
 
-    #[Route('/{id}', name: 'app_formation_show', methods: ['GET'])]
+
+    #[Route('/details/{id}', name: 'app_formation_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(Formation $formation): Response
     {
         return $this->render('formation/front/index.html.twig', [
@@ -101,7 +129,34 @@ public function enroll(
         ]);
     }
 
-    
+    #[Route('/ban/{formation_id}/{user_id}', name: 'app_formation_user_ban', methods: ['POST'])]
+    public function banUser(
+        int $formation_id,
+        int $user_id,
+        EntityManagerInterface $entityManager,
+        Request $request
+    ): Response {
+        $formation = $entityManager->getRepository(Formation::class)->find($formation_id);
+        $user = $entityManager->getRepository(User::class)->find($user_id);
 
-    
+        if (!$formation || !$user) {
+            throw $this->createNotFoundException('Formation ou utilisateur introuvable.');
+        }
+
+        $enrollment = $entityManager->getRepository(Formation_user::class)->findOneBy([
+            'formation_id' => $formation,
+            'user_id' => $user,
+        ]);
+
+        if ($enrollment) {
+            $entityManager->remove($enrollment);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Utilisateur retiré avec succès de la formation.');
+        } else {
+            $this->addFlash('danger', 'L’utilisateur n’est pas inscrit à cette formation.');
+        }
+
+        return $this->redirectToRoute('app_formation_user_list');
+    }
 }
