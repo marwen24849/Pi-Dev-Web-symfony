@@ -6,14 +6,35 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3><i class="fas fa-check-circle me-2"></i> Traitement des demandes de congé</h3>
-
         </div>
 
+        {# Include SweetAlert2 library #}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        {# SweetAlert2 for success flash #}
         {% for message in app.flashes('success') %}
-            <div class="alert alert-success mt-2">{{ message }}</div>
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Succès',
+                    text: '{{ message|e('js') }}',
+                    confirmButtonColor: '#28a745',
+                    confirmButtonText: 'OK'
+                });
+            </script>
         {% endfor %}
+
+        {# SweetAlert2 for error flash #}
         {% for message in app.flashes('error') %}
-            <div class="alert alert-danger mt-2">{{ message }}</div>
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: '{{ message|e('js') }}',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'OK'
+                });
+            </script>
         {% endfor %}
 
         <table class="table table-bordered table-striped">
