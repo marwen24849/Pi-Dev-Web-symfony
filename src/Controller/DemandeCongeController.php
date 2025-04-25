@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\OcrService;
 use App\Entity\DemandeConge;
 use App\Form\DemandeCongeType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 final class DemandeCongeController extends AbstractController
 {
     #[Route('/demandeconge', name: 'app_demande_conge')]
-    public function index(Request $request, EntityManagerInterface $em): Response
+    public function index(Request $request, EntityManagerInterface $em,OcrService $ocrService): Response
     {
         $demande = new DemandeConge();
         $form = $this->createForm(DemandeCongeType::class, $demande);
@@ -23,15 +24,38 @@ final class DemandeCongeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $demande->setStatus('PENDING');
 
+
+
             $certificateFile = $form->get('certificate')->getData();
             if ($certificateFile) {
                 try {
                     $filename = uniqid() . '.' . $certificateFile->guessExtension();
-                    $certificateFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads',
-                        $filename
-                    );
-                    $demande->setCertificate($filename); // enregistrer juste le nom du fichier
+                    $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads';
+                    $certificateFile->move($uploadDir, $filename);
+                    $demande->setCertificate($filename);
+
+                    // ✅ OCR.Space API instead of Tesseract
+                    $fullPath = $uploadDir . '/' . $filename;
+                    $text = $ocrService->extractText($fullPath); // Use the OCR Service
+
+                    if (!$text) {
+                        $this->addFlash('error', '❌ Impossible d’extraire le texte du certificat.');
+                        return $this->render('demande_conge/index.html.twig', [
+                            'form' => $form->createView(),
+                        ]);
+                    }
+
+                    // 🔍 Check required words
+                    $requiredWords = ['certificat', 'medical'];
+                    foreach ($requiredWords as $word) {
+                        if (stripos($text, $word) === false) {
+                            $this->addFlash('error', "❌ Certificat non valide : le mot-clé \"$word\" est manquant.");
+                            return $this->render('demande_conge/index.html.twig', [
+                                'form' => $form->createView(),
+                            ]);
+                        }
+                    }
+
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur lors du téléchargement du certificat.');
                     return $this->render('demande_conge/index.html.twig', [
@@ -109,7 +133,6 @@ final class DemandeCongeController extends AbstractController
         $filename = $demande->getCertificate();
         $filePath = $filename ? '/uploads/' . $filename : null;
 
-        // Détecter MIME si fichier existe
         $mime = null;
         $isImage = false;
 
@@ -130,6 +153,29 @@ final class DemandeCongeController extends AbstractController
             'isImage' => $isImage,
         ]);
     }
+    #[Route('/traitement-conges', name: 'app_traitement_conges')]
+    public function traitementDesConges(Request $request, EntityManagerInterface $em): Response
+    {
+        $id = $request->request->get('demande_id');
+        $action = $request->request->get('action');
+
+        if ($id && in_array($action, ['approve', 'reject'])) {
+            $demande = $em->getRepository(DemandeConge::class)->find($id);
+            if ($demande && $demande->getStatus() === 'PENDING') {
+                $nouveauStatut = $action === 'approve' ? 'APPROVED' : 'REJECTED';
+                $demande->setStatus($nouveauStatut);
+                $em->flush();
+                $this->addFlash('success', "Demande #{$id} a été " . strtolower($nouveauStatut) . " avec succès.");
+            }
+        }
+
+        $conges = $em->getRepository(DemandeConge::class)->findBy(['status' => 'PENDING']);
+
+        return $this->render('demande_conge/decision.html.twig', [
+            'conges' => $conges,
+        ]);
+    }
+
 
 
 }

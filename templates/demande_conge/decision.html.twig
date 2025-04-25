@@ -1,48 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des Congés{% endblock %}
+{% block title %}Traitement des demandes de congé{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3><i class="fas fa-list me-2"></i> Liste des demandes de congé</h3>
-            <a href="{{ path('app_demande_conge') }}" class="btn btn-primary" id="new-request-btn">
-                <i class="fas fa-plus me-1"></i> Nouvelle demande
-            </a>
+            <h3><i class="fas fa-check-circle me-2"></i> Traitement des demandes de congé</h3>
+
         </div>
 
-        {# Include SweetAlert2 library #}
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-        {# SweetAlert2 for success flash #}
         {% for message in app.flashes('success') %}
-            <script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Succès',
-                    text: '{{ message|e('js') }}',
-                    confirmButtonColor: '#28a745',
-                    confirmButtonText: 'OK'
-                });
-            </script>
+            <div class="alert alert-success mt-2">{{ message }}</div>
         {% endfor %}
-
-        {# SweetAlert2 for error flash #}
         {% for message in app.flashes('error') %}
-            <script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: '{{ message|e('js') }}',
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'OK'
-                });
-            </script>
+            <div class="alert alert-danger mt-2">{{ message }}</div>
         {% endfor %}
-
-        <form method="get" class="mb-3">
-            <input type="text" name="search" value="{{ search }}" placeholder="Rechercher par type ou justification..." class="form-control" />
-        </form>
 
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
@@ -53,7 +25,7 @@
                 <th>Début</th>
                 <th>Fin</th>
                 <th>Justification</th>
-                <th>Statut</th>
+                <th>Certificat</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -67,23 +39,30 @@
                     <td>{{ conge.dateFin ? conge.dateFin|date('d/m/Y') : '-' }}</td>
                     <td>{{ conge.justification ?? '-' }}</td>
                     <td>
-                        {% if conge.status == 'PENDING' %}
-                            <span class="badge bg-warning text-dark">En attente</span>
-                        {% elseif conge.status == 'APPROVED' %}
-                            <span class="badge bg-success">Approuvé</span>
-                        {% elseif conge.status == 'REJECTED' %}
-                            <span class="badge bg-danger">Refusé</span>
+                        {% if conge.certificate %}
+                            <a href="{{ asset('uploads/' ~ conge.certificate) }}" class="btn btn-sm btn-secondary" target="_blank">
+                                <i class="fas fa-file-alt"></i>
+                            </a>
+                        {% else %}
+                            Aucun
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{{ path('app_demande_conge_edit', {'id': conge.id}) }}" class="btn btn-sm btn-warning me-1">
-                            <i class="fas fa-edit"></i>
-                        </a>
+                        <form method="post" style="display:inline;" action="{{ path('app_traitement_conges') }}">
+                            <input type="hidden" name="demande_id" value="{{ conge.id }}">
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit" class="btn btn-success btn-sm" title="Approuver">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
 
-                        {# SweetAlert2 confirmation before delete #}
-                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete('{{ path('app_conge_delete', {'id': conge.id}) }}', '{{ csrf_token('delete' ~ conge.id) }}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <form method="post" style="display:inline;" action="{{ path('app_traitement_conges') }}">
+                            <input type="hidden" name="demande_id" value="{{ conge.id }}">
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="btn btn-danger btn-sm" title="Rejeter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
 
                         <button class="btn btn-sm btn-info"
                                 data-bs-toggle="modal"
@@ -95,13 +74,12 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="8" class="text-center">Aucune demande trouvée.</td>
+                    <td colspan="8" class="text-center">Aucune demande en attente.</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
 
-        {# Modal for show view #}
         <div class="modal fade" id="modalGlobal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
@@ -116,7 +94,6 @@
             </div>
         </div>
 
-        {# Script for loading modal content #}
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const modal = document.getElementById('modalGlobal');
@@ -135,7 +112,6 @@
                         .then(html => {
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
-
                             const content = doc.querySelector('.modal-content');
                             if (content) {
                                 modal.querySelector('.modal-content').innerHTML = content.innerHTML;
@@ -149,34 +125,6 @@
                         });
                 });
             });
-
-            function confirmDelete(deleteUrl, csrfToken) {
-                Swal.fire({
-                    title: 'Êtes-vous sûr ?',
-                    text: "Cette action est irréversible !",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Oui, supprimer',
-                    cancelButtonText: 'Annuler'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = deleteUrl;
-
-                        const csrfInput = document.createElement('input');
-                        csrfInput.type = 'hidden';
-                        csrfInput.name = '_token';
-                        csrfInput.value = csrfToken;
-
-                        form.appendChild(csrfInput);
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                });
-            }
         </script>
     </div>
 {% endblock %}

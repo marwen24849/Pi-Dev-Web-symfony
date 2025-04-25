@@ -119,26 +119,27 @@
                             </div>
                         </li>
                         <li class="nav-item">
-                            <a data-bs-toggle="collapse" href="#sidebarLayouts">
-                                <i class="fas fa-th-list"></i>
-                                <p>Sidebar Layouts</p>
+                            <a data-bs-toggle="collapse" href="#gestionConges">
+                                <i class="fas fa-calendar-alt"></i>
+                                <p>Gestion des congés</p>
                                 <span class="caret"></span>
                             </a>
-                            <div class="collapse" id="sidebarLayouts">
+                            <div class="collapse" id="gestionConges">
                                 <ul class="nav nav-collapse">
                                     <li>
-                                        <a href="sidebar-style-2.html">
-                                            <span class="sub-item">Sidebar Style 2</span>
+                                        <a href="{{ path('app_demande_conge') }}">
+                                            <span class="sub-item">Nouvelle demande</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="icon-menu.html">
-                                            <span class="sub-item">Icon Menu</span>
+                                        <a href="{{ path('app_traitement_conges') }}">
+                                            <span class="sub-item">Traitement des demandes</span>
                                         </a>
                                     </li>
                                 </ul>
                             </div>
                         </li>
+
                         <li class="nav-item">
                             <a data-bs-toggle="collapse" href="#forms">
                                 <i class="fas fa-pen-square"></i>
