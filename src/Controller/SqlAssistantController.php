@@ -20,8 +20,7 @@ class SqlAssistantController extends AbstractController
         private ResultAnalyzerService  $resultAnalyzer,
         private DatabaseSchemaService  $schemaService,
         private EntityManagerInterface $em
-    )
-    {
+    ) {
     }
 
     #[Route('/sql-assistant', name: 'sql_assistant')]
@@ -30,11 +29,9 @@ class SqlAssistantController extends AbstractController
         $schema = $this->schemaService->getDatabaseSchema();
 
         return $this->render('sql_assistant/index.html.twig', [
-            'schema' => $schema,
+            'schema' => json_encode($schema, JSON_PRETTY_PRINT),
         ]);
     }
-
-
 
     #[Route('/generate-sql', name: 'generate_sql', methods: ['POST'])]
     public function generateSql(Request $request): JsonResponse
@@ -48,6 +45,7 @@ class SqlAssistantController extends AbstractController
             return $this->json([
                 'success' => true,
                 'sql' => $sqlQuery,
+                'formatted_sql' => $this->formatSql($sqlQuery),
             ]);
         } catch (\Exception $e) {
             return $this->json([
@@ -67,7 +65,7 @@ class SqlAssistantController extends AbstractController
             $stmt = $this->em->getConnection()->prepare($sql);
             $results = $stmt->executeQuery()->fetchAllAssociative();
 
-            $analysis = $this->resultAnalyzer->analyzeResults($results, $question); // Correction: analyzeResults au lieu de analyzeResults
+            $analysis = $this->resultAnalyzer->analyzeResults($results, $question);
 
             $this->saveToHistory($question, $sql, $results, $analysis);
 
@@ -75,6 +73,7 @@ class SqlAssistantController extends AbstractController
                 'success' => true,
                 'results' => $results,
                 'analysis' => $analysis,
+                'row_count' => count($results),
             ]);
         } catch (\Exception $e) {
             return $this->json([
@@ -86,7 +85,18 @@ class SqlAssistantController extends AbstractController
 
     private function saveToHistory(string $question, string $sql, array $results, string $analysis): void
     {
-
+        // Implementation for saving to history would go here
     }
 
+    private function formatSql(string $sql): string
+    {
+        // Simple SQL formatting for display
+        $keywords = ['SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'GROUP BY', 'ORDER BY', 'LIMIT', 'HAVING'];
+
+        foreach ($keywords as $keyword) {
+            $sql = str_ireplace($keyword, "\n".$keyword, $sql);
+        }
+
+        return trim($sql);
+    }
 }
