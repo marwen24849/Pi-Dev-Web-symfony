@@ -1,0 +1,340 @@
+{# templates/chat/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}AI Chat Assistant{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --user-message-color: #4361ee;
+            --assistant-message-color: #f8f9fa;
+            --text-dark: #212529;
+            --text-light: #f8f9fa;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+        }
+
+        .chat-container {
+            max-width: 90%;
+            height: 90vh;
+            margin: 20px auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f9fafc;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .user-message {
+            margin-left: auto;
+            background-color: var(--user-message-color);
+            color: white;
+            border-radius: 18px 18px 0 18px;
+            padding: 12px 15px;
+        }
+
+        .assistant-message {
+            margin-right: auto;
+            background-color: var(--assistant-message-color);
+            color: var(--text-dark);
+            border: 1px solid #e0e0e0;
+            border-radius: 18px 18px 18px 0;
+            padding: 12px 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .input-area {
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            padding: 10px;
+        }
+
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #999;
+            margin-right: 3px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+            margin-right: 0;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .markdown-content {
+            line-height: 1.6;
+        }
+
+        .markdown-content p {
+            margin-bottom: 10px;
+        }
+
+        .markdown-content strong {
+            font-weight: 600;
+        }
+
+        .markdown-content em {
+            font-style: italic;
+        }
+
+        .markdown-content ul, .markdown-content ol {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .markdown-content li {
+            margin-bottom: 5px;
+        }
+
+        .markdown-content code {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .btn-clear {
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2><i class="bi bi-robot"></i> AI Assistant</h2>
+            <button class="btn-clear" id="clearHistory">
+                <i class="bi bi-trash"></i> Clear
+            </button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            {% if chatHistory is empty %}
+                <div class="welcome-message">
+                    <h3>Welcome to your AI Assistant</h3>
+                    <p>Ask me anything and I'll do my best to help you!</p>
+                    <p>For example: "Explain quantum computing" or "Help me with a PHP problem"</p>
+                </div>
+            {% else %}
+                {% for message in chatHistory %}
+                    <div class="message {{ message.role }}-message">
+                        <div class="markdown-content">{{ message.content|raw }}</div>
+
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="input-area">
+            <form id="chatForm" class="d-flex">
+                <input type="text" class="form-control" id="messageInput"
+                       placeholder="Type your message here..." autocomplete="off" autofocus>
+                <button class="btn btn-primary ms-2" type="submit" id="sendButton">
+                    <i class="bi bi-send"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const chatForm = document.getElementById('chatForm');
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const clearHistoryBtn = document.getElementById('clearHistory');
+
+            // Function to add a message to the chat
+            function addMessage(content, type, time = null) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}-message`;
+
+                // Use marked.js to parse markdown
+                const formattedContent = marked.parse(content);
+
+                messageDiv.innerHTML = `
+                    <div class="markdown-content">${formattedContent}</div>
+                    <div class="message-time">${time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                `;
+
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Function to show typing indicator
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message assistant-message typing-indicator';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = `
+                    <div class="typing-dots">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                `;
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Function to hide typing indicator
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            // Handle form submission
+            chatForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+
+                if (message) {
+                    // Add user message to chat
+                    addMessage(message, 'user');
+                    messageInput.value = '';
+
+                    // Show typing indicator
+                    showTypingIndicator();
+
+                    try {
+                        // Send message to server
+                        const response = await fetch('{{ path('app_chat_send') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                message: message
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        // Hide typing indicator
+                        hideTypingIndicator();
+
+                        // Add assistant response to chat
+                        if (data.response) {
+                            addMessage(data.response, 'assistant');
+                        }
+
+                    } catch (error) {
+                        hideTypingIndicator();
+                        addMessage("Sorry, I encountered an error. Please try again.", 'assistant');
+                        console.error('Error:', error);
+                    }
+                }
+            });
+
+            // Clear chat history
+            clearHistoryBtn.addEventListener('click', async function() {
+                try {
+                    await fetch('{{ path('app_chat_clear') }}', {
+                        method: 'POST',
+                    });
+
+                    // Clear the chat UI
+                    chatMessages.innerHTML = `
+                        <div class="welcome-message">
+                            <h3>Welcome to your AI Assistant</h3>
+                            <p>Ask me anything and I'll do my best to help you!</p>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('Error clearing history:', error);
+                }
+            });
+
+            // Allow Shift+Enter for new line, Enter to submit
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    chatForm.dispatchEvent(new Event('submit'));
+                }
+            });
+
+            // Focus input field on page load
+            messageInput.focus();
+        });
+    </script>
+{% endblock %}
