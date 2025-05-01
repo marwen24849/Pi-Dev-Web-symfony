@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Form;
 
 use App\Entity\Session;
@@ -22,6 +21,7 @@ class SessionType extends AbstractType
                 'html5' => true,
                 'attr' => ['min' => (new \DateTime())->format('Y-m-d')]
             ])
+            // The 'salle' field for in-person sessions
             ->add('salle', TextType::class, [
                 'label' => 'Room Number',
                 'required' => false,
@@ -29,22 +29,14 @@ class SessionType extends AbstractType
                     'placeholder' => 'For in-person sessions',
                     'class' => 'session-type-fields'
                 ]
-            ])
-            ->add('link', TextType::class, [
-                'label' => 'Meeting Link',
-                'required' => false,
-                'empty_data' => '', // Set empty string as default
-                'attr' => [
-                    'placeholder' => 'Will be auto-generated if empty',
-                    'class' => 'session-type-fields'
-                ]
             ]);
 
-        // Handle is_online separately
+        // Handling the 'is_online' checkbox
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             $session = $event->getData();
             $form = $event->getForm();
             
+            // Add the 'is_online' checkbox, which will toggle the fields visibility
             $form->add('is_online', CheckboxType::class, [
                 'label' => 'Online Session?',
                 'required' => false,

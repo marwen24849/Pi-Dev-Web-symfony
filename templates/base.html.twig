@@ -40,9 +40,11 @@
         <!-- CSS Just for demo purpose, don't include it in your project -->
         <link rel="stylesheet" href="{{ asset('back/css/demo.css') }}" />
         {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
         {% endblock %}
 
         {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>

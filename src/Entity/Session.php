@@ -19,7 +19,6 @@ class Session
     private Formation $formation_id;
 
     #[ORM\Column(type: "string", length: 255)]
-    #[Assert\NotBlank(message: "Le champ salle est obligatoire.")]
     #[Assert\Regex(
         pattern: '/^[1-9]\d*$/',
         message: "La salle doit être un nombre entier positif."
