@@ -1,0 +1,8 @@
+knp_paginator:
+  template:
+    pagination: '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig'
+  default_options:
+    page_name: page
+    sort_field_name: sort
+    sort_direction_name: direction
+    distinct: true

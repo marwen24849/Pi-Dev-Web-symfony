@@ -1,11 +1,29 @@
 import './bootstrap.js';
-/*
- * Welcome to your app's main JavaScript file!
- *
- * This file will be included onto the page via the importmap() Twig function,
- * which should already be in your base.html.twig.
- */
 import './styles/app.css';
+import TomSelect from 'tom-select';
 
-
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+// Tu peux ignorer ce console.log si tu veux
+console.log('Chart.js avec Stimulus prêt 🎉');
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-controller="autocomplete"][name$="[category]"]').forEach((el) => {
+        new TomSelect(el, {
+            plugins: ['clear_button'],
+            create: true,
+            maxOptions: 10,
+            load: function(query, callback) {
+                fetch(el.dataset.autocompleteUrl + '?query=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(json => callback(json))
+                    .catch(() => callback());
+            },
+            render: {
+                option: function(item, escape) {
+                    return '<div>' + escape(item.value) + '</div>';
+                },
+                item: function(item, escape) {
+                    return '<div>' + escape(item.value) + '</div>';
+                }
+            }
+        });
+    });
+});

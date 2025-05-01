@@ -13,5 +13,19 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    public function getMonthlyRegistrations(): array
+    {
+        return $this->findAll();
+    }
+
+    public function getUserStatsByRole(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->select('u.role, COUNT(u.id) as count')
+            ->groupBy('u.role')
+            ->getQuery()
+            ->getResult();
+    }
+
     // Add custom methods as needed
 }

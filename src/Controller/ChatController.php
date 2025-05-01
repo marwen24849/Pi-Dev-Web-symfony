@@ -16,7 +16,7 @@ class ChatController extends AbstractController
     #[Route('/chat', name: 'app_chat')]
     public function index(SessionInterface $session, LlmChatService $chatService): Response
     {
-        $history = $chatService->getChats(20);
+        $history = $chatService->getChats(15);
 
         return $this->render('chat/index.html.twig', [
             'chatHistory' => $history
@@ -27,7 +27,7 @@ class ChatController extends AbstractController
     public function sendMessage(Request $request, LlmChatService $chatService, SessionInterface $session): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $userId = $this->getUser() ? $this->getUser()->getId() : 20;
+        $userId = $this->getUser() ? $this->getUser()->getId() : 15;
         $message = trim($data['message'] ?? '');
 
         if (empty($message)) {

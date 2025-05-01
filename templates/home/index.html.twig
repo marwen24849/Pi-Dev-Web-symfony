@@ -1,20 +1,349 @@
+{# templates/admin/dashboard.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .bubble-shadow-small {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-round {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .icon-big {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .card-stats .numbers h4.card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+
+        .card-stats .numbers p.card-category {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            padding: 20px;
+        }
+
+        /* Couleurs des icônes */
+        .icon-primary { background-color: rgba(67, 97, 238, 0.1); color: #4361ee; }
+        .icon-info { background-color: rgba(73, 80, 246, 0.1); color: #4950f6; }
+        .icon-success { background-color: rgba(29, 201, 183, 0.1); color: #1dc9b7; }
+        .icon-secondary { background-color: rgba(108, 117, 125, 0.1); color: #6c757d; }
+
+        /* Boutons */
+        .btn-label {
+            margin-right: 5px;
+        }
+
+        .btn-label-info {
+            background-color: rgba(73, 80, 246, 0.1);
+            color: #4950f6;
+            border-color: transparent;
+        }
+
+        .btn-label-success {
+            background-color: rgba(29, 201, 183, 0.1);
+            color: #1dc9b7;
+            border-color: transparent;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div class="container">
+        <div class="page-inner">
+            <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+                <div>
+                    <h3 class="fw-bold mb-3">Tableau de bord administrateur</h3>
+                    <h6 class="op-7 mb-2">Gestion complète de votre application</h6>
+                </div>
+                <div class="ms-md-auto py-2 py-md-0">
+                    <a href="#" class="btn btn-label-info btn-round me-2">
+                        <i class="bi bi-gear"></i> Paramètres
+                    </a>
+                    <a href="#" class="btn btn-primary btn-round">
+                        <i class="bi bi-plus-circle"></i> Ajouter
+                    </a>
+                </div>
+            </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+            <!-- Cartes de statistiques -->
+            <div class="row">
+                <div class="col-sm-6 col-md-3">
+                    <div class="card card-stats card-round">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-icon">
+                                    <div class="icon-big text-center icon-primary bubble-shadow-small">
+                                        <i class="bi bi-people-fill"></i>
+                                    </div>
+                                </div>
+                                <div class="col col-stats ms-3 ms-sm-0">
+                                    <div class="numbers">
+                                        <p class="card-category">Utilisateurs</p>
+                                        <h4 class="card-title">{{ userStats|reduce((carry, item) => carry + item.count, 0) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/marwe/Desktop/JavaFX/Pi-Dev-Web/src/Controller/HomeController.php</code></li>
-        <li>Your template at <code>C:/Users/marwe/Desktop/JavaFX/Pi-Dev-Web/templates/home/index.html.twig</code></li>
-    </ul>
-</div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="card card-stats card-round">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-icon">
+                                    <div class="icon-big text-center icon-info bubble-shadow-small">
+                                        <i class="bi bi-question-circle-fill"></i>
+                                    </div>
+                                </div>
+                                <div class="col col-stats ms-3 ms-sm-0">
+                                    <div class="numbers">
+                                        <p class="card-category">Quiz</p>
+                                        <h4 class="card-title">{{ quizStats|length }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-3">
+                    <div class="card card-stats card-round">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-icon">
+                                    <div class="icon-big text-center icon-success bubble-shadow-small">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                    </div>
+                                </div>
+                                <div class="col col-stats ms-3 ms-sm-0">
+                                    <div class="numbers">
+                                        <p class="card-category">Réclamations</p>
+                                        <h4 class="card-title">{{ reclamationStats|reduce((carry, item) => carry + item.count, 0) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-3">
+                    <div class="card card-stats card-round">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-icon">
+                                    <div class="icon-big text-center icon-secondary bubble-shadow-small">
+                                        <i class="bi bi-calendar2-check-fill"></i>
+                                    </div>
+                                </div>
+                                <div class="col col-stats ms-3 ms-sm-0">
+                                    <div class="numbers">
+                                        <p class="card-category">Congés</p>
+                                        <h4 class="card-title">{{ congeStats|reduce((carry, item) => carry + item.count, 0) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphiques -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card card-round">
+                        <div class="card-header">
+                            <div class="card-head-row">
+                                <div class="card-title">Statistiques des utilisateurs</div>
+                                <div class="card-tools">
+                                    <a href="#" class="btn btn-label-success btn-round btn-sm me-2">
+                                    <span class="btn-label">
+                                        <i class="bi bi-download"></i>
+                                    </span>
+                                        Exporter
+                                    </a>
+                                    <a href="#" class="btn btn-label-info btn-round btn-sm">
+                                    <span class="btn-label">
+                                        <i class="bi bi-printer"></i>
+                                    </span>
+                                        Imprimer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="userRolesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card  card-round">
+                        <div class="card-header">
+                            <div class="card-head-row">
+                                <div class="card-title">Inscriptions mensuelles</div>
+                                <div class="card-tools">
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-label-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            Exporter
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="#">PDF</a>
+                                            <a class="dropdown-item" href="#">Excel</a>
+                                            <a class="dropdown-item" href="#">CSV</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pb-0">
+                            <div class="pull-in">
+                                <canvas id="userRegistrationsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Autres graphiques -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card card-round">
+                        <div class="card-header">
+                            <div class="card-title">Statut des réclamations</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="reclamationStatusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card card-round">
+                        <div class="card-header">
+                            <div class="card-title">Statut des projets</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="projectStatusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/chart.js') }}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userRolesCtx = document.getElementById('userRolesChart').getContext('2d');
+            new Chart(userRolesCtx, {
+                type: 'bar',
+                data: {
+                    labels: {{ userStats|map(item => item.role)|json_encode|raw }},
+                    datasets: [{
+                        label: 'Utilisateurs',
+                        data: {{ userStats|map(item => item.count)|json_encode|raw }},
+                        backgroundColor: '#4361ee',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // User Registrations Chart
+            const userRegCtx = document.getElementById('userRegistrationsChart').getContext('2d');
+            new Chart(userRegCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+                    datasets: [{
+                        label: 'Inscriptions',
+                        data: [12, 19, 3, 5, 2, 3, 7, 10, 15, 8, 4, 6],
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Reclamation Status Chart
+            const reclamationCtx = document.getElementById('reclamationStatusChart').getContext('2d');
+            new Chart(reclamationCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ reclamationStats|map(item => item.statut)|json_encode|raw }},
+                    datasets: [{
+                        data: {{ reclamationStats|map(item => item.count)|json_encode|raw }},
+                        backgroundColor: ['#4361ee', '#3a0ca3', '#7209b7']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Project Status Chart
+            const projectCtx = document.getElementById('projectStatusChart').getContext('2d');
+            new Chart(projectCtx, {
+                type: 'pie',
+                data: {
+                    labels: {{ projetStats|map(item => item.status)|json_encode|raw }},
+                    datasets: [{
+                        data: {{ projetStats|map(item => item.count)|json_encode|raw }},
+                        backgroundColor: ['#4361ee', '#3a0ca3', '#7209b7']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        });
+    </script>
 {% endblock %}
