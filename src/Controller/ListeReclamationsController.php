@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Address;
 
 final class ListeReclamationsController extends AbstractController
 {
@@ -95,7 +96,7 @@ final class ListeReclamationsController extends AbstractController
 
         $userEmail = $reclamation->getUser_id()->getEmail();
         $emailMessage = (new Email())
-            ->from($_ENV['MAILER_FROM'])
+        ->from(new Address($_ENV['MAILER_FROM'],'Resources Humaines'))
             ->to($userEmail)
             ->subject('Réponse à votre réclamation')
             ->html("
