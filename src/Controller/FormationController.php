@@ -14,16 +14,29 @@ use Symfony\Component\Routing\Attribute\Route;
 final class FormationController extends AbstractController
 {
     #[Route(name: 'app_formation_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
-    {
-        $formations = $entityManager
-            ->getRepository(Formation::class)
-            ->findAll();
+public function index(Request $request, EntityManagerInterface $entityManager): Response
+{
+    // Retrieve the search query from the request
+    $search = $request->query->get('search');
 
-        return $this->render('formation/index.html.twig', [
-            'formations' => $formations,
-        ]);
+    // Build the query to fetch formations
+    $queryBuilder = $entityManager->getRepository(Formation::class)->createQueryBuilder('f');
+
+    // If there's a search query, filter by title
+    if ($search) {
+        $queryBuilder->where('f.title LIKE :search')
+                     ->setParameter('search', '%' . $search . '%');
     }
+
+    // Execute the query and get the results
+    $formations = $queryBuilder->getQuery()->getResult();
+
+    return $this->render('formation/index.html.twig', [
+        'formations' => $formations,
+        'search' => $search,  // Pass the search query to the view to retain it in the input field
+    ]);
+}
+
     #[Route('/test', name: 'app_test_route')]
     public function testRoute(): Response
     {

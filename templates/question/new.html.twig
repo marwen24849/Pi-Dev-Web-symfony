@@ -27,7 +27,14 @@
 
                             <div class="form-group mt-3">
                                 <label class="form-label">Catégorie</label>
-                                {{ form_widget(form.category, {'attr': {'class': 'form-control', 'style': 'text-transform: uppercase;'}}) }}
+                                {{ form_widget(form.category, {
+                                    'attr': {
+                                        'class': 'form-control category-autocomplete',
+                                        'list': 'categorySuggestions',
+                                        'autocomplete': 'off'
+                                    }
+                                }) }}
+                                <datalist id="categorySuggestions"></datalist>
                                 {% if form_errors(form.category) %}
                                     <div class="invalid-feedback d-block">
                                         {{ form_errors(form.category) }}
@@ -56,7 +63,7 @@
                             </div>
                         </div>
 
-
+                        <!-- Colonne de droite -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Choix possibles</label>
@@ -99,12 +106,43 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let categoryInput = document.querySelector('[name="{{ form.category.vars.full_name }}"]');
-            categoryInput.addEventListener('input', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoryInput = document.querySelector('.category-autocomplete');
+            const datalist = document.getElementById('categorySuggestions');
+
+            if (!categoryInput || !datalist) return;
+
+            // Fonction pour charger les suggestions
+            function updateSuggestions(query = '') {
+                fetch('http://localhost:8000/question/categories/autocomplete?query=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(categories => {
+                        datalist.innerHTML = '';
+                        categories.forEach(cat => {
+                            const option = document.createElement('option');
+                            option.value = cat;
+                            datalist.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Erreur de chargement des catégories:', error);
+                    });
+            }
+
+            // Chargement initial
+            updateSuggestions();
+
+            // Met à jour la liste selon la saisie
+            categoryInput.addEventListener('input', function () {
                 this.value = this.value.toUpperCase();
+                if (this.value.length >= 1) {
+                    updateSuggestions(this.value);
+                }
             });
         });
     </script>

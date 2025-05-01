@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\This;
 
 
 #[ORM\Entity]
@@ -44,6 +45,7 @@ class Chat
     public function setUser_id($value)
     {
         $this->user_id = $value;
+        return $this;
     }
 
     public function getRole()
@@ -54,6 +56,7 @@ class Chat
     public function setRole($value)
     {
         $this->role = $value;
+        return $this;
     }
 
     public function getContent()
@@ -74,5 +77,6 @@ class Chat
     public function setTimestamp($value)
     {
         $this->timestamp = $value;
+        return $this;
     }
 }

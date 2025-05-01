@@ -11,9 +11,16 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Routing\RouterInterface;
 
 class QuestionType extends AbstractType
 {
+
+    public function __construct(RouterInterface $router)
+    {
+        $this->router = $router;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -21,8 +28,15 @@ class QuestionType extends AbstractType
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Score']
             ])
             ->add('category', TextType::class, [
-                'attr' => ['class' => 'form-control', 'placeholder' => 'Catégorie']
+                'label' => 'Catégorie',
+                'attr' => [
+                    'class' => 'form-control category-autocomplete',
+                    'list' => 'categorySuggestions',
+                    'autocomplete' => 'off',
+                    'style' => 'text-transform: uppercase;'
+                ]
             ])
+
             ->add('difficultylevel', ChoiceType::class, [
                 'choices' => [
                     'Facile' => 'Facile',

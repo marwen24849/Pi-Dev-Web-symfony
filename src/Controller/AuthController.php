@@ -11,6 +11,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Mime\Address;
 
 class AuthController extends AbstractController
 {
@@ -97,7 +98,7 @@ class AuthController extends AbstractController
         $session->set('verification_code', $verificationCode);
 
         $emailMessage = (new Email())
-            ->from($_ENV['MAILER_FROM'])
+            ->from(new Address($_ENV['MAILER_FROM'],'SGRH'))
             ->to($userData['email'])
             ->subject('Your Verification Code')
             ->html("

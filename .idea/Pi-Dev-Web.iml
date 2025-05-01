@@ -149,6 +149,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/psr/http-factory" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/psr/http-message" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/ralouphie/getallheaders" />
+
       <excludeFolder url="file://$MODULE_DIR$/vendor/thiagoalessio/tesseract_ocr" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/google/apiclient-services" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/dompdf/dompdf" />
@@ -156,6 +157,10 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/dompdf/php-svg-lib" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/nucleos/dompdf-bundle" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/sabberworm/php-css-parser" />
+
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/ux-chartjs" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/webpack-encore-bundle" />
+
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

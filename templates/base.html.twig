@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta
@@ -74,12 +75,97 @@
                     </button>
                     <button class="btn btn-toggle sidenav-toggler">
                         <i class="gg-menu-left"></i>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta
+                content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+                name="viewport"
+        />
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        <link
+                rel="icon"
+                href="{{ asset('back/img/kaiadmin/favicon.ico') }}"
+                type="image/x-icon"
+        />
+
+        <script src="{{ asset('back/js/plugin/webfont/webfont.min.js') }}"></script>
+        <script>
+            WebFont.load({
+                google: { families: ["Public Sans:300,400,500,600,700"] },
+                custom: {
+                    families: [
+                        "Font Awesome 5 Solid",
+                        "Font Awesome 5 Regular",
+                        "Font Awesome 5 Brands",
+                        "simple-line-icons",
+                    ],
+                    urls: ["{{ asset('back/css/fonts.min.css') }}"],
+                },
+                active: function () {
+                    sessionStorage.fonts = true;
+                },
+            });
+        </script>
+
+        <!-- CSS Files -->
+        <link rel="stylesheet" href="{{ asset('back/css/bootstrap.min.css') }}" />
+        <link rel="stylesheet" href="{{ asset('back/css/plugins.min.css') }}" />
+        <link rel="stylesheet" href="{{ asset('back/css/kaiadmin.min.css') }}" />
+
+        <!-- CSS Just for demo purpose, don't include it in your project -->
+        <link rel="stylesheet" href="{{ asset('back/css/demo.css') }}" />
+        {% block stylesheets %}
+
+
+        {% endblock %}
+
+
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+
+        {% endblock %}
+    </head>
+    <body>
+    {% set user_id = app.session.get('user_id') %}
+    {% set user_email = app.session.get('user_email') %}
+    {% set user_role = app.session.get('user_role') %}
+    {% set user_last_name = app.session.get('user_last_name') %}
+    <div class="wrapper">
+
+        <!-- Sidebar -->
+        <div class="sidebar" data-background-color="dark">
+            <div class="sidebar-logo">
+                <!-- Logo Header -->
+                <div class="logo-header" data-background-color="dark">
+                    <a href="index.html" class="logo">
+                        <img
+                                src="{{ asset('back/img/kaiadmin/logo_light.svg') }}"
+                                alt="navbar brand"
+                                class="navbar-brand"
+                                height="20"
+                        />
+                    </a>
+                    <div class="nav-toggle">
+                        <button class="btn btn-toggle toggle-sidebar">
+                            <i class="gg-menu-right"></i>
+                        </button>
+                        <button class="btn btn-toggle sidenav-toggler">
+                            <i class="gg-menu-left"></i>
+                        </button>
+                    </div>
+                    <button class="topbar-toggler more">
+                        <i class="gg-more-vertical-alt"></i>
+
                     </button>
                 </div>
                 <button class="topbar-toggler more">
                     <i class="gg-more-vertical-alt"></i>
                 </button>
             </div>
+
             <!-- End Logo Header -->
         </div>
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
@@ -158,11 +244,122 @@
                                         <a href="{{ path('app_demande_conge') }}">
                                             <i class="fas fa-file-alt"></i>
                                             <span class="sub-item">Nouvelle demande</span>
+
+            <div class="sidebar-wrapper scrollbar scrollbar-inner">
+                <div class="sidebar-content">
+                    <ul class="nav nav-secondary">
+                        <li class="nav-item active">
+                            <a href="{{ path('app_homepage') }}">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <p>Dashboard</p>
+                            </a>
+                        </li>
+                        <li class="nav-section">
+                <span class="sidebar-mini-icon">
+                  <i class="fa fa-ellipsis-h"></i>
+                </span>
+                            <h4 class="text-section">Components</h4>
+                        </li>
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#base">
+                                <i class="fas fa-book"></i>
+                                <p>Gestion Questions</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="base">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="{{ path('app_question_new') }}">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <span class="sub-item">Ajouter Question</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ path('app_question_index')}}" >
+                                            <i class="fas fa-list"></i>
+                                            <span class="sub-item">Liste Questions</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                                <i class="fas fa-th-list"></i>
+                                <p>Gestion Quiz</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="sidebarLayouts">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="{{ path('app_quiz_new') }}">
+                                            <i class="fas fa-pen-alt"></i>
+                                            <span class="sub-item">Ajouter Quiz</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ path('app_quiz_index') }}">
+                                            <i class="fas fa-th-list"></i>
+                                            <span class="sub-item">Liste Quiz</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Gestion Congé -->
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#congeMenu">
+                                <i class="fas fa-folder-open"></i>
+                                <p>Gestion Congé</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="congeMenu">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a >
+                                            <i class="fas fa-file-alt"></i>
+                                            <span class="sub-item">Liste des Congés</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a >
+                                            <i class="fas fa-eye"></i>
+                                            <span class="sub-item">Suivi des Congés</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+
+
+                        <!-- Gestion Formations -->
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#formationMenu">
+                                <i class="fas fa-book-reader"></i>
+                                <p>Gestion Formations</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="formationMenu">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="{{ path('app_formation_new') }}">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <span class="sub-item">Ajouter Formation</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ path('app_formation_index') }}">
+                                            <i class="fas fa-list"></i>
+                                            <span class="sub-item">Liste Formation</span>
+
                                         </a>
                                     </li>
                                 {% endif %}
                                 {% if user_role == 'ADMIN' %}
                                     <li>
+
                                         <a href="{{ path('app_traitement_conges') }}">
                                             <i class="fas fa-eye"></i>
                                             <span class="sub-item">Traitement des demandes</span>
@@ -207,6 +404,89 @@
                             <i class="fas fa-book-reader"></i>
                             <p>Gestion Formations</p>
                             <span class="caret"></span>
+
+                                        <a href="{{ path('app_formation_user') }}">
+                                            <i class="fas fa-users-cog"></i>
+                                            <span class="sub-item">Formation-User</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ path('app_equipe_index') }}">
+                                <i class="fas fa-user-friends"></i>
+                                <p>Gestion Equipe</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ path('app_department_manage') }}">
+                                <i class="fas fa-building"></i>
+                                <p>Gestion Département</p>
+                            </a>
+                        </li>
+
+                        <!-- Gestion Projet -->
+                        <li class="nav-item">
+                            <a href="{{ path('app_projet_manage') }}">
+                                <i class="fas fa-chart-bar"></i>
+                                <p>Gestion Projet</p>
+                            </a>
+                        </li>
+
+
+
+
+
+                        <!-- Users List -->
+                        <li class="nav-item">
+                            <a href="{{ path('app_show_users') }}">
+                                <i class="fas fa-user"></i>
+                                <p>Users List</p>
+                            </a>
+                        </li>
+
+
+
+                        <!-- Liste des Réclamations -->
+                        <li class="nav-item">
+                            <a href="{{ path('app_reclamation') }}">
+                                <i class="fas fa-clipboard-list"></i>
+                                <p>Liste des Réclamations</p>
+                            </a>
+                        </li>
+
+                        <!-- SGRH Assistant -->
+                        <li class="nav-item">
+                            <a href="{{ path('sql_assistant') }}">
+                                <i class="fas fa-robot"></i>
+                                <p>SGRH Assistant</p>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- End Sidebar -->
+
+        
+        <div class="main-panel">
+
+            <div class="main-header">
+                <div class="main-header-logo">
+                    <!-- Logo Header -->
+                    <div class="logo-header" data-background-color="dark">
+                        <a href="index.html" class="logo">
+                            <img
+                                    src="back/img/kaiadmin/logo_light.svg"
+                                    alt="navbar brand"
+                                    class="navbar-brand"
+                                    height="20"
+                            />
+
                         </a>
                         <div class="collapse" id="formationMenu">
                             <ul class="nav nav-collapse">

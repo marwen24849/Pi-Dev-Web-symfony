@@ -13,11 +13,11 @@ class SqlGeneratorService
     private $apiKey;
     private $apiUrl;
 
-    public function __construct(HttpClientInterface $httpClient)
+    public function __construct(HttpClientInterface $httpClient, ParameterBagInterface $params)
     {
         $this->httpClient = $httpClient;
-        $this->apiKey = "01301ddd79db215d207cd1e4f3a6c11ef9847f64f10dba8fb5e7aeae94106a38";
-        $this->apiUrl = 'https://api.together.xyz/v1/chat/completions';
+        $this->apiKey = $params->get('together_api_key');
+        $this->apiUrl = $params->get('together_api_url');
     }
 
     public function generateSqlQuery(string $question, array $schemaInfo): string
@@ -47,7 +47,7 @@ class SqlGeneratorService
     private function buildPrompt(string $question, string $schemaText): array
     {
         return [
-            'model' => 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo-128K',
+            'model' => 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
             'messages' => [
                 [
                     'role' => 'system',

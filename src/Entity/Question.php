@@ -104,6 +104,12 @@ class Question
         return $this->option1;
     }
 
+    // src/Entity/Question.php
+    public function __toString(): string
+    {
+        return $this->category ?? '';
+    }
+
     public function setOption1($value)
     {
         $this->option1 = $value;
