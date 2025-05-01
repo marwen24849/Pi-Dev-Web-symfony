@@ -20,15 +20,22 @@
                             <div class="form-group">
                                 <label class="form-label">Titre</label>
                                 {{ form_widget(form.title, {
-                                    'attr': {'class': 'form-control', 'placeholder': 'Enter the title'}
+                                    'attr': {
+                                        'class': 'form-control' ~ (form.title.vars.errors|length > 0 ? ' is-invalid' : ''),
+                                        'placeholder': 'Enter the title'
+                                    }
                                 }) }}
+                                {{ form_errors(form.title) }}
                             </div>
 
                             <div class="form-group mt-3">
                                 <label class="form-label">Durée (En Jours)</label>
                                 {{ form_widget(form.duration, {
-                                    'attr': {'class': 'form-control'}
+                                    'attr': {
+                                        'class': 'form-control' ~ (form.duration.vars.errors|length > 0 ? ' is-invalid' : '')
+                                    }
                                 }) }}
+                                {{ form_errors(form.duration) }}
                             </div>
                         </div>
 
@@ -37,15 +44,22 @@
                             <div class="form-group">
                                 <label class="form-label">Capacité</label>
                                 {{ form_widget(form.capacity, {
-                                    'attr': {'class': 'form-control'}
+                                    'attr': {
+                                        'class': 'form-control' ~ (form.capacity.vars.errors|length > 0 ? ' is-invalid' : '')
+                                    }
                                 }) }}
+                                {{ form_errors(form.capacity) }}
                             </div>
 
                             <div class="form-group mt-3">
                                 <label class="form-label">Description</label>
                                 {{ form_widget(form.description, {
-                                    'attr': {'class': 'form-control', 'rows': 4}
+                                    'attr': {
+                                        'class': 'form-control' ~ (form.description.vars.errors|length > 0 ? ' is-invalid' : ''),
+                                        'rows': 4
+                                    }
                                 }) }}
+                                {{ form_errors(form.description) }}
                             </div>
                         </div>
                     </div>

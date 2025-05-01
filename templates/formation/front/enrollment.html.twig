@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        h2 { color: #2c3e50; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Bienvenue à la formation: {{ formation.title }}</h2>
+    <p>{{ formation.description }}</p>
+
+    <p>Voici les sessions prévues :</p>
+    <ul>
+        {% for session in sessions %}
+            <li>
+                📅 {{ session.date|date('d/m/Y H:i') }}<br>
+                {% if session.is_online %}
+                    🌐 En ligne: <a href="{{ session.link }}">{{ session.link }}</a>
+                {% else %}
+                    🏢 Présentiel - Salle: {{ session.salle }}
+                {% endif %}
+            </li>
+        {% else %}
+            <li>Aucune session prévue pour le moment.</li>
+        {% endfor %}
+    </ul>
+
+    <p>Merci de votre inscription !</p>
+</body>
+</html>

@@ -8,22 +8,24 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="card-title mb-0 text-white">  
+                        <h4 class="card-title mb-0 text-white">
                             <i class="fas fa-chalkboard-teacher me-2"></i> Liste des Formations
                         </h4>
                     </div>
                 </div>
                 <div class="card-body">
                     <!-- Search Bar -->
-                    <div class="mb-3">
-                        <label for="searchFormation" class="form-label">Rechercher par Titre</label>
-                        <div class="input-group">
-                            <input type="text" id="searchFormation" class="form-control" placeholder="Enter a Program Title..." aria-label="Search Formations" value="{{ app.request.get('search') }}">
-                            <button class="btn btn-outline-primary" type="submit">
-                                <i class="fas fa-search"></i> Rechercher
-                            </button>
+                    <form method="get" action="{{ path('app_formation_user') }}">
+                        <div class="mb-3">
+                            <label for="searchFormation" class="form-label">Rechercher par Titre</label>
+                            <div class="input-group">
+                                <input type="text" id="searchFormation" name="search" class="form-control" placeholder="    " aria-label="Search Formations" value="{{ search }}">
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="fas fa-search"></i> Rechercher
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
 
                     <!-- Table for displaying the formations -->
                     <div class="table-responsive">
@@ -33,9 +35,8 @@
                                     <th>Titre</th>
                                     <th>Description</th>
                                     <th>Durée</th>
-                                    <th>Capacité</th>
+                                    <th>Places disponibles</th>
                                     <th>Actions</th>
-                                  
                                 </tr>
                             </thead>
                             <tbody>
@@ -44,10 +45,10 @@
                                         <td>{{ formation.title }}</td>
                                         <td>{{ formation.description }}</td>
                                         <td>{{ formation.duration }} Jours</td>
-                                        <td>{{ formation.capacity }}</td>
+                                        <td>{{ formation.spotsLeft }} / {{ formation.capacity }}</td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                               <a href="{{ path('app_formation_enroll', {'id': formation.id}) }}" class="btn btn-sm btn-success" title="Enroll">
+                                                <a href="{{ path('app_formation_enroll', {'id': formation.id}) }}" class="btn btn-sm btn-success" title="Enroll">
                                                     <i class="fas fa-user-plus"></i>
                                                 </a>
                                             </div>
@@ -91,6 +92,19 @@
                 title: 'Info',
                 text: '{{ message|e("js") }}',
                 confirmButtonColor: '#17a2b8'
+            });
+        </script>
+    {% endfor %}
+
+    {# Check for error (danger) messages (formation full) #}
+    {% set errorMessages = app.flashes('danger') %}
+    {% for message in errorMessages %}
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: '{{ message|e("js") }}',
+                confirmButtonColor: '#dc3545'
             });
         </script>
     {% endfor %}
