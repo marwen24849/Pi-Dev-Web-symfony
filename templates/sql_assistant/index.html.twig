@@ -1,206 +1,537 @@
+{# templates/sql_assistant/index.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Assistant SQL IA{% endblock %}
+{% block title %}SQL Assistant{% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        #sqlQuery {
-            font-family: monospace;
-            min-height: 100px;
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --info-color: #4895ef;
         }
 
-        .result-card {
-            margin-top: 30px;
+        body {
+            background-color: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .alert-info p,
-        .alert-info li {
+        .chat-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background-color: white;
+            height: calc(100vh - 100px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f9fafc;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            margin-left: auto;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 18px 18px 0 18px;
+            padding: 12px 15px;
+        }
+
+        .bot-message {
+            margin-right: auto;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 18px 18px 18px 0;
+            padding: 12px 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .sql-code {
+            background-color: #f5f5f5;
+            border-left: 4px solid var(--primary-color);
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9em;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-table th {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: left;
+            padding: 10px;
+        }
+
+        .result-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .result-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .result-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .analysis-box {
+            background-color: #e8f4fc;
+            border-left: 4px solid var(--info-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .analysis-box h6 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .analysis-box p {
+            margin-bottom: 10px;
+            white-space: pre-line;
+        }
+
+        .analysis-box strong {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .analysis-box em {
+            font-style: italic;
+        }
+
+        .analysis-box ul, .analysis-box ol {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .analysis-box li {
             margin-bottom: 5px;
         }
+
+        .input-area {
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            padding: 10px;
+        }
+
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #999;
+            margin-right: 3px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+            margin-right: 0;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        .schema-info {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #6c757d;
+        }
+
+        .schema-info h5 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .schema-info pre {
+            background-color: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .badge-rows {
+            background-color: var(--info-color);
+        }
+
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+        }
+
+        .markdown-content h1 { font-size: 1.5em; }
+        .markdown-content h2 { font-size: 1.3em; }
+        .markdown-content h3 { font-size: 1.1em; }
     </style>
 {% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="text-center mb-4">
-            <h1 class="display-5">Assistant SQL IA</h1>
-            <p class="lead text-muted">Posez votre question en langage naturel, générez une requête SQL et visualisez les résultats.</p>
-        </div>
+    <div class="container-fluid py-4">
+        <div class="chat-container">
+            <div class="chat-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-database"></i> SQL Assistant</span>
+                <button class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#schemaInfo">
+                    <i class="bi bi-info-circle"></i> View Schema
+                </button>
+            </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        Question en langage naturel
+            <div class="collapse" id="schemaInfo">
+                <div class="schema-info">
+                    <h5><i class="bi bi-diagram-3"></i> Database Schema</h5>
+                    <pre>{{ schema|raw }}</pre>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-robot me-2"></i>
+                        <strong>SQL Assistant</strong>
                     </div>
-                    <div class="card-body">
-                        <form id="questionForm">
-                            <div class="mb-3">
-                                <textarea class="form-control" id="questionInput" rows="3"
-                                          placeholder="Exemple : Donne-moi la liste des employés avec un salaire supérieur à 50000"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Générer la requête SQL</button>
-                        </form>
+                    <p>Hello! I'm assistant. Ask me anything about the database and I'll generate and execute the SQL for you.</p>
+                    <p>For example: "Show me the 10 most recent Result" or "List all Users from New York".</p>
+                </div>
+            </div>
 
-                        <div class="mt-4">
-                            <h5>Requête SQL générée :</h5>
-                            <textarea id="sqlQuery" class="form-control" readonly></textarea>
-                            <button id="executeBtn" class="btn btn-success mt-2" disabled>Exécuter la requête</button>
+            <div class="input-area">
+                <form id="sqlForm" class="row g-2">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="questionInput"
+                                   placeholder="Ask a question about the data..." autocomplete="off">
+                            <button class="btn btn-primary" type="submit" id="submitBtn">
+                                <i class="bi bi-send"></i> Send
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                <div class="card result-card shadow-sm">
-                    <div class="card-header bg-secondary text-white">
-                        Résultats et analyse
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="clearChat">
+                            <i class="bi bi-trash"></i> Clear
+                        </button>
                     </div>
-                    <div class="card-body">
-                        <div id="resultsContainer">
-                            <p class="text-muted">Entrez une question et exécutez une requête pour voir les résultats ici.</p>
-                        </div>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block javascripts %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('#questionForm').on('submit', function (e) {
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const sqlForm = document.getElementById('sqlForm');
+            const questionInput = document.getElementById('questionInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const clearChat = document.getElementById('clearChat');
+
+            // Function to add a message to the chat
+            function addMessage(content, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+
+                if (isUser) {
+                    messageDiv.innerHTML = `
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-person me-2"></i>
+                            <strong>You</strong>
+                        </div>
+                        <p>${content}</p>
+                    `;
+                } else {
+                    messageDiv.innerHTML = content;
+                }
+
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Function to show typing indicator
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message bot-message typing-indicator';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = `
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-robot me-2"></i>
+                        <strong>SQL Assistant</strong>
+                    </div>
+                    <div class="typing-dots">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                `;
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Function to hide typing indicator
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            // Function to format SQL results as a table
+            function formatResultsTable(results) {
+                if (!results || results.length === 0) {
+                    return '<p>No results found.</p>';
+                }
+
+                let tableHtml = '<div class="table-responsive"><table class="result-table"><thead><tr>';
+
+                // Create table headers from the keys of the first result
+                const headers = Object.keys(results[0]);
+                headers.forEach(header => {
+                    tableHtml += `<th>${header}</th>`;
+                });
+
+                tableHtml += '</tr></thead><tbody>';
+
+                // Add rows
+                results.forEach(row => {
+                    tableHtml += '<tr>';
+                    headers.forEach(header => {
+                        let value = row[header];
+                        if (value === null || value === undefined) {
+                            value = '<em>NULL</em>';
+                        } else if (typeof value === 'object') {
+                            value = JSON.stringify(value);
+                        }
+                        tableHtml += `<td>${value}</td>`;
+                    });
+                    tableHtml += '</tr>';
+                });
+
+                tableHtml += '</tbody></table></div>';
+                return tableHtml;
+            }
+
+            // Function to format LLM analysis text with proper line breaks and paragraphs
+            function formatAnalysisText(text) {
+                if (!text) return '';
+
+                // Convert markdown-style **bold** to HTML
+                let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                // Convert markdown-style *italic* to HTML
+                formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                // Convert line breaks to HTML
+                formattedText = formattedText.replace(/\n/g, '<br>');
+
+                return formattedText;
+            }
+
+            // Function to process the SQL generation and execution
+            async function processQuestion(question) {
+                try {
+                    showTypingIndicator();
+
+                    // First, generate the SQL
+                    const generateResponse = await fetch('{{ path('generate_sql') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'question': question
+                        })
+                    });
+
+                    const generateData = await generateResponse.json();
+
+                    if (!generateData.success) {
+                        hideTypingIndicator();
+                        addMessage(`
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-robot me-2"></i>
+                                <strong>SQL Assistant</strong>
+                            </div>
+                            <p>I encountered an error generating the SQL:</p>
+                            <div class="alert alert-danger">${generateData.error}</div>
+                        `);
+                        return;
+                    }
+
+                    // Show the generated SQL
+                    hideTypingIndicator();
+                    addMessage(`
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-robot me-2"></i>
+                            <strong>SQL Assistant</strong>
+                        </div>
+                        <p>Here's the SQL I generated for your question:</p>
+                        <div class="sql-code">${generateData.formatted_sql || generateData.sql}</div>
+                        <p>Executing the query...</p>
+                    `);
+
+                    showTypingIndicator();
+
+                    // Now execute the SQL
+                    const executeResponse = await fetch('{{ path('execute_sql') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'sql': generateData.sql,
+                            'question': question
+                        })
+                    });
+
+                    const executeData = await executeResponse.json();
+
+                    hideTypingIndicator();
+
+                    if (!executeData.success) {
+                        addMessage(`
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-robot me-2"></i>
+                                <strong>SQL Assistant</strong>
+                            </div>
+                            <p>I encountered an error executing the SQL:</p>
+                            <div class="alert alert-danger">${executeData.error}</div>
+                        `);
+                        return;
+                    }
+
+                    // Show the results and analysis
+                    let resultHtml = `
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-robot me-2"></i>
+                            <strong>SQL Assistant</strong>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-primary rounded-pill me-2">${executeData.row_count} rows</span>
+                        </div>
+                    `;
+
+                    if (executeData.results && executeData.results.length > 0) {
+                        resultHtml += formatResultsTable(executeData.results);
+                    } else {
+                        resultHtml += '<p>The query returned no results.</p>';
+                    }
+
+                    if (executeData.analysis) {
+                        resultHtml += `
+                            <div class="analysis-box markdown-content">
+                                <h6><i class="bi bi-lightbulb"></i> Analysis</h6>
+                                ${formatAnalysisText(executeData.analysis)}
+                            </div>
+                        `;
+                    }
+
+                    addMessage(resultHtml);
+
+                } catch (error) {
+                    hideTypingIndicator();
+                    addMessage(`
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-robot me-2"></i>
+                            <strong>SQL Assistant</strong>
+                        </div>
+                        <p>An error occurred:</p>
+                        <div class="alert alert-danger">${error.message}</div>
+                    `);
+                }
+            }
+
+            // Form submission handler
+            sqlForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const question = $('#questionInput').val().trim();
+                const question = questionInput.value.trim();
 
                 if (question) {
-                    generateSql(question);
+                    addMessage(question, true);
+                    questionInput.value = '';
+                    processQuestion(question);
                 }
             });
 
-            $('#executeBtn').on('click', function () {
-                const sql = $('#sqlQuery').val();
-                const question = $('#questionInput').val();
+            // Clear chat handler
+            clearChat.addEventListener('click', function() {
+                chatMessages.innerHTML = `
+                    <div class="message bot-message">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-robot me-2"></i>
+                            <strong>SQL Assistant</strong>
+                        </div>
+                        <p>Hello! I'm your SQL assistant. Ask me anything about the database and I'll generate and execute the SQL for you.</p>
+                    </div>
+                `;
+            });
 
-                if (sql) {
-                    executeSql(sql, question);
+            // Allow pressing Enter to submit (but Shift+Enter for new line)
+            questionInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sqlForm.dispatchEvent(new Event('submit'));
                 }
             });
+
+
+            questionInput.focus();
         });
-
-        function generateSql(question) {
-            $.ajax({
-                url: '{{ path('generate_sql') }}',
-                method: 'POST',
-                data: {question: question},
-                success: function (response) {
-                    if (response.success) {
-                        $('#sqlQuery').val(response.sql);
-                        $('#executeBtn').prop('disabled', false);
-                    } else {
-                        alert('Erreur: ' + response.error);
-                    }
-                },
-                error: function () {
-                    alert('Une erreur est survenue lors de la génération de la requête.');
-                }
-            });
-        }
-
-        function executeSql(sql, question) {
-            $.ajax({
-                url: '{{ path('execute_sql') }}',
-                method: 'POST',
-                data: {
-                    sql: sql,
-                    question: question
-                },
-                success: function (response) {
-                    if (response.success) {
-                        displayResults(response.results, response.analysis);
-                    } else {
-                        alert('Erreur: ' + response.error);
-                    }
-                },
-                error: function () {
-                    alert('Une erreur est survenue lors de l\'exécution de la requête.');
-                }
-            });
-        }
-
-        function cleanText(text) {
-            return text.replace(/\*\*/g, '').replace(/\|/g, '').trim();
-        }
-
-        function displayResults(results, analysis) {
-            let html = `<div class="mb-4">
-                            <h5>Analyse des résultats :</h5>
-                            <div class="alert alert-info">${cleanText(analysis).replace(/\n/g, '<br>')}</div>
-                        </div>`;
-
-            if (results.length > 0) {
-                html += `<h5>Données brutes :</h5>
-                         <table id="resultsTable" class="table table-striped table-bordered">
-                             <thead>
-                                 <tr>
-                                     ${Object.keys(results[0]).map(col => `<th>${col}</th>`).join('')}
-                                 </tr>
-                             </thead>
-                             <tbody>
-                                 ${results.map(row =>
-                    `<tr>${Object.values(row).map(val =>
-                        `<td>${val !== null ? val : 'NULL'}</td>`).join('')}</tr>`).join('')}
-                             </tbody>
-                         </table>`;
-
-                if (Object.keys(results[0]).length === 2 && typeof Object.values(results[0])[1] === 'number') {
-                    html += `<div class="mt-4">
-                                <h5>Visualisation :</h5>
-                                <canvas id="resultsChart" width="400" height="200"></canvas>
-                            </div>`;
-                }
-            } else {
-                html += '<div class="alert alert-warning">Aucun résultat trouvé.</div>';
-            }
-
-            $('#resultsContainer').html(html);
-
-            if ($('#resultsTable').length) {
-                $('#resultsTable').DataTable();
-            }
-
-            if ($('#resultsChart').length) {
-                const ctx = document.getElementById('resultsChart').getContext('2d');
-                const labels = results.map(row => Object.values(row)[0]);
-                const data = results.map(row => Object.values(row)[1]);
-
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: Object.keys(results[0])[1],
-                            data: data,
-                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
-        }
     </script>
 {% endblock %}
