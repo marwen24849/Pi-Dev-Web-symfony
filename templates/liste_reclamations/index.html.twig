@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réclamations{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">📬 Réclamations des employés</h2>
+
+    {% for reclamation in reclamations %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title mb-1">
+                        {{ reclamation.user_id.firstName }} {{ reclamation.user_id.lastName }}
+                    </h5>
+                    <small class="text-muted">
+                        {{ reclamation.date_creation|date('d M Y') }}
+                    </small>
+                </div>
+                <h6 class="card-subtitle mb-2 text-primary">
+                    {{ reclamation.sujet }}
+                </h6>
+                <p class="card-text">
+                    {{ reclamation.description|nl2br }}
+                </p>
+               
+
+                <!-- Répondre Button -->
+                <button 
+    class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-primary fw-semibold shadow-sm transition-all"
+    data-bs-toggle="modal"
+    data-bs-target="#responseModal{{ reclamation.id }}"
+    style="font-size: 0.9rem;"
+>
+    💬 Répondre
+</button>
+
+            </div>
+        </div>
+
+        {# Modal #}
+        <div class="modal fade" id="responseModal{{ reclamation.id }}" tabindex="-1"
+             aria-labelledby="responseModalLabel{{ reclamation.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg" style="max-height: 90vh;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="responseModalLabel{{ reclamation.id }}">
+                            Répondre à la réclamation
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <textarea 
+                            id="responseTextarea{{ reclamation.id }}" 
+                            class="form-control mb-3" 
+                            rows="10" 
+                            placeholder="Écrivez votre réponse..."
+                        ></textarea>
+                        <div class="d-flex justify-content-between">
+                            <button 
+                                class="btn btn-secondary ai-btn" 
+                                data-id="{{ reclamation.id }}" 
+                                data-generate-url="{{ path('app_generate_reclamation_response', {'id': reclamation.id}) }}"
+                            >
+                                Utiliser l’IA
+                            </button>
+                            <button 
+                                class="btn btn-primary send-btn" 
+                                data-id="{{ reclamation.id }}" 
+                                data-send-url="{{ path('app_send_reclamation_response', {'id': reclamation.id}) }}"
+                            >
+                                Envoyer la réponse
+                            </button>
+                        </div>
+                        <div id="aiStatus{{ reclamation.id }}" class="mt-2 text-muted"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            Aucune réclamation trouvée.
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Handle AI generation
+        document.querySelectorAll('.ai-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const url = btn.dataset.generateUrl;
+                const textarea = document.getElementById(`responseTextarea${id}`);
+                const statusDiv = document.getElementById(`aiStatus${id}`);
+                statusDiv.textContent = 'Génération en cours…';
+
+                fetch(url, {
+                    method: 'POST',
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        textarea.value = data.generatedText;
+                        statusDiv.textContent = 'Réponse générée.';
+                    } else {
+                        statusDiv.textContent = data.message;
+                    }
+                })
+                .catch(() => {
+                    statusDiv.textContent = 'Erreur lors de la génération.';
+                });
+            });
+        });
+
+        // Handle sending response
+        document.querySelectorAll('.send-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const url = btn.dataset.sendUrl;
+                const textarea = document.getElementById(`responseTextarea${id}`);
+                const payload = { response: textarea.value };
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // close modal
+                        const modalEl = document.getElementById(`responseModal${id}`);
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        modal.hide();
+                        alert(data.message);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(() => alert('Erreur lors de l’envoi de la réponse'));
+            });
+        });
+    });
+    </script>
+{% endblock %}

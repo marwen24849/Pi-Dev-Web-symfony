@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\Mime\Address;
 
 final class ReclamationController extends AbstractController
 {
@@ -53,7 +54,7 @@ final class ReclamationController extends AbstractController
                 
                 $userEmail = $reclamation->getUser_id()->getEmail();
                 $emailMessage = (new Email())
-                    ->from($_ENV['MAILER_FROM'])
+                    ->from(new Address($_ENV['MAILER_FROM'],'Equipe Rh'))
                     ->to($userEmail)
                     ->subject('Reclamation Confirmation')
                     ->html("
