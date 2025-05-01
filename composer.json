@@ -46,6 +46,7 @@
         "symfony/ux-turbo": "^2.23",
         "symfony/validator": "6.4.*",
         "symfony/web-link": "6.4.*",
+        "symfony/webpack-encore-bundle": "^2.2",
         "symfony/yaml": "6.4.*",
         "symfonycasts/verify-email-bundle": "^1.17",
         "thiagoalessio/tesseract_ocr": "^2.13",

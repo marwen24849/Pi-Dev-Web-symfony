@@ -6,6 +6,7 @@ use App\Entity\Session;
 use App\Entity\Formation;
 use App\Form\SessionType;
 use App\Repository\FormationRepository;
+use App\Service\ZoomService; // ✅ CORRECT!
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,124 +19,134 @@ final class SessionController extends AbstractController
     #[Route('/', name: 'app_session_index', methods: ['GET'])]
     public function index(
         int $formation_id,
-        FormationRepository $formationRepository
+        FormationRepository $formationRepository,
+        EntityManagerInterface $entityManager
     ): Response {
         $formation = $formationRepository->find($formation_id);
         
         if (!$formation) {
             throw $this->createNotFoundException('Formation not found');
         }
-
+    
+        // Get the current session count for this formation
+        $sessionCount = $entityManager->getRepository(Session::class)->count([
+            'formation_id' => $formation,
+        ]);
+    
         return $this->render('session/index.html.twig', [
             'sessions' => $formation->getSessions(),
             'formation' => $formation,
+            'sessionCount' => $sessionCount,  // Pass the session count to Twig
+            'maxSessions' => $formation->getDuration(),  // Assuming 'getDuration' gives max sessions
         ]);
     }
+    
 
     #[Route('/new', name: 'app_session_new', methods: ['GET', 'POST'])]
     public function new(
         Request $request,
         int $formation_id,
         FormationRepository $formationRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        ZoomService $zoomService // 👈 Injected here!
     ): Response {
         $formation = $formationRepository->find($formation_id);
         if (!$formation) {
             throw $this->createNotFoundException('Formation not found');
         }
 
-    $session = new Session();
-    $session->setFormation_id($formation);
-    $session->setIs_online(false);
-    $session->setLink('');
-    $session->setSalle('');
+        $session = new Session();
+        $session->setFormation_id($formation);
+        $session->setIs_online(false);
+        $session->setLink('');
+        $session->setSalle('');
 
-    $form = $this->createForm(SessionType::class, $session);
-    $form->handleRequest($request);
+        $form = $this->createForm(SessionType::class, $session);
+        $form->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        $isOnline = $form->get('is_online')->getData() ?? false;
-        $session->setIs_online($isOnline);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $isOnline = $form->get('is_online')->getData() ?? false;
+            $session->setIs_online($isOnline);
 
-        // Get date and salle from form
-        $date = $form->get('date')->getData();
-        $salle = $form->get('salle')->getData();
+            $date = $form->get('date')->getData();
+            $salle = $form->get('salle')->getData();
 
-        // Required field check
-        if (!$isOnline && (empty($salle) || $date === null)) {
-            $this->addFlash('error', 'Tous les champs doivent être remplis.');
-            return $this->render('session/new.html.twig', [
-                'form' => $form->createView(),
-                'formation' => $formation,
-            ]);
-        }
-
-        // Validate salle number
-        if (!$isOnline && (!is_numeric($salle) || (int)$salle <= 0)) {
-            $this->addFlash('error', 'La salle doit être un nombre entier positif.');
-            return $this->render('session/new.html.twig', [
-                'form' => $form->createView(),
-                'formation' => $formation,
-            ]);
-        }
-        
-
-        // Conflict check: same salle and date
-        if (!$isOnline) {
-            $conflict = $entityManager->getRepository(Session::class)->createQueryBuilder('s')
-                ->select('count(s.id)')
-                ->where('s.date = :date')
-                ->andWhere('s.salle = :salle')
-                ->setParameter('date', $date)
-                ->setParameter('salle', $salle)
-                ->getQuery()
-                ->getSingleScalarResult();
-
-            if ($conflict > 0) {
-                $this->addFlash('error', 'Une session avec la même date et salle existe déjà.');
+            if (!$isOnline && (empty($salle) || $date === null)) {
+                $this->addFlash('error', 'Tous les champs doivent être remplis.');
                 return $this->render('session/new.html.twig', [
                     'form' => $form->createView(),
                     'formation' => $formation,
                 ]);
             }
-        }
 
-        // Max session check based on duration
-        $sessionCount = $entityManager->getRepository(Session::class)->count([
-            'formation_id' => $formation,
-        ]);
-
-        if ($sessionCount >= $formation->getDuration()) {
-            $this->addFlash('error', 'Le nombre maximum de sessions pour cette formation est atteint.');
-            return $this->render('session/new.html.twig', [
-                'form' => $form->createView(),
-                'formation' => $formation,
-            ]);
-        }
-
-        // Link generation or reset depending on session type
-        if ($isOnline) {
-            $session->setSalle(null);
-            if (empty(trim($session->getLink()))) {
-                $session->setLink('online-session-' . uniqid());
+            if (!$isOnline && (!is_numeric($salle) || (int)$salle <= 0)) {
+                $this->addFlash('error', 'La salle doit être un nombre entier positif.');
+                return $this->render('session/new.html.twig', [
+                    'form' => $form->createView(),
+                    'formation' => $formation,
+                ]);
             }
-        } else {
-            $session->setLink('');
+
+            if (!$isOnline) {
+                $conflict = $entityManager->getRepository(Session::class)->createQueryBuilder('s')
+                    ->select('count(s.id)')
+                    ->where('s.date = :date')
+                    ->andWhere('s.salle = :salle')
+                    ->setParameter('date', $date)
+                    ->setParameter('salle', $salle)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+
+                if ($conflict > 0) {
+                    $this->addFlash('error', 'Une session avec la même date et salle existe déjà.');
+                    return $this->render('session/new.html.twig', [
+                        'form' => $form->createView(),
+                        'formation' => $formation,
+                    ]);
+                }
+            }
+
+            $sessionCount = $entityManager->getRepository(Session::class)->count([
+                'formation_id' => $formation,
+            ]);
+
+            if ($sessionCount >= $formation->getDuration()) {
+                $this->addFlash('error', 'Le nombre maximum de sessions pour cette formation est atteint.');
+                return $this->render('session/new.html.twig', [
+                    'form' => $form->createView(),
+                    'formation' => $formation,
+                ]);
+            }
+
+            if ($isOnline) {
+                $session->setSalle(null);
+                try {
+                    $zoomLink = $zoomService->createMeeting(); // ✅ This now works
+                    $session->setLink($zoomLink);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Erreur lors de la création du lien Zoom : ' . $e->getMessage());
+                    return $this->render('session/new.html.twig', [
+                        'form' => $form->createView(),
+                        'formation' => $formation,
+                    ]);
+                }
+            } else {
+                $session->setLink('');
+            }
+
+            $entityManager->persist($session);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_session_index', [
+                'formation_id' => $formation->getId(),
+            ], Response::HTTP_SEE_OTHER);
         }
 
-        $entityManager->persist($session);
-        $entityManager->flush();
-
-        return $this->redirectToRoute('app_session_index', [
-            'formation_id' => $formation->getId(),
-        ], Response::HTTP_SEE_OTHER);
-    }
-
-    return $this->render('session/new.html.twig', [
-        'form' => $form->createView(),
-        'formation' => $formation,
-    ]);
-}
+        return $this->render('session/new.html.twig', [
+            'form' => $form->createView(),
+            'formation' => $formation,
+        ]);
+    } 
 
 
     #[Route('/{id}', name: 'app_session_show', methods: ['GET'])]
@@ -151,11 +162,11 @@ final class SessionController extends AbstractController
 public function edit(
     Request $request,
     Session $session,
-    EntityManagerInterface $entityManager
+    EntityManagerInterface $entityManager,
+    ZoomService $zoomService // 👈 Injected here!
 ): Response {
     $formation = $session->getFormation_id();
 
-    // Ensure default values for link and salle
     if ($session->getLink() === null) {
         $session->setLink('');
     }
@@ -170,13 +181,11 @@ public function edit(
         $isOnline = $form->get('is_online')->getData() ?? false;
         $session->setIs_online($isOnline);
 
-        // Get date and salle from form
         $date = $form->get('date')->getData();
         $salle = $form->get('salle')->getData();
 
-        // Required field check
         if (!$isOnline && (empty($salle) || $date === null)) {
-            $this->addFlash('error', 'All fields must be filled in.');
+            $this->addFlash('error', 'Tous les champs doivent être remplis.');
             return $this->render('session/edit.html.twig', [
                 'session' => $session,
                 'form' => $form->createView(),
@@ -184,7 +193,6 @@ public function edit(
             ]);
         }
 
-        // Validate salle number
         if (!$isOnline && (!is_numeric($salle) || (int)$salle <= 0)) {
             $this->addFlash('error', 'La salle doit être un nombre entier positif.');
             return $this->render('session/edit.html.twig', [
@@ -194,7 +202,6 @@ public function edit(
             ]);
         }
 
-        // Conflict check: same salle and date (excluding current session)
         if (!$isOnline) {
             $conflict = $entityManager->getRepository(Session::class)->createQueryBuilder('s')
                 ->select('count(s.id)')
@@ -217,15 +224,12 @@ public function edit(
             }
         }
 
-        // Max session check based on duration (only if creating a new session for the formation)
-        // Note: This check might not be needed for edit since we're modifying an existing session
-        // If you want to keep it, you might need to adjust the logic
         $sessionCount = $entityManager->getRepository(Session::class)->count([
             'formation_id' => $formation,
         ]);
 
         if ($sessionCount > $formation->getDuration()) {
-            $this->addFlash('error', 'The maximum number of sessions for this training is reached.');
+            $this->addFlash('error', 'Le nombre maximum de sessions pour cette formation est atteint.');
             return $this->render('session/edit.html.twig', [
                 'session' => $session,
                 'form' => $form->createView(),
@@ -233,11 +237,20 @@ public function edit(
             ]);
         }
 
-        // Link generation or reset depending on session type
         if ($isOnline) {
             $session->setSalle(null);
             if (empty(trim($session->getLink()))) {
-                $session->setLink('online-session-' . uniqid());
+                try {
+                    $zoomLink = $zoomService->createMeeting();
+                    $session->setLink($zoomLink);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Erreur lors de la création du lien Zoom : ' . $e->getMessage());
+                    return $this->render('session/edit.html.twig', [
+                        'session' => $session,
+                        'form' => $form->createView(),
+                        'formation' => $formation,
+                    ]);
+                }
             }
         } else {
             $session->setLink('');
@@ -256,6 +269,7 @@ public function edit(
         'form' => $form->createView(),
     ]);
 }
+
 
     #[Route('/{id}', name: 'app_session_delete', methods: ['POST'])]
     public function delete(
