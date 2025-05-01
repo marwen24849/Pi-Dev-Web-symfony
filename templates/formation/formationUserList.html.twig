@@ -25,7 +25,8 @@
                                         {% for user in item.users %}
                                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                                 {{ user.firstName }} {{ user.lastName }}
-                                                <form method="post" action="{{ path('app_formation_user_ban', {formation_id: item.formation.id, user_id: user.id}) }}" onsubmit="return confirm('Retirer cet employé ?');" style="display: inline;">
+                                                <<form method="post" action="{{ path('app_formation_user_ban', {formation_id: item.formation.id, user_id: user.id}) }}" style="display: inline;">
+
                                                     <input type="hidden" name="_token" value="{{ csrf_token('ban' ~ user.id ~ item.formation.id) }}">
                                                     <button class="btn btn-sm btn-danger" title="Retirer">
                                                         <i class="fas fa-user-times"></i> Retirer
@@ -46,4 +47,42 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {# Flash messages with SweetAlert2 #}
+{% set successMessages = app.flashes('success') %}
+{% for message in successMessages %}
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Succès',
+            text: '{{ message|e("js") }}',
+            confirmButtonColor: '#4CAF50'
+        });
+    </script>
+{% endfor %}
+
+{% set infoMessages = app.flashes('info') %}
+{% for message in infoMessages %}
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: 'Info',
+            text: '{{ message|e("js") }}',
+            confirmButtonColor: '#17a2b8'
+        });
+    </script>
+{% endfor %}
+
+{% set errorMessages = app.flashes('danger') %}
+{% for message in errorMessages %}
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: '{{ message|e("js") }}',
+            confirmButtonColor: '#dc3545'
+        });
+    </script>
+{% endfor %}
+
 {% endblock %}

@@ -12,6 +12,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use App\Entity\User;
 use App\Entity\Formation_user;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mime\Address;
+
 
 #[Route('/formation/user')]
 final class FormationUserController extends AbstractController
@@ -74,7 +78,8 @@ public function enroll(
     Formation $formation,
     EntityManagerInterface $entityManager,
     SessionInterface $session,
-    Request $request
+    Request $request,
+    MailerInterface $mailer // 👈 Injected here
 ): Response {
     $userId = $session->get('user_id');
     if (!$userId) {
@@ -86,19 +91,16 @@ public function enroll(
         throw $this->createNotFoundException('User not found.');
     }
 
-    // Check how many spots are left
     $enrolledCount = $entityManager->getRepository(Formation_user::class)
         ->count(['formation_id' => $formation]);
 
     $spotsLeft = $formation->getCapacity() - $enrolledCount;
 
-    // If there are no spots left, show a flash message and redirect
     if ($spotsLeft <= 0) {
         $this->addFlash('danger', 'Désolé, il n\'y a plus de places disponibles pour cette formation.');
         return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_formation_user'));
     }
 
-    // Check if the user is already enrolled in the formation
     $existing = $entityManager->getRepository(Formation_user::class)->findOneBy([
         'formation_id' => $formation,
         'user_id' => $user,
@@ -110,15 +112,28 @@ public function enroll(
         $enrollment = new Formation_user();
         $enrollment->setFormation_id($formation);
         $enrollment->setUser_id($user);
-
         $entityManager->persist($enrollment);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Vous vous êtes inscrit avec succès!');
+        $this->addFlash('success', 'Vous vous êtes inscrit avec succès! Veuillez vérifier votre courrier.');
+
+        // ✅ SEND EMAIL HERE
+        $email = (new TemplatedEmail())
+            ->from(new Address('no-reply@yourapp.com', 'Formation Team'))
+            ->to($user->getEmail())
+            ->subject('Confirmation d\'inscription à la formation: ' . $formation->getTitle())
+            ->htmlTemplate('formation/front/enrollment.html.twig')
+            ->context([
+                'formation' => $formation,
+                'sessions' => $formation->getSessions(), // Make sure this is loaded
+            ]);
+
+        $mailer->send($email);
     }
 
     return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_formation_user'));
 }
+
 
 
     #[Route('/details/{id}', name: 'app_formation_show', methods: ['GET'], requirements: ['id' => '\d+'])]
