@@ -12,13 +12,8 @@
         "doctrine/doctrine-bundle": "^2.14",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
-        "dompdf/dompdf": "^3.1",
         "google/apiclient": "^2.18",
-
-        "nucleos/dompdf-bundle": "^4.3",
-
         "knplabs/knp-paginator-bundle": "^6.8",
-
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.1",
         "symfony/asset": "6.4.*",
@@ -47,22 +42,18 @@
         "symfony/string": "6.4.*",
         "symfony/translation": "6.4.*",
         "symfony/twig-bundle": "6.4.*",
-
+<<<<<<< HEAD
         "symfony/ux-autocomplete": "^2.24",
         "symfony/ux-chartjs": "^2.24",
         "symfony/ux-turbo": "^2.23",
-
-       
-
+=======
+        "symfony/ux-turbo": "^2.24",
+>>>>>>> e93f0e68f91655138df151004c02f43dd43a4328
         "symfony/validator": "6.4.*",
         "symfony/web-link": "6.4.*",
-
-
         "symfony/webpack-encore-bundle": "^2.2",
-
         "symfony/yaml": "6.4.*",
         "symfonycasts/verify-email-bundle": "^1.17",
-        "thiagoalessio/tesseract_ocr": "^2.13",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"
     },

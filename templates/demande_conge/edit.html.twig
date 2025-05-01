@@ -7,41 +7,18 @@
         <div class="col-md-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-warning text-dark">
-                    <h4 class="card-title mb-0">
-                        <i class="fas fa-edit me-2"></i> Modifier la demande de congé
-                    </h4>
+                    <h4 class="card-title mb-0"><i class="fas fa-edit me-2"></i> Modifier la demande de congé</h4>
                 </div>
-
-                {# Include SweetAlert2 library #}
-                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-                {# SweetAlert2 for success flash #}
                 {% for message in app.flashes('success') %}
-                    <script>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Succès',
-                            text: '{{ message|e('js') }}',
-                            confirmButtonColor: '#28a745',
-                            confirmButtonText: 'OK'
-                        });
-                    </script>
+                    <div class="alert alert-success">{{ message }}</div>
                 {% endfor %}
-
-                {# SweetAlert2 for error flash #}
                 {% for message in app.flashes('error') %}
-                    <script>
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Erreur',
-                            text: '{{ message|e('js') }}',
-                            confirmButtonColor: '#d33',
-                            confirmButtonText: 'OK'
-                        });
-                    </script>
+                    <div class="alert alert-danger">{{ message }}</div>
                 {% endfor %}
-
                 <div class="card-body">
+
+
+
                     {{ form_start(form, {
                         'attr': {'enctype': 'multipart/form-data'},
                         'method': 'POST'
@@ -88,7 +65,9 @@
                             <i class="fas fa-paper-plane me-2"></i> Mettre à jour
                         </button>
 
-                        <a href="{{ path('app_liste_conges') }}" class="btn btn-secondary">
+
+
+                        <a href="{{ path('app_liste_conges') }}" class="btn btn-secondary ">
                             <i class="fas fa-arrow-left me-1"></i> Annuler
                         </a>
                     </div>
@@ -110,6 +89,14 @@
             const type = typeField.value;
             autreGroup.style.display = (type === 'Autre') ? 'block' : 'none';
             certGroup.style.display = (type === 'Maladie') ? 'block' : 'none';
+        }
+
+        function submitEditForm(e) {
+            e.preventDefault();
+            const form = document.querySelector('form');
+            if (form) {
+                form.submit();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

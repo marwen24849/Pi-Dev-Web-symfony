@@ -20,9 +20,7 @@ class DemandeConge
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "demandeConges")]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?User $user_id = null;
-
-
+    private User $user_id;
 
     #[ORM\Column(type: "text", nullable: true)]
     #[Assert\NotBlank(message: "Le type de congé est obligatoire.")]
@@ -35,13 +33,13 @@ class DemandeConge
     private ?string $justification = null;
 
     #[ORM\Column(type: "string", nullable: true)]
-    private ?string $status = null;
+    private string $status;
 
-    #[ORM\Column(type: "date", nullable: true)]
+    #[ORM\Column(type: "date" , nullable: true)]
     #[Assert\NotBlank(message: "La date de début est obligatoire.")]
     private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column(type: "date", nullable: true)]
+    #[ORM\Column(type: "date",nullable: true )]
     #[Assert\NotBlank(message: "La date de fin est obligatoire.")]
     #[Assert\Expression(
         "this.getDateFin() >= this.getDateDebut()",
@@ -51,6 +49,7 @@ class DemandeConge
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $certificate = null;
+
 
     #[ORM\OneToMany(mappedBy: "conge_id", targetEntity: Conge::class)]
     private Collection $conges;
@@ -67,24 +66,22 @@ class DemandeConge
         return $this->id;
     }
 
-    public function getUser_id(): ?User
+    public function getUser_id(): User
     {
         return $this->user_id;
     }
 
-    public function setUser_id(?User $user): self
+    public function setUser_id(User $user): void
     {
         $this->user_id = $user;
-        return $this;
     }
 
-
-    public function getTypeConge(): ?string
+    public function getTypeConge(): string
     {
         return $this->typeConge;
     }
 
-    public function setTypeConge(?string $typeConge): void
+    public function setTypeConge(string $typeConge): void
     {
         $this->typeConge = $typeConge;
     }
@@ -109,12 +106,12 @@ class DemandeConge
         $this->justification = $justification;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    public function setStatus(?string $status): void
+    public function setStatus(string $status): void
     {
         $this->status = $status;
     }
@@ -201,4 +198,6 @@ class DemandeConge
             }
         }
     }
+
+
 }

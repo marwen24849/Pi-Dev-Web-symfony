@@ -69,7 +69,6 @@ class AuthController extends AbstractController
         $session->set('user_email', $user->getEmail());
         $session->set('user_role', $user->getRole());
         $session->set('user_last_name', $user->getLastName());
-        $session->set('user_solde', $user->getSoldeConge());
 
         return $this->redirectToRoute('app_home');
     }

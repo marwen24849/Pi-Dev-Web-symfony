@@ -157,19 +157,9 @@
       <path value="$PROJECT_DIR$/vendor/paragonie/random_compat" />
       <path value="$PROJECT_DIR$/vendor/psr/http-message" />
       <path value="$PROJECT_DIR$/vendor/psr/http-client" />
-
-      <path value="$PROJECT_DIR$/vendor/thiagoalessio/tesseract_ocr" />
-      <path value="$PROJECT_DIR$/vendor/google/apiclient-services" />
-      <path value="$PROJECT_DIR$/vendor/dompdf/dompdf" />
-      <path value="$PROJECT_DIR$/vendor/sabberworm/php-css-parser" />
-      <path value="$PROJECT_DIR$/vendor/dompdf/php-font-lib" />
-      <path value="$PROJECT_DIR$/vendor/dompdf/php-svg-lib" />
-      <path value="$PROJECT_DIR$/vendor/nucleos/dompdf-bundle" />
-
       <path value="$PROJECT_DIR$/vendor/google/apiclient-services" />
       <path value="$PROJECT_DIR$/vendor/symfony/webpack-encore-bundle" />
       <path value="$PROJECT_DIR$/vendor/symfony/ux-chartjs" />
-
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />

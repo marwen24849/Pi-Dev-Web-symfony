@@ -1,10 +1,8 @@
+{% extends 'base.html.twig' %}
 
-    <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Détail de la demande</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
+{% block title %}Détail de la demande{% endblock %}
+
+{% block body %}
     <div class="container mt-4">
         <div class="card shadow">
             <div class="card-header bg-info text-white">
@@ -75,8 +73,4 @@
             </div>
         </div>
     </div>
-    </div>
-</div>
-
-
-
+{% endblock %}
