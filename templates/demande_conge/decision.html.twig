@@ -40,34 +40,26 @@
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
             <tr>
-                <th>#</th>
+                <th>User Name</th>
                 <th>Type</th>
-                <th>Autre</th>
+
                 <th>Début</th>
                 <th>Fin</th>
-                <th>Justification</th>
-                <th>Certificat</th>
+
+
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody>
             {% for conge in conges %}
                 <tr>
-                    <td>{{ loop.index }}</td>
+                    <td>{{ conge.user_id.firstName }} {{ conge.user_id.lastName }}</td>
                     <td>{{ conge.typeConge }}</td>
-                    <td>{{ conge.autre ?? '-' }}</td>
+
                     <td>{{ conge.dateDebut ? conge.dateDebut|date('d/m/Y') : '-' }}</td>
                     <td>{{ conge.dateFin ? conge.dateFin|date('d/m/Y') : '-' }}</td>
-                    <td>{{ conge.justification ?? '-' }}</td>
-                    <td>
-                        {% if conge.certificate %}
-                            <a href="{{ asset('uploads/' ~ conge.certificate) }}" class="btn btn-sm btn-secondary" target="_blank">
-                                <i class="fas fa-file-alt"></i>
-                            </a>
-                        {% else %}
-                            Aucun
-                        {% endif %}
-                    </td>
+
+
                     <td>
                         <form method="post" style="display:inline;" action="{{ path('app_traitement_conges') }}">
                             <input type="hidden" name="demande_id" value="{{ conge.id }}">

@@ -51,6 +51,8 @@
 {% set user_email = app.session.get('user_email') %}
 {% set user_role = app.session.get('user_role') %}
 {% set user_last_name = app.session.get('user_last_name') %}
+{% set user_solde = app.session.get('user_solde') %}
+
 <div class="wrapper">
 
     <!-- Sidebar -->
@@ -151,18 +153,48 @@
                         </a>
                         <div class="collapse" id="congeMenu">
                             <ul class="nav nav-collapse">
-                                <li>
-                                    <a href="{{ path('app_demande_conge') }}">
-                                        <i class="fas fa-file-alt"></i>
-                                        <span class="sub-item">Nouvelle demande</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ path('app_traitement_conges') }}">
-                                        <i class="fas fa-eye"></i>
-                                        <span class="sub-item">Traitement des demandes</span>
-                                    </a>
-                                </li>
+                                {% if user_role == 'USER' %}
+                                    <li>
+                                        <a href="{{ path('app_demande_conge') }}">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span class="sub-item">Nouvelle demande</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if user_role == 'ADMIN' %}
+                                    <li>
+                                        <a href="{{ path('app_traitement_conges') }}">
+                                            <i class="fas fa-eye"></i>
+                                            <span class="sub-item">Traitement des demandes</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if user_role == 'USER' %}
+                                    <li>
+                                        <a href="{{ path('app_suivi_conges') }}">
+                                            <i class="fas fa-chart-line"></i>
+                                            <span class="sub-item">Suivi de mes congés</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if user_role == 'ADMIN' %}
+                                    <li>
+                                        <a href="{{ path('admin_conge_stats') }}">
+                                            <i class="fas fa-chart-bar"></i>
+                                            <span class="sub-item">Statistiques Congés</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if user_role == 'ADMIN' %}
+                                    <li>
+                                        <a href="{{ path('admin_conge_line_chart') }}">
+                                            <i class="fas fa-chart-line"></i>
+                                            <span class="sub-item">Statistiques Congés</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+
                             </ul>
                         </div>
                     </li>
@@ -627,7 +659,13 @@
                                     <li>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="#">My Profile</a>
-                                        <a class="dropdown-item" href="#">My Balance</a>
+                                        {% if user_role == 'USER' %}
+                                            <a class="dropdown-item" href="#">
+                                                <i class="fas fa-wallet text-primary me-1"></i>
+                                                Solde Congé :
+                                                <strong>{{ user_solde ?? 'N/A' }} jour(s)</strong>
+                                            </a>
+                                        {% endif %}
                                         <a class="dropdown-item" href="#">Inbox</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="#">Account Setting</a>

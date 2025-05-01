@@ -20,7 +20,9 @@ class DemandeConge
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "demandeConges")]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?User $user = null;
+    private ?User $user_id = null;
+
+
 
     #[ORM\Column(type: "text", nullable: true)]
     #[Assert\NotBlank(message: "Le type de congé est obligatoire.")]
@@ -65,16 +67,17 @@ class DemandeConge
         return $this->id;
     }
 
-    public function getUser(): ?User
+    public function getUser_id(): ?User
     {
-        return $this->user;
+        return $this->user_id;
     }
 
-    public function setUser(?User $user): self
+    public function setUser_id(?User $user): self
     {
-        $this->user = $user;
+        $this->user_id = $user;
         return $this;
     }
+
 
     public function getTypeConge(): ?string
     {

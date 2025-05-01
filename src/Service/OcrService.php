@@ -24,11 +24,11 @@ class OcrService
             ],
             'body' => [
                 'base64Image' => 'data:image/png;base64,' . $imageData,
-                'language' => 'fre', // 'fre' for French certificates
+                'language' => 'fre',
             ],
         ]);
 
-        $content = $response->toArray(false); // false to avoid exception
+        $content = $response->toArray(false);
 
         if (isset($content['ParsedResults'][0]['ParsedText'])) {
             return $content['ParsedResults'][0]['ParsedText'];
