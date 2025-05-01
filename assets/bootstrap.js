@@ -1,5 +1,7 @@
+// assets/bootstrap.js
 import { startStimulusApp } from '@symfony/stimulus-bundle';
 
 const app = startStimulusApp();
-// register any custom, 3rd party controllers here
-// app.register('some_controller_name', SomeImportedController);
+
+// Tu en auras besoin si tu veux enregistrer d'autres contrôleurs manuellement
+export { app };

@@ -13,6 +13,7 @@
                 href="{{ asset('back/img/kaiadmin/favicon.ico') }}"
                 type="image/x-icon"
         />
+
         <script src="{{ asset('back/js/plugin/webfont/webfont.min.js') }}"></script>
         <script>
             WebFont.load({
@@ -40,10 +41,11 @@
         <!-- CSS Just for demo purpose, don't include it in your project -->
         <link rel="stylesheet" href="{{ asset('back/css/demo.css') }}" />
         {% block stylesheets %}
+
         {% endblock %}
 
         {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
+
         {% endblock %}
     </head>
     <body>
@@ -84,7 +86,7 @@
                 <div class="sidebar-content">
                     <ul class="nav nav-secondary">
                         <li class="nav-item active">
-                            <a href="dashboard.html">
+                            <a href="{{ path('app_homepage') }}">
                                 <i class="fas fa-tachometer-alt"></i>
                                 <p>Dashboard</p>
                             </a>
