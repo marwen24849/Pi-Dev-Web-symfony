@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Congés{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3><i class="fas fa-list me-2"></i> Liste des demandes de congé</h3>
+            <a href="{{ path('app_demande_conge') }}" class="btn btn-primary " id="new-request-btn">
+                <i class="fas fa-plus me-1"></i> Nouvelle demande
+            </a>
+
+        </div>
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success mt-2">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger mt-2">{{ message }}</div>
+        {% endfor %}
+
+        <form method="get" class="mb-3">
+            <input type="text" name="search" value="{{ search }}" placeholder="Rechercher par type ou justification..." class="form-control" />
+        </form>
+
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Autre</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Justification</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for conge in conges %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ conge.typeConge }}</td>
+                    <td>{{ conge.autre ?? '-' }}</td>
+                    <td>{{ conge.dateDebut ? conge.dateDebut|date('d/m/Y') : '-' }}</td>
+                    <td>{{ conge.dateFin ? conge.dateFin|date('d/m/Y') : '-' }}</td>
+                    <td>{{ conge.justification ?? '-' }}</td>
+                    <td>
+                        {% if conge.status == 'PENDING' %}
+                            <span class="badge bg-warning text-dark">En attente</span>
+                        {% elseif conge.status == 'APPROVED' %}
+                            <span class="badge bg-success">Approuvé</span>
+                        {% elseif conge.status == 'REJECTED' %}
+                            <span class="badge bg-danger">Refusé</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_demande_conge_edit', {'id': conge.id}) }}" class="btn btn-sm btn-warning me-1 ">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{{ path('app_liste_conges') }}"
+                           class="btn btn-sm btn-danger"
+                           onclick="event.preventDefault(); if(confirm('Supprimer cette demande ?')) {
+                                   const form = document.createElement('form');
+                                   form.method = 'POST';
+                                   form.action = '{{ path('app_conge_delete', {'id': conge.id}) }}';
+
+                                   const csrf = document.createElement('input');
+                                   csrf.type = 'hidden';
+                                   csrf.name = '_token';
+                                   csrf.value = '{{ csrf_token('delete' ~ conge.id) }}';
+
+                                   form.appendChild(csrf);
+                                   document.body.appendChild(form);
+                                   form.submit();
+                                   }">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                        <a href="{{ path('app_conge_show', {'id': conge.id}) }}" class="btn btn-sm btn-info me-1">
+                            <i class="fas fa-eye"></i>
+                        </a>
+
+
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" class="text-center">Aucune demande trouvée.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

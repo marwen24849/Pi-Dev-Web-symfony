@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Demande de Congé{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-plane-departure me-2"></i> Demande de Congé
+                    </h4>
+                </div>
+
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success mt-2">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger mt-2">{{ message }}</div>
+                {% endfor %}
+
+
+                {% if not form.vars.valid %}
+                    <div class="alert alert-danger">
+                        Le formulaire contient des erreurs de validation.
+                    </div>
+                {% endif %}
+
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate'}}) }}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.typeConge) }}
+                                {{ form_widget(form.typeConge, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.typeConge) }}
+                            </div>
+
+                            <div class="form-group mt-3" id="autre_conge_group" style="display: none;">
+                                {{ form_label(form.autre) }}
+                                {{ form_widget(form.autre, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.autre) }}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                {{ form_label(form.dateDebut) }}
+                                {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.dateDebut) }}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                {{ form_label(form.dateFin) }}
+                                {{ form_widget(form.dateFin, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.dateFin) }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.justification) }}
+                                {{ form_widget(form.justification, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.justification) }}
+                            </div>
+
+                            <div class="form-group mt-3" id="certificate_group" style="display: none;">
+                                {{ form_label(form.certificate) }}
+                                {{ form_widget(form.certificate, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.certificate) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-2"></i> Envoyer la demande
+                        </button>
+                        <a href="{{ path('app_liste_conges') }}" class="btn btn-secondary ms-2">
+                            <i class="fas fa-arrow-left me-1"></i> Liste Des Demandes
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleTypeChange() {
+            const typeField = document.querySelector('[name$="[typeConge]"]');
+            const autreGroup = document.getElementById('autre_conge_group');
+            const certGroup = document.getElementById('certificate_group');
+            const type = typeField?.value;
+
+            autreGroup.style.display = (type === 'Autre') ? 'block' : 'none';
+            certGroup.style.display = (type === 'Maladie') ? 'block' : 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            handleTypeChange();
+            const typeSelector = document.querySelector('[name$="[typeConge]"]');
+            if (typeSelector) {
+                typeSelector.addEventListener('change', handleTypeChange);
+            }
+        });
+    </script>
+{% endblock %}

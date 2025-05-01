@@ -128,7 +128,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    // For backwards compatibility with Symfony versions <5.3
+    
     public function getUsername(): string
     {
         return $this->email;
@@ -136,7 +136,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        // Return the role as an array.
+        
         return [$this->role];
     }
 
@@ -145,8 +145,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // If you store any temporary sensitive data, clear it here.
     }
 
-    #[ORM\OneToMany(mappedBy: "user_id", targetEntity: Demande_conge::class)]
-    private Collection $demande_conges;
+    #[ORM\OneToMany(mappedBy: "user_id", targetEntity: DemandeConge::class)]
+    private Collection $demandeConges;
 
     #[ORM\OneToMany(mappedBy: "user_id", targetEntity: Demande_mobilite::class)]
     private Collection $demande_mobilites;
