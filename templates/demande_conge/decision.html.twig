@@ -1,14 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des Congés{% endblock %}
+{% block title %}Traitement des demandes de congé{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3><i class="fas fa-list me-2"></i> Liste des demandes de congé</h3>
-            <a href="{{ path('app_demande_conge') }}" class="btn btn-primary" id="new-request-btn">
-                <i class="fas fa-plus me-1"></i> Nouvelle demande
-            </a>
+            <h3><i class="fas fa-check-circle me-2"></i> Traitement des demandes de congé</h3>
         </div>
 
         {# Include SweetAlert2 library #}
@@ -40,50 +37,45 @@
             </script>
         {% endfor %}
 
-        <form method="get" class="mb-3">
-            <input type="text" name="search" value="{{ search }}" placeholder="Rechercher par type ou justification..." class="form-control" />
-        </form>
-
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
             <tr>
-                <th>#</th>
+                <th>User Name</th>
                 <th>Type</th>
-                <th>Autre</th>
+
                 <th>Début</th>
                 <th>Fin</th>
-                <th>Justification</th>
-                <th>Statut</th>
+
+
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody>
             {% for conge in conges %}
                 <tr>
-                    <td>{{ loop.index }}</td>
+                    <td>{{ conge.user_id.firstName }} {{ conge.user_id.lastName }}</td>
                     <td>{{ conge.typeConge }}</td>
-                    <td>{{ conge.autre ?? '-' }}</td>
+
                     <td>{{ conge.dateDebut ? conge.dateDebut|date('d/m/Y') : '-' }}</td>
                     <td>{{ conge.dateFin ? conge.dateFin|date('d/m/Y') : '-' }}</td>
-                    <td>{{ conge.justification ?? '-' }}</td>
-                    <td>
-                        {% if conge.status == 'PENDING' %}
-                            <span class="badge bg-warning text-dark">En attente</span>
-                        {% elseif conge.status == 'APPROVED' %}
-                            <span class="badge bg-success">Approuvé</span>
-                        {% elseif conge.status == 'REJECTED' %}
-                            <span class="badge bg-danger">Refusé</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ path('app_demande_conge_edit', {'id': conge.id}) }}" class="btn btn-sm btn-warning me-1">
-                            <i class="fas fa-edit"></i>
-                        </a>
 
-                        {# SweetAlert2 confirmation before delete #}
-                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete('{{ path('app_conge_delete', {'id': conge.id}) }}', '{{ csrf_token('delete' ~ conge.id) }}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
+
+                    <td>
+                        <form method="post" style="display:inline;" action="{{ path('app_traitement_conges') }}">
+                            <input type="hidden" name="demande_id" value="{{ conge.id }}">
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit" class="btn btn-success btn-sm" title="Approuver">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+
+                        <form method="post" style="display:inline;" action="{{ path('app_traitement_conges') }}">
+                            <input type="hidden" name="demande_id" value="{{ conge.id }}">
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="btn btn-danger btn-sm" title="Rejeter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
 
                         <button class="btn btn-sm btn-info"
                                 data-bs-toggle="modal"
@@ -95,13 +87,12 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="8" class="text-center">Aucune demande trouvée.</td>
+                    <td colspan="8" class="text-center">Aucune demande en attente.</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
 
-        {# Modal for show view #}
         <div class="modal fade" id="modalGlobal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
@@ -116,7 +107,6 @@
             </div>
         </div>
 
-        {# Script for loading modal content #}
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const modal = document.getElementById('modalGlobal');
@@ -135,7 +125,6 @@
                         .then(html => {
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
-
                             const content = doc.querySelector('.modal-content');
                             if (content) {
                                 modal.querySelector('.modal-content').innerHTML = content.innerHTML;
@@ -149,34 +138,6 @@
                         });
                 });
             });
-
-            function confirmDelete(deleteUrl, csrfToken) {
-                Swal.fire({
-                    title: 'Êtes-vous sûr ?',
-                    text: "Cette action est irréversible !",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Oui, supprimer',
-                    cancelButtonText: 'Annuler'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = deleteUrl;
-
-                        const csrfInput = document.createElement('input');
-                        csrfInput.type = 'hidden';
-                        csrfInput.name = '_token';
-                        csrfInput.value = csrfToken;
-
-                        form.appendChild(csrfInput);
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                });
-            }
         </script>
     </div>
 {% endblock %}
