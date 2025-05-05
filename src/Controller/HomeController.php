@@ -32,6 +32,12 @@ final class HomeController extends AbstractController
     ) {
     }
 
+    #[Route('/user', name: 'home')]
+    public function userUi(): Response
+    {
+        return $this->render('front.html.twig');
+    }
+
 
     #[Route('/home', name: 'app_homepage')]
     public function index(ChartBuilderInterface $chartBuilder): Response

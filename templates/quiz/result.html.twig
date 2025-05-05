@@ -1,7 +1,17 @@
 {# templates/quiz/result.html.twig #}
-{% extends 'base.html.twig' %}
+{% extends 'front.html.twig' %}
 
 {% block title %}Quiz Results{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body{
+            background-color: #F8FAFC !important;
+            color: #212529 !important;
+        }
+        
+    </style>
+{% endblock %}
 
 {% block body %}
     <div class="container">

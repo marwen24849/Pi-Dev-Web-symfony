@@ -71,7 +71,13 @@ class AuthController extends AbstractController
         $session->set('user_last_name', $user->getLastName());
         $session->set('user_solde', $user->getSoldeConge());
 
-        return $this->redirectToRoute('app_home');
+        if($user->getRole() === "ADMIN"){
+            return $this->redirectToRoute('app_homepage');
+        }else{
+            return $this->redirectToRoute('app_user_dash');
+        }
+
+
     }
 
     private function handleSignUp(
