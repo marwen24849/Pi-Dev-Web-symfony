@@ -5,7 +5,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "2.10",
-            "ref": "c170ded8fc587d6bd670550c43dafcf093762245"
+            "ref": "d1778a69711a9b06bb4e202977ca6c4a0d16933d"
         },
         "files": [
             "./config/packages/doctrine.yaml",
@@ -33,13 +33,11 @@
             "branch": "main",
             "version": "2.10",
             "ref": "07a97ec434d43b7903c78069a04c92adb6442e52"
-        },
-        "files": [
-            "./config/packages/google_apiclient.yaml"
-        ]
+        }
     },
     "knplabs/knp-paginator-bundle": {
         "version": "v6.8.0"
+    },
     "nucleos/dompdf-bundle": {
         "version": "4.3",
         "recipe": {
@@ -47,10 +45,7 @@
             "branch": "main",
             "version": "3.1",
             "ref": "ac77a0c751bdccab42ddc73d7290719b31ecb691"
-        },
-        "files": [
-            "./config/packages/nucleos_dompdf.yaml"
-        ]
+        }
     },
     "phpunit/phpunit": {
         "version": "9.6",
@@ -150,7 +145,7 @@
         ]
     },
     "symfony/maker-bundle": {
-        "version": "1.62",
+        "version": "1.63",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -236,7 +231,7 @@
         ]
     },
     "symfony/stimulus-bundle": {
-        "version": "2.23",
+        "version": "2.24",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -291,7 +286,7 @@
         "version": "v2.24.0"
     },
     "symfony/ux-turbo": {
-        "version": "2.23",
+        "version": "2.24",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -344,6 +339,6 @@
         "version": "v1.17.3"
     },
     "twig/extra-bundle": {
-        "version": "v3.20.0"
+        "version": "v3.21.0"
     }
 }
