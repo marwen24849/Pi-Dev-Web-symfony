@@ -13,5 +13,14 @@ class ReclamationRepository extends ServiceEntityRepository
         parent::__construct($registry, Reclamation::class);
     }
 
+    public function getReclamationStats(): array
+    {
+        return $this->createQueryBuilder('r')
+            ->select('r.statut, COUNT(r.id) as count')
+            ->groupBy('r.statut')
+            ->getQuery()
+            ->getResult();
+    }
+
     // Add custom methods as needed
 }

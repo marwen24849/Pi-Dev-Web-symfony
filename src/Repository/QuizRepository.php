@@ -25,5 +25,14 @@ class QuizRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function getQuizStats(): array
+    {
+        return $this->createQueryBuilder('q')
+            ->select('q.difficultylevel, COUNT(q.id) as count, AVG(q.minimum_success_percentage) as avg_success')
+            ->groupBy('q.difficultylevel')
+            ->getQuery()
+            ->getResult();
+    }
+
     // Add custom methods as needed
 }

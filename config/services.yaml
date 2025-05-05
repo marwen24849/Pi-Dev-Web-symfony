@@ -8,7 +8,8 @@ parameters:
     together_api_url: '%env(TOGETHER_API_URL)%'
 
 services:
-
+    App\Form\CategoryAutocompleteField:
+        tags: [ form.type ]
 
     Symfony\Component\Finder\Finder: ~
     # default configuration for services in *this* file
