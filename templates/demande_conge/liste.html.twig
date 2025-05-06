@@ -1,6 +1,16 @@
-{% extends 'base.html.twig' %}
+{% extends 'front.html.twig' %}
 
 {% block title %}Liste des Congés{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body{
+            background-color: #F8FAFC !important;
+            color: #212529 !important;
+        }
+
+    </style>
+{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
@@ -45,9 +55,8 @@
         </form>
 
         <table class="table table-bordered table-striped">
-            <thead class="table-dark">
+            <thead class="table-primary">
             <tr>
-                <th>#</th>
                 <th>Type</th>
                 <th>Autre</th>
                 <th>Début</th>
@@ -60,7 +69,6 @@
             <tbody>
             {% for conge in conges %}
                 <tr>
-                    <td>{{ loop.index }}</td>
                     <td>{{ conge.typeConge }}</td>
                     <td>{{ conge.autre ?? '-' }}</td>
                     <td>{{ conge.dateDebut ? conge.dateDebut|date('d/m/Y') : '-' }}</td>

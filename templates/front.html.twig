@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="{{ asset('front/css/styles.min.css') }}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-xxxx" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-
     {% block stylesheets %}{% endblock %}
     {% block javascripts %}{% endblock %}
 </head>
@@ -47,24 +46,63 @@
                     </li>
                     <li class="nav-small-cap">
                         <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
-                        <span class="hide-menu">UI COMPONENTS</span>
+                        <span class="hide-menu">FONCTIONNALITÉS</span>
                     </li>
+                    <!-- Mes Quiz -->
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="./ui-buttons.html" aria-expanded="false">
+                        <a class="sidebar-link" href="{{ path('user_quizzes') }}" aria-expanded="false">
                             <span>
-                                <iconify-icon icon="solar:layers-minimalistic-bold-duotone" class="fs-6"></iconify-icon>
+                                <iconify-icon icon="solar:document-bold-duotone" class="fs-6"></iconify-icon>
                             </span>
-                            <span class="hide-menu">Buttons</span>
+                            <span class="hide-menu">Mes Quiz</span>
                         </a>
                     </li>
+                    <!-- Demandes de Congé -->
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="./ui-alerts.html" aria-expanded="false">
+                        <a class="sidebar-link" href="{{ path('app_demande_conge') }}" aria-expanded="false">
                             <span>
-                                <iconify-icon icon="solar:danger-circle-bold-duotone" class="fs-6"></iconify-icon>
+                                <iconify-icon icon="solar:calendar-bold-duotone" class="fs-6"></iconify-icon>
                             </span>
-                            <span class="hide-menu">Alerts</span>
+                            <span class="hide-menu">Demande Congé</span>
                         </a>
                     </li>
+                    <!-- Liste des Congés -->
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ path('app_liste_conges') }}" aria-expanded="false">
+                            <span>
+                                <iconify-icon icon="solar:clipboard-list-bold-duotone" class="fs-6"></iconify-icon>
+                            </span>
+                            <span class="hide-menu">Mes Congés</span>
+                        </a>
+                    </li>
+                    <!-- Réclamations -->
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ path('app_reclamation') }}" aria-expanded="false">
+                            <span>
+                                <iconify-icon icon="solar:info-circle-bold-duotone" class="fs-6"></iconify-icon>
+                            </span>
+                            <span class="hide-menu">Réclamations</span>
+                        </a>
+                    </li>
+                    <!-- Formations -->
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ path('app_formation_user') }}" aria-expanded="false">
+                            <span>
+                                <iconify-icon icon="solar:book-bold-duotone" class="fs-6"></iconify-icon>
+                            </span>
+                            <span class="hide-menu">Formations</span>
+                        </a>
+                    </li>
+                    <!-- Chat Assistant -->
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ path('app_chat') }}" aria-expanded="false">
+                            <span>
+                                <iconify-icon icon="solar:chat-round-bold-duotone" class="fs-6"></iconify-icon>
+                            </span>
+                            <span class="hide-menu">Assistant</span>
+                        </a>
+                    </li>
+
                 </ul>
             </nav>
         </div>
@@ -90,7 +128,7 @@
                     <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
                         <!-- Affichage du nom de l'utilisateur connecté -->
                         <li class="nav-item d-flex align-items-center me-3">
-                            <span class="fw-bold fs-5 text-dark">Bienvenue, Hamouda</span>
+                            <span class="fw-bold fs-5 text-dark">Bienvenue, {{ user_last_name }}</span>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">
@@ -100,17 +138,13 @@
                                 <div class="message-body">
                                     <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
                                         <i class="ti ti-user fs-6"></i>
-                                        <p class="mb-0 fs-3">My Profile</p>
+                                        <p class="mb-0 fs-3">Mon Profil</p>
                                     </a>
                                     <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
                                         <i class="ti ti-mail fs-6"></i>
-                                        <p class="mb-0 fs-3">My Account</p>
+                                        <p class="mb-0 fs-3">Mon Compte</p>
                                     </a>
-                                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
-                                        <i class="ti ti-list-check fs-6"></i>
-                                        <p class="mb-0 fs-3">My Task</p>
-                                    </a>
-                                    <a href="{{ path('app_logout') }}" class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
+                                    <a href="{{ path('app_logout') }}" class="btn btn-outline-primary mx-3 mt-2 d-block">Déconnexion</a>
                                 </div>
                             </div>
                         </li>

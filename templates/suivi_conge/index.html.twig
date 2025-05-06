@@ -1,13 +1,23 @@
-{% extends 'base.html.twig' %}
+{% extends 'front.html.twig' %}
 
 {% block title %}Suivi de mes congés{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body{
+            background-color: #F8FAFC !important;
+            color: #212529 !important;
+        }
+
+    </style>
+{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
         <h2 class="mb-4"><i class="fas fa-calendar-check"></i> Suivi de mes congés approuvés</h2>
 
         <table class="table table-bordered table-hover">
-            <thead class="table-dark">
+            <thead class="table-primary">
             <tr>
                 <th>Type</th>
                 <th>Du</th>
