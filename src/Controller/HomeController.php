@@ -37,6 +37,11 @@ final class HomeController extends AbstractController
     {
         return $this->render('front.html.twig');
     }
+    #[Route('/', name: 'test')]
+    public function login(): Response
+    {
+        return $this->redirectToRoute('app_auth');
+    }
 
 
     #[Route('/home', name: 'app_homepage')]

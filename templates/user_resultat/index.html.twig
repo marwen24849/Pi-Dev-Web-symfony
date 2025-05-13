@@ -1,0 +1,145 @@
+{% extends 'front.html.twig' %}
+
+{% block title %}Mes résultats de quiz{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .quiz-card {
+            border-left: 4px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .quiz-difficulty {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: #fff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        .result-success {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .result-failure {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .quiz-meta {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .quiz-meta i {
+            margin-right: 5px;
+        }
+        .no-quizzes {
+            text-align: center;
+            padding: 3rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .easy { background-color: #2ecc71 !important; }
+        .medium { background-color: #f1c40f !important; }
+        .hard { background-color: #e74c3c !important; }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">Mes résultats de quiz</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Mes résultats de quiz</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    {% if quizResultats|length > 0 %}
+        <div class="row">
+            {% for item in quizResultats %}
+                {% set quiz = item.quiz %}
+                {% set result = item.result %}
+
+                {% set borderColor = item.color %}
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card quiz-card" style="border-left-color: {{ borderColor }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="quiz-difficulty" style="background-color: {{ borderColor }}">
+                                    {{ quiz.difficultylevel|capitalize }}
+                                </span>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock"></i> {{ quiz.quizTime }} min
+                                </small>
+                            </div>
+
+                            <h5 class="card-title">{{ quiz.title }}</h5>
+
+                            <p class="quiz-meta mb-2">
+                                <i class="fas fa-folder"></i> {{ quiz.category }}
+                            </p>
+
+                            <p class="quiz-meta mb-2">
+                                <i class="fas fa-percentage"></i> Seuil min. : {{ quiz.minimumSuccessPercentage }}%
+                            </p>
+
+                            <p class="quiz-meta mb-2">
+                                <i class="fas fa-star text-warning"></i> Score : <strong>{{ result.score }}</strong>
+                            </p>
+
+                            <p class="quiz-meta mb-2">
+                                <i class="fas fa-chart-line text-info"></i> Pourcentage : {{ result.percentage|number_format(2) }}%
+                            </p>
+
+                            <p class="mt-2 {% if result.resultat %}result-success{% else %}result-failure{% endif %}">
+                                {% if result.resultat %}
+                                    <i class="fas fa-check-circle"></i> Réussi
+                                {% else %}
+                                    <i class="fas fa-times-circle"></i> Échoué
+                                {% endif %}
+                            </p>
+
+                            <div class="text-right mt-3">
+                                <a href="{{ path('user_quiz_result_details', {'id': quiz.id}) }}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Voir détails
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="col-12">
+            <div class="card no-quizzes">
+                <div class="card-body">
+                    <i class="fas fa-info-circle fa-3x mb-3 text-muted"></i>
+                    <h4>Vous n'avez encore aucun résultat</h4>
+                    <p class="text-muted">Passez un quiz pour voir vos résultats ici.</p>
+                    <a href="{{ path('quiz_list') }}" class="btn btn-primary mt-3">
+                        <i class="fas fa-arrow-right mr-2"></i> Passer un quiz
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

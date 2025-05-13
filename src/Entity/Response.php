@@ -70,4 +70,14 @@ class Response
 
     #[ORM\OneToMany(mappedBy: "response_id", targetEntity: Response_responses::class)]
     private Collection $response_responsess;
+
+    public function getResponseResponsess(): Collection
+    {
+        return $this->response_responsess;
+    }
+
+    public function setResponseResponsess(Collection $response_responsess): void
+    {
+        $this->response_responsess = $response_responsess;
+    }
 }

@@ -74,7 +74,7 @@ class AuthController extends AbstractController
         if($user->getRole() === "ADMIN"){
             return $this->redirectToRoute('app_homepage');
         }else{
-            return $this->redirectToRoute('app_user_dash');
+            return $this->redirectToRoute('app_user_dashboard');
         }
 
 

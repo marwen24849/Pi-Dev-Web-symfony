@@ -13,6 +13,18 @@ class User_quizRepository extends ServiceEntityRepository
         parent::__construct($registry, User_quiz::class);
     }
 
+    public function getUserQuizStats(int $userId): array
+    {
+        return $this->createQueryBuilder('uq')
+            ->select('q.title as quiz_title', 'uq.score')
+            ->join('uq.quiz', 'q')
+            ->where('uq.user_id = :userId')
+            ->setParameter('userId', $userId)
+            ->setMaxResults(5)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findAvailableQuizzesForUser(int $userId): array
     {
         $entityManager = $this->getEntityManager();

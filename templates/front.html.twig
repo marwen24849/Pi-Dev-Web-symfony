@@ -37,7 +37,7 @@
                         <span class="hide-menu">Home</span>
                     </li>
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="{{ path('app_user_dash') }}" aria-expanded="false">
+                        <a class="sidebar-link" href="{{ path('app_user_dashboard') }}" aria-expanded="false">
                             <span>
                                 <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6"></iconify-icon>
                             </span>
@@ -57,6 +57,16 @@
                             <span class="hide-menu">Mes Quiz</span>
                         </a>
                     </li>
+                    <!-- Mes résultats -->
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ path('user_quiz_results') }}" aria-expanded="false">
+                            <span>
+                                <iconify-icon icon="mdi:chart-box-outline" class="fs-6"></iconify-icon>
+                            </span>
+                            <span class="hide-menu">Mes Résultats</span>
+                        </a>
+                    </li>
+
                     <!-- Demandes de Congé -->
                     <li class="sidebar-item">
                         <a class="sidebar-link" href="{{ path('app_demande_conge') }}" aria-expanded="false">

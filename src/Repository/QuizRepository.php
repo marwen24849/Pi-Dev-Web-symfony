@@ -13,6 +13,22 @@ class QuizRepository extends ServiceEntityRepository
         parent::__construct($registry, Quiz::class);
     }
 
+    public function findQuizzesPassedByUser(int $userId): array
+    {
+        return $this->getEntityManager()->createQuery(
+            'SELECT q, r, res
+         FROM App\Entity\Quiz q
+         JOIN q.responses r
+         JOIN r.resultat_id res
+         WHERE r.user_id = :userId'
+        )
+            ->setParameter('userId', $userId)
+            ->getResult();
+
+    }
+
+
+
     public function findWithQuestions(int $quizId): ?Quiz
     {
         return $this->createQueryBuilder('q')
