@@ -9,6 +9,7 @@ use App\Form\QuizType;
 use App\Repository\QuestionRepository;
 use App\Repository\Quiz_questionsRepository;
 use App\Repository\QuizRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,11 +20,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class QuizController extends AbstractController
 {
     #[Route('/quiz', name: 'app_quiz_index')]
-    public function index(EntityManagerInterface $em): Response
+    public function index(EntityManagerInterface $em, UserRepository $userRepository): Response
     {
         $quizzes = $em->getRepository(Quiz::class)->findAll();
         $categories = array_unique(array_map(fn($q) => $q->getCategory(), $quizzes));
-        return $this->render('quiz/index.html.twig', ['quizzes' => $quizzes,
+        $users= $userRepository->findAll();
+
+        return $this->render('quiz/index.html.twig', [
+            'users' => $users,
+            'quizzes' => $quizzes,
             'categories' => $categories
         ]);
     }

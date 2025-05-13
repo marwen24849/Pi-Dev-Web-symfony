@@ -1,0 +1,142 @@
+{# templates/user_resultat/result_details.html.twig #}
+{% extends 'front.html.twig' %}
+
+{% block title %}Détails du résultat - {{ quiz.title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .result-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            background-color: #fff;
+        }
+        .result-header {
+
+            color: white;
+            padding: 25px;
+            border-radius: 10px 10px 0 0;
+        }
+        .result-body {
+            padding: 30px;
+        }
+        .response-item {
+            border-left: 5px solid #4e73df;
+            background-color: #f1f4ff;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        .correct-answer {
+            color: #1cc88a;
+            font-weight: 600;
+        }
+        .stats-card {
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            background-color: #f8f9fc;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .success-card {
+            background-color: rgba(28, 200, 138, 0.1);
+            border-left: 5px solid #1cc88a;
+        }
+        .failure-card {
+            background-color: rgba(231, 74, 59, 0.1);
+            border-left: 5px solid #e74a3b;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="result-card">
+            <div class="result-header d-flex align-items-center
+                    {% if resultat.resultat %}bg-success{% else %}bg-danger{% endif %}">
+                <iconify-icon icon="mdi:chart-box-outline" class="fs-3 me-2 text-white"></iconify-icon>
+                <h2 class="mb-0 text-white">Résultats du Quiz : {{ quiz.title }}</h2>
+            </div>
+
+
+            <div class="result-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stats-card {% if resultat.resultat %}success-card{% else %}failure-card{% endif %}">
+                            <h5>Score</h5>
+                            <div class="stat-value">{{ resultat.score }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h5>Pourcentage</h5>
+                            <div class="stat-value">{{ resultat.percentage|number_format(2) }}%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card {% if resultat.resultat %}success-card{% else %}failure-card{% endif %}">
+                            <h5>Résultat</h5>
+                            <div class="stat-value">
+                                {% if resultat.resultat %}
+                                    <span class="text-success">Réussi</span>
+                                {% else %}
+                                    <span class="text-danger">Échoué</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="badge bg-primary me-2">
+                            <iconify-icon icon="mdi:folder-outline" class="me-1"></iconify-icon> {{ quiz.category }}
+                        </span>
+                        <span class="badge
+                            {% if quiz.difficultylevel == 'facile' %}bg-success
+                            {% elseif quiz.difficultylevel == 'moyen' %}bg-warning
+                            {% else %}bg-danger{% endif %}">
+                            <iconify-icon icon="mdi:chart-line" class="me-1"></iconify-icon>
+                            {{ quiz.difficultylevel|capitalize }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-muted">
+                            <iconify-icon icon="mdi:clock-outline" class="me-1"></iconify-icon>
+                            Temps: {{ quiz.quizTime }} min
+                        </span>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="mb-4">
+                    <iconify-icon icon="mdi:format-list-numbered" class="me-2"></iconify-icon>Détails des réponses
+                </h4>
+
+                {% for response in responses %}
+                    <div class="response-item">
+                        <h5 class="mb-2">{{ response.question }}</h5>
+                        <p class="mb-1">
+                            <strong>Votre réponse :</strong>
+                            <span class="correct-answer">{{ response.answer }}</span>
+                        </p>
+                    </div>
+                {% endfor %}
+
+                <div class="text-center mt-5">
+                    <a href="{{ path('user_quiz_results') }}" class="btn btn-outline-primary">
+                        <iconify-icon icon="mdi:arrow-left" class="me-2"></iconify-icon>Retour à la liste
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Affecter Quiz - {{ quiz.title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .user-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #3b82f6;
+            margin-bottom: 1rem;
+        }
+        .user-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #495057;
+        }
+        .search-container {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        .assign-btn {
+            transition: all 0.2s;
+        }
+        .assign-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">Affecter le quiz : {{ quiz.title }}</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="">Quiz</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Affectation</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="search-container">
+                <form method="get" class="row g-3">
+                    <div class="col-md-8">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               placeholder="Rechercher un utilisateur..."
+                               value="{{ searchTerm }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>Rechercher
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{{ path('quiz_assign', {'id': quiz.id}) }}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-sync-alt me-2"></i>Réinitialiser
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            {% if users is empty %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-user-slash fa-4x text-muted mb-4"></i>
+                        <h3>Aucun utilisateur trouvé</h3>
+                        <p class="text-muted">Essayez avec un autre terme de recherche</p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="row">
+                    {% for user in users %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card user-card mb-4">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-3">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h5 class="mb-1">{{ user.firstName }} {{ user.lastName }}</h5>
+                                            <small class="text-muted">{{ user.email }}</small>
+                                        </div>
+                                        <div class="ms-3">
+                                            <form method="post" action="{{ path('quiz_assign_user', {
+                                                'quizId': quiz.id,
+                                                'userId': user.id
+                                            }) }}" onsubmit="return confirm('Affecter ce quiz à {{ user.firstName }} ?')">
+                                                <button type="submit" class="btn btn-success assign-btn">
+                                                    <i class="fas fa-user-plus me-1"></i> Affecter
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
