@@ -8,11 +8,17 @@ parameters:
     together_api_url: '%env(TOGETHER_API_URL)%'
 
 services:
+    App\Form\CategoryAutocompleteField:
+        tags: [ form.type ]
+
     Symfony\Component\Finder\Finder: ~
     # default configuration for services in *this* file
+
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+
 
     # makes classes in src/ available to be used as services
     # this creates a Service per class whose id is the fully-qualified class name

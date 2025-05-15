@@ -1,7 +1,17 @@
 {# templates/quiz/result.html.twig #}
-{% extends 'base.html.twig' %}
+{% extends 'front.html.twig' %}
 
 {% block title %}Quiz Results{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body{
+            background-color: #F8FAFC !important;
+            color: #212529 !important;
+        }
+        
+    </style>
+{% endblock %}
 
 {% block body %}
     <div class="container">
@@ -24,7 +34,7 @@
                 </div>
 
                 <div class="mt-4">
-                    <a href="{{ path('app_home') }}" class="btn btn-primary">Return to Home</a>
+                    <a href="{{ path('app_homepage') }}" class="btn btn-primary">Return to Home</a>
                 </div>
             </div>
         </div>

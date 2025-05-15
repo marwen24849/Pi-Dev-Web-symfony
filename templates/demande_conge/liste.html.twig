@@ -1,21 +1,53 @@
-{% extends 'base.html.twig' %}
+{% extends 'front.html.twig' %}
 
 {% block title %}Liste des Congés{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body{
+            background-color: #F8FAFC !important;
+            color: #212529 !important;
+        }
+
+    </style>
+{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3><i class="fas fa-list me-2"></i> Liste des demandes de congé</h3>
-            <a href="{{ path('app_demande_conge') }}" class="btn btn-primary " id="new-request-btn">
+            <a href="{{ path('app_demande_conge') }}" class="btn btn-primary" id="new-request-btn">
                 <i class="fas fa-plus me-1"></i> Nouvelle demande
             </a>
-
         </div>
+
+        {# Include SweetAlert2 library #}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        {# SweetAlert2 for success flash #}
         {% for message in app.flashes('success') %}
-            <div class="alert alert-success mt-2">{{ message }}</div>
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Succès',
+                    text: '{{ message|e('js') }}',
+                    confirmButtonColor: '#28a745',
+                    confirmButtonText: 'OK'
+                });
+            </script>
         {% endfor %}
+
+        {# SweetAlert2 for error flash #}
         {% for message in app.flashes('error') %}
-            <div class="alert alert-danger mt-2">{{ message }}</div>
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: '{{ message|e('js') }}',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'OK'
+                });
+            </script>
         {% endfor %}
 
         <form method="get" class="mb-3">
@@ -23,9 +55,8 @@
         </form>
 
         <table class="table table-bordered table-striped">
-            <thead class="table-dark">
+            <thead class="table-primary">
             <tr>
-                <th>#</th>
                 <th>Type</th>
                 <th>Autre</th>
                 <th>Début</th>
@@ -38,7 +69,6 @@
             <tbody>
             {% for conge in conges %}
                 <tr>
-                    <td>{{ loop.index }}</td>
                     <td>{{ conge.typeConge }}</td>
                     <td>{{ conge.autre ?? '-' }}</td>
                     <td>{{ conge.dateDebut ? conge.dateDebut|date('d/m/Y') : '-' }}</td>
@@ -54,32 +84,21 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{{ path('app_demande_conge_edit', {'id': conge.id}) }}" class="btn btn-sm btn-warning me-1 ">
+                        <a href="{{ path('app_demande_conge_edit', {'id': conge.id}) }}" class="btn btn-sm btn-warning me-1">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="{{ path('app_liste_conges') }}"
-                           class="btn btn-sm btn-danger"
-                           onclick="event.preventDefault(); if(confirm('Supprimer cette demande ?')) {
-                                   const form = document.createElement('form');
-                                   form.method = 'POST';
-                                   form.action = '{{ path('app_conge_delete', {'id': conge.id}) }}';
 
-                                   const csrf = document.createElement('input');
-                                   csrf.type = 'hidden';
-                                   csrf.name = '_token';
-                                   csrf.value = '{{ csrf_token('delete' ~ conge.id) }}';
-
-                                   form.appendChild(csrf);
-                                   document.body.appendChild(form);
-                                   form.submit();
-                                   }">
+                        {# SweetAlert2 confirmation before delete #}
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete('{{ path('app_conge_delete', {'id': conge.id}) }}', '{{ csrf_token('delete' ~ conge.id) }}')">
                             <i class="fas fa-trash"></i>
-                        </a>
-                        <a href="{{ path('app_conge_show', {'id': conge.id}) }}" class="btn btn-sm btn-info me-1">
+                        </button>
+
+                        <button class="btn btn-sm btn-info"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalGlobal"
+                                data-url="{{ path('app_conge_show', {'id': conge.id}) }}">
                             <i class="fas fa-eye"></i>
-                        </a>
-
-
+                        </button>
                     </td>
                 </tr>
             {% else %}
@@ -89,5 +108,83 @@
             {% endfor %}
             </tbody>
         </table>
+
+        {# Modal for show view #}
+        <div class="modal fade" id="modalGlobal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chargement...</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center">⏳ Veuillez patienter...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Script for loading modal content #}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const modal = document.getElementById('modalGlobal');
+
+                modal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const url = button.getAttribute('data-url');
+                    const modalTitle = modal.querySelector('.modal-title');
+                    const modalBody = modal.querySelector('.modal-body');
+
+                    modalTitle.textContent = 'Chargement...';
+                    modalBody.innerHTML = '<div class="text-center">⏳ Veuillez patienter...</div>';
+
+                    fetch(url)
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+
+                            const content = doc.querySelector('.modal-content');
+                            if (content) {
+                                modal.querySelector('.modal-content').innerHTML = content.innerHTML;
+                            } else {
+                                modalBody.innerHTML = html;
+                            }
+                        })
+                        .catch(error => {
+                            modalBody.innerHTML = "<div class='alert alert-danger'>Erreur de chargement.</div>";
+                            console.error(error);
+                        });
+                });
+            });
+
+            function confirmDelete(deleteUrl, csrfToken) {
+                Swal.fire({
+                    title: 'Êtes-vous sûr ?',
+                    text: "Cette action est irréversible !",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Oui, supprimer',
+                    cancelButtonText: 'Annuler'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = deleteUrl;
+
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_token';
+                        csrfInput.value = csrfToken;
+
+                        form.appendChild(csrfInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            }
+        </script>
     </div>
 {% endblock %}

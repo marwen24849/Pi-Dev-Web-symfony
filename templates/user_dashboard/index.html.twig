@@ -1,0 +1,716 @@
+{% extends 'front.html.twig' %}
+
+{% block title %}Mon Tableau de Bord{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-50: #f0f4ff;
+            --primary-100: #e0e7ff;
+            --primary-200: #c7d2fe;
+            --primary-300: #a5b4fc;
+            --primary-400: #818cf8;
+            --primary-500: #6366f1;
+            --primary-600: #4f46e5;
+            --primary-700: #4338ca;
+            --primary-800: #3730a3;
+            --primary-900: #312e81;
+
+            --success-50: #f0fdf4;
+            --success-100: #dcfce7;
+            --success-200: #bbf7d0;
+            --success-300: #86efac;
+            --success-400: #4ade80;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            --success-700: #15803d;
+            --success-800: #166534;
+            --success-900: #14532d;
+
+            --warning-50: #fffbeb;
+            --warning-100: #fef3c7;
+            --warning-200: #fde68a;
+            --warning-300: #fcd34d;
+            --warning-400: #fbbf24;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+            --warning-700: #b45309;
+            --warning-800: #92400e;
+            --warning-900: #78350f;
+
+            --danger-50: #fef2f2;
+            --danger-100: #fee2e2;
+            --danger-200: #fecaca;
+            --danger-300: #fca5a5;
+            --danger-400: #f87171;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+            --danger-700: #b91c1c;
+            --danger-800: #991b1b;
+            --danger-900: #7f1d1d;
+
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+            --radius-sm: 0.25rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+            --radius-full: 9999px;
+
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .dashboard-container {
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            background: white;
+            transition: var(--transition-slow);
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
+            padding: 2.5rem 1.5rem 1.5rem;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-full);
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-slow);
+        }
+
+        .profile-card:hover .profile-avatar {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition-slow);
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary-500);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stats-card.conge::before {
+            background: var(--success-500);
+        }
+
+        .stats-card.formation::before {
+            background: var(--warning-500);
+        }
+
+        .stats-card.equipe::before {
+            background: var(--primary-700);
+        }
+
+        .stats-icon {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--primary-500);
+            transition: var(--transition);
+        }
+
+        .stats-card.conge .stats-icon {
+            color: var(--success-500);
+        }
+
+        .stats-card.formation .stats-icon {
+            color: var(--warning-500);
+        }
+
+        .stats-card.equipe .stats-icon {
+            color: var(--primary-700);
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            height: 8px;
+            background-color: var(--gray-200);
+            border-radius: var(--radius-full);
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: var(--radius-full);
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            transition: width 1s ease-out;
+        }
+
+        .stats-card.conge .progress-bar {
+            background: linear-gradient(90deg, var(--success-400), var(--success-600));
+        }
+
+        .stats-card.formation .progress-bar {
+            background: linear-gradient(90deg, var(--warning-400), var(--warning-600));
+        }
+
+        .stats-card.equipe .progress-bar {
+            background: linear-gradient(90deg, var(--primary-700), var(--primary-900));
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            background: white;
+            overflow: hidden;
+        }
+
+        .activity-item {
+            padding: 1.25rem 1.5rem;
+            border-left: 3px solid transparent;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .activity-item:hover {
+            background-color: var(--gray-50);
+            border-left-color: var(--primary-500);
+        }
+
+        .activity-item + .activity-item {
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            background-color: var(--primary-100);
+            color: var(--primary-600);
+        }
+
+        .activity-item.conge .activity-icon {
+            background-color: var(--success-100);
+            color: var(--success-600);
+        }
+
+        .activity-item.formation .activity-icon {
+            background-color: var(--warning-100);
+            color: var(--warning-600);
+        }
+
+        .activity-item.reclamation .activity-icon {
+            background-color: var(--danger-100);
+            color: var(--danger-600);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+
+        .badge-pending {
+            background-color: var(--warning-100);
+            color: var(--warning-800);
+        }
+
+        .badge-approved {
+            background-color: var(--success-100);
+            color: var(--success-800);
+        }
+
+        .badge-rejected {
+            background-color: var(--danger-100);
+            color: var(--danger-800);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .quick-action {
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: var(--transition-slow);
+            background: white;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+        }
+
+        .quick-action:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-action.conge {
+            border-top: 3px solid var(--success-400);
+        }
+
+        .quick-action.reclamation {
+            border-top: 3px solid var(--danger-400);
+        }
+
+        .quick-action.formation {
+            border-top: 3px solid var(--warning-400);
+        }
+
+        .quick-action.quiz {
+            border-top: 3px solid var(--primary-400);
+        }
+
+        .quick-action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .quick-action.conge .quick-action-icon {
+            background: linear-gradient(135deg, var(--success-400), var(--success-600));
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+        }
+
+        .quick-action.reclamation .quick-action-icon {
+            background: linear-gradient(135deg, var(--danger-400), var(--danger-600));
+            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+        }
+
+        .quick-action.formation .quick-action-icon {
+            background: linear-gradient(135deg, var(--warning-400), var(--warning-600));
+            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+        }
+
+        .quick-action.quiz .quick-action-icon {
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Chart */
+        .chart-card {
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            background: white;
+            overflow: hidden;
+        }
+
+        .chart-container {
+            height: 280px;
+            position: relative;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .animate.delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .animate.delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .animate.delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+            }
+
+            .stats-card {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Left Column -->
+                <div class="col-lg-4">
+                    <!-- Profile Card -->
+                    <div class="profile-card animate delay-1">
+                        <div class="profile-header">
+                            <img src="{{ asset('front/images/profile/user-1.jpg') }}" alt="Profile" class="profile-avatar">
+                            <h3 class="mb-1">{{ user.lastName }}</h3>
+                            <p class="text-primary-200 mb-0">{{ user.email }}</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-3">
+                                <div>
+                                    <h6 class="text-sm text-gray-500 mb-1">Département</h6>
+                                    <p class="font-medium">Technologie</p>
+                                </div>
+                                <div>
+                                    <h6 class="text-sm text-gray-500 mb-1">Équipe</h6>
+                                    <p class="font-medium">Développement</p>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="text-sm text-gray-500 mb-1">Poste</h6>
+                                    <p class="font-medium">Développeur Full Stack</p>
+                                </div>
+                                <div>
+                                    <h6 class="text-sm text-gray-500 mb-1">Ancienneté</h6>
+                                    <p class="font-medium">2 ans</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card border-0 shadow-sm mt-4 animate delay-2">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0">Actions Rapides</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions">
+                                <a href="{{ path('app_demande_conge') }}" class="quick-action conge">
+                                    <div class="quick-action-icon">
+                                        <i class="bi bi-calendar-plus"></i>
+                                    </div>
+                                    <span class="font-medium">Demander un congé</span>
+                                    <small class="text-gray-500 mt-1">Gérer vos absences</small>
+                                </a>
+
+                                <a href="{{ path('app_reclamation') }}" class="quick-action reclamation">
+                                    <div class="quick-action-icon">
+                                        <i class="bi bi-megaphone"></i>
+                                    </div>
+                                    <span class="font-medium">Faire une réclamation</span>
+                                    <small class="text-gray-500 mt-1">Signaler un problème</small>
+                                </a>
+
+                                <a href="{{ path('app_formation_user') }}" class="quick-action formation">
+                                    <div class="quick-action-icon">
+                                        <i class="bi bi-book"></i>
+                                    </div>
+                                    <span class="font-medium">Mes formations</span>
+                                    <small class="text-gray-500 mt-1">Développez vos compétences</small>
+                                </a>
+
+                                <a href="{{ path('user_quizzes') }}" class="quick-action quiz">
+                                    <div class="quick-action-icon">
+                                        <i class="bi bi-patch-question"></i>
+                                    </div>
+                                    <span class="font-medium">Mes quiz</span>
+                                    <small class="text-gray-500 mt-1">Testez vos connaissances</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-lg-8">
+                    <!-- Stats Cards -->
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="stats-card conge animate delay-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Congés Restants</h6>
+                                        <h3 class="text-2xl font-bold mb-0">{{ congesTotal - congesPris }} <small class="text-gray-500 font-normal">/ {{ congesTotal }} jours</small></h3>
+                                    </div>
+                                    <i class="bi bi-calendar-check stats-icon"></i>
+                                </div>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: {{ ((congesTotal - congesPris) / congesTotal) * 100 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="stats-card formation animate delay-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Formations</h6>
+                                        <h3 class="text-2xl font-bold mb-0">{{ formationsCompletees }} <small class="text-gray-500 font-normal">/ {{ formationsTotal }} complétées</small></h3>
+                                    </div>
+                                    <i class="bi bi-award stats-icon"></i>
+                                </div>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: {{ (formationsCompletees / formationsTotal) * 100 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="stats-card equipe animate delay-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Projets d'équipe</h6>
+                                        <h3 class="text-2xl font-bold mb-0">2 <small class="text-gray-500 font-normal">en cours</small></h3>
+                                    </div>
+                                    <i class="bi bi-people stats-icon"></i>
+                                </div>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <div class="card border-0 shadow-sm mt-4 animate delay-2">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Activités Récentes</h5>
+                            <a href="#" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                        </div>
+                        <div class="card-body p-0 activity-feed">
+                            {% for activity in recentActivities %}
+                                <div class="activity-item {{ activity.type }}">
+                                    <div class="activity-icon">
+                                        {% if activity.type == 'conge' %}
+                                            <i class="bi bi-calendar-check"></i>
+                                        {% elseif activity.type == 'formation' %}
+                                            <i class="bi bi-award"></i>
+                                        {% elseif activity.type == 'reclamation' %}
+                                            <i class="bi bi-megaphone"></i>
+                                        {% else %}
+                                            <i class="bi bi-check-circle"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="font-medium mb-1">{{ activity.title }}</h6>
+                                        <p class="text-sm text-gray-500 mb-0">{{ activity.description ?? activity.date }}</p>
+                                    </div>
+                                    <span class="badge badge-{{ activity.status }}">
+                                {% if activity.status == 'pending' %}En attente
+                                {% elseif activity.status == 'approved' %}Terminé
+                                {% else %}Rejeté{% endif %}
+                            </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Performance Chart -->
+                    <div class="card border-0 shadow-sm mt-4 animate delay-3">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0">Progression des Formations</h5>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="chart-container">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Performance Chart
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {{ performanceData.labels|json_encode|raw }},
+                    datasets: [{
+                        label: 'Progression',
+                        data: {{ performanceData.scores|json_encode|raw }},
+                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        hoverBackgroundColor: 'rgba(79, 70, 229, 0.8)',
+                        hoverBorderColor: 'rgba(79, 70, 229, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                drawBorder: false,
+                                color: 'rgba(226, 232, 240, 1)'
+                            },
+                            ticks: {
+                                color: 'rgba(100, 116, 139, 1)',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: 'rgba(100, 116, 139, 1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.parsed.y + '% complété';
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+
+            // Animate elements when they come into view
+            const animateOnScroll = function() {
+                const elements = document.querySelectorAll('.animate');
+                elements.forEach(element => {
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const screenPosition = window.innerHeight / 1.2;
+
+                    if (elementPosition < screenPosition) {
+                        element.style.opacity = '1';
+                    }
+                });
+            };
+
+            window.addEventListener('load', animateOnScroll);
+            window.addEventListener('scroll', animateOnScroll);
+        });
+    </script>
+{% endblock %}

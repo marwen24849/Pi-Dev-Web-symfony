@@ -1,6 +1,16 @@
-{% extends 'base.html.twig' %}
+{% extends 'front.html.twig' %}
 
 {% block title %}Demande de Congé{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body{
+            background-color: #F8FAFC !important;
+            color: #212529 !important;
+        }
+
+    </style>
+{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -11,20 +21,6 @@
                         <i class="fas fa-plane-departure me-2"></i> Demande de Congé
                     </h4>
                 </div>
-
-                {% for message in app.flashes('success') %}
-                    <div class="alert alert-success mt-2">{{ message }}</div>
-                {% endfor %}
-                {% for message in app.flashes('error') %}
-                    <div class="alert alert-danger mt-2">{{ message }}</div>
-                {% endfor %}
-
-
-                {% if not form.vars.valid %}
-                    <div class="alert alert-danger">
-                        Le formulaire contient des erreurs de validation.
-                    </div>
-                {% endif %}
 
                 <div class="card-body">
                     {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate'}}) }}
@@ -85,6 +81,48 @@
             </div>
         </div>
     </div>
+
+    {# SweetAlert2 Library #}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {# SweetAlert2 for error flash #}
+    {% for message in app.flashes('error') %}
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: '{{ message|e('js') }}',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    {% endfor %}
+
+    {# SweetAlert2 for success flash #}
+    {% for message in app.flashes('success') %}
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Succès',
+                text: '{{ message|e('js') }}',
+                confirmButtonColor: '#28a745',
+                confirmButtonText: 'Super !'
+            });
+        </script>
+    {% endfor %}
+
+    {# SweetAlert2 for Form Validation Errors #}
+    {% if not form.vars.valid %}
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur de Validation',
+                text: 'Le formulaire contient des erreurs de validation. Veuillez vérifier les champs.',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    {% endif %}
 
     <script>
         function handleTypeChange() {

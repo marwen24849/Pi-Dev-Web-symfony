@@ -12,6 +12,21 @@ class ProjetRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Projet::class);
     }
+    public function getProjetStatusStats(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->select("
+            CASE 
+                WHEN p.dateFin < CURRENT_DATE() THEN 'Terminé'
+                WHEN p.dateDebut > CURRENT_DATE() THEN 'À venir'
+                ELSE 'En cours'
+            END as status,
+            COUNT(p.id) as count
+        ")
+            ->groupBy('status')
+            ->getQuery()
+            ->getResult();
+    }
     public function findByFilters(?int $month, ?int $year, ?bool $inProgress): array
     {
         $qb = $this->createQueryBuilder('p')

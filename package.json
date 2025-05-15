@@ -6,7 +6,9 @@
         "core-js": "^3.38.0",
         "regenerator-runtime": "^0.13.9",
         "webpack": "^5.74.0",
-        "webpack-cli": "^5.1.0"
+        "webpack-cli": "^5.1.0",
+        "webpack-dev-server": "^5.2.1"
+
     },
     "license": "UNLICENSED",
     "private": true,
@@ -15,5 +17,14 @@
         "dev": "encore dev",
         "watch": "encore dev --watch",
         "build": "encore production --progress"
+
+    },
+    "dependencies": {
+        "@symfony/stimulus-bundle": "^2.24.0",
+        "@symfony/ux-autocomplete": "^2.24.0",
+        "@symfony/ux-chartjs": "^2.24.0",
+        "chart.js": "^4.4.9",
+        "tom-select": "^2.4.3"
+
     }
 }

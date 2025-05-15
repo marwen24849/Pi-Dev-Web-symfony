@@ -1,6 +1,49 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Liste des Quiz{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Styles spécifiques pour l'assignation */
+        .assign-btn {
+            transition: all 0.2s;
+            min-width: 90px;
+        }
+        .assign-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Amélioration du tableau */
+        #quizTable tbody tr {
+            transition: background-color 0.2s;
+        }
+        #quizTable tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Styles pour les modals */
+        .modal-search-container {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        .toast {
+            min-width: 300px;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="row">
         <div class="col-12">
@@ -50,11 +93,7 @@
                             </thead>
                             <tbody id="quizList">
                             {% for quiz in quizzes %}
-                                <tr data-quiz-id="{{ quiz.id }}" data-category="{{ quiz.category }}"
-                                    style="cursor: pointer;"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#quizDetailsModal{{ quiz.id }}"
-                                >
+                                <tr data-quiz-id="{{ quiz.id }}" data-category="{{ quiz.category }}">
                                     <td>{{ quiz.title }}</td>
                                     <td>{{ quiz.category }}</td>
                                     <td>
@@ -71,14 +110,14 @@
                                         <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ quiz.id }}">
                                             <i class="fas fa-edit"></i>
                                         </button>
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignModal{{ quiz.id }}">
+                                            <i class="fas fa-user-plus"></i>
+                                        </button>
                                         <button class="btn btn-sm btn-danger" onclick="deleteQuiz({{ quiz.id }}, this)">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </td>
                                 </tr>
-                                {% include 'quiz/ModalShowQuestions.html.twig' %}
-                                {% include 'quiz/ModalEdit.html.twig' %}
-                                {% include 'quiz/ModalDetails.html.twig' %}
                             {% else %}
                                 <tr>
                                     <td colspan="6" class="text-center">Aucun quiz trouvé</td>
@@ -94,17 +133,190 @@
             </div>
         </div>
     </div>
+
+    {# Inclusion des modals #}
+    {% for quiz in quizzes %}
+        {% include 'quiz/ModalShowQuestions.html.twig' %}
+        {% include 'quiz/ModalEdit.html.twig' %}
+        {% include 'quiz/ModalDetails.html.twig' %}
+
+        <!-- Modal d'assignation -->
+        <div class="modal fade" id="assignModal{{ quiz.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-user-plus me-2"></i>Affecter le quiz : {{ quiz.title }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-search-container">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control search-user-input" placeholder="Rechercher un utilisateur..." data-quiz-id="{{ quiz.id }}">
+                                <button class="btn btn-outline-secondary clear-search" type="button">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody class="user-list">
+                                {% for user in users %}
+                                    <tr class="user-row" data-user-id="{{ user.id }}">
+                                        <td>{{ user.firstName }} {{ user.lastName }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success assign-btn"
+                                                    data-quiz-id="{{ quiz.id }}"
+                                                    data-user-id="{{ user.id }}">
+                                                <i class="fas fa-check me-1"></i> Affecter
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i> Fermer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
 {% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('js/quiz.js') }}"></script>
     <script>
-        setTimeout(function () {
-            let alerts = document.querySelectorAll('.flash-message');
-            alerts.forEach(function (alert) {
-                let bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.search-user-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const quizId = this.dataset.quizId;
+                    const searchTerm = this.value.toLowerCase();
+                    const modal = document.getElementById(`assignModal${quizId}`);
+
+                    modal.querySelectorAll('.user-row').forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
             });
-        }, 4000);
+
+            document.querySelectorAll('.clear-search').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.closest('.input-group').querySelector('input');
+                    input.value = '';
+                    const quizId = input.dataset.quizId;
+                    const modal = document.getElementById(`assignModal${quizId}`);
+
+                    modal.querySelectorAll('.user-row').forEach(row => {
+                        row.style.display = '';
+                    });
+                });
+            });
+
+
+            document.querySelectorAll('.assign-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const quizId = this.dataset.quizId;
+                    const userId = this.dataset.userId;
+                    const button = this;
+
+                    assignQuiz(quizId, userId, button);
+                });
+            });
+
+
+            document.getElementById('categoryFilter').addEventListener('change', function() {
+                const selectedCategory = this.value.toLowerCase();
+                document.querySelectorAll('#quizList tr[data-category]').forEach(row => {
+                    const rowCategory = row.getAttribute('data-category').toLowerCase();
+                    row.style.display = (selectedCategory === '' || rowCategory.includes(selectedCategory)) ? '' : 'none';
+                });
+            });
+        });
+
+        function assignQuiz(quizId, userId, button) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Traitement...';
+
+            fetch(`/quiz/${quizId}/assign/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        button.innerHTML = '<i class="fas fa-check-circle me-1"></i> Affecté';
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-outline-success');
+                        showToast('success', data.message || 'Quiz affecté avec succès');
+                    } else {
+                        button.innerHTML = '<i class="fas fa-check me-1"></i> Affecter';
+                        button.disabled = false;
+                        showToast('error', data.message || 'Erreur lors de l\'affectation');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    button.innerHTML = '<i class="fas fa-check me-1"></i> Affecter';
+                    button.disabled = false;
+                    showToast('error', 'Une erreur est survenue');
+                });
+        }
+
+        function showToast(type, message) {
+            const toastContainer = document.querySelector('.toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast show align-items-center text-white bg-${type} border-0 mb-2`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+
+
+            setTimeout(() => {
+                toast.remove();
+            }, 10000);
+        }
+
+
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                bootstrap.Alert.getInstance(alert)?.close();
+            });
+        }, 5000);
     </script>
 {% endblock %}

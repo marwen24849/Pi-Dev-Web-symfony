@@ -1,0 +1,133 @@
+{% extends 'front.html.twig' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .quiz-card {
+            border-left: 4px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .quiz-difficulty {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+        .quiz-meta {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .quiz-meta i {
+            width: 20px;
+            text-align: center;
+            margin-right: 5px;
+        }
+        .no-quizzes {
+            text-align: center;
+            padding: 3rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .quiz-actions .btn {
+            min-width: 120px;
+        }
+        .easy { background-color: #2ecc71 !important; }
+        .medium { background-color: #f1c40f !important; }
+        .hard { background-color: #e74c3c !important; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">{{ page_title }}</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ page_title }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if quizzes is empty %}
+            <div class="col-12">
+                <div class="card no-quizzes">
+                    <div class="card-body">
+                        <i class="fas fa-clipboard-list fa-4x mb-4 text-muted"></i>
+                        <h3 class="h4">Aucun quiz disponible</h3>
+                        <p class="text-muted">Vous n'avez aucun quiz à passer pour le moment.</p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            {% for quiz in quizzes %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card quiz-card" style="border-left-color: {{ quiz.difficultyColor }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <span class="badge quiz-difficulty" style="background-color: {{ quiz.difficultyColor }}">
+                                        {{ quiz.difficultylevel|capitalize }}
+                                    </span>
+                                </div>
+                                <div class="text-muted">
+                                    <small>{{ quiz.quizTime }} min</small>
+                                </div>
+                            </div>
+
+                            <h5 class="card-title mb-3">{{ quiz.title }}</h5>
+                            <p class="card-text text-muted mb-3">
+                                <i class="fas fa-folder-open"></i> {{ quiz.category }}
+                            </p>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <small>Taux de réussite minimum</small>
+                                    <small>{{ quiz.minimum_success_percentage }}%</small>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success"
+                                         role="progressbar"
+                                         style="width: {{ quiz.minimum_success_percentage }}%"
+                                         aria-valuenow="{{ quiz.minimum_success_percentage }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center quiz-meta">
+                                <div>
+                                    <i class="fas fa-question-circle"></i>
+                                    <span>{{ quiz.questionCount }} question{{ quiz.questionCount > 1 ? 's' : '' }}</span>
+                                </div>
+                                <div class="quiz-actions">
+                                    <a href="{{ path('quiz_start', {'id': quiz.id}) }}"
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-play mr-1"></i> Commencer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

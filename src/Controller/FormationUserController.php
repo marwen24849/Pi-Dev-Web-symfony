@@ -22,9 +22,10 @@ final class FormationUserController extends AbstractController
 {
     #[Route(name: 'app_formation_user', methods: ['GET'])]
     public function index(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $search = $request->query->get('search');
 
+    {
+
+        $search = $request->query->get('search');
         $queryBuilder = $entityManager->getRepository(Formation::class)->createQueryBuilder('f');
 
         if ($search) {
