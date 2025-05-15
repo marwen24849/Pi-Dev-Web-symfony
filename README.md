@@ -57,28 +57,6 @@ Système complet de gestion des ressources humaines avec des fonctionnalités av
 - Docker (pour le développement)
 - Redis (cache et sessions)
 
-## Architecture
-src/
-├── AI/
-│   ├── ChatService/ # Service de chat intelligent
-│   │   ├── MessageProcessor.php
-│   │   └── PolicyRetriever.php
-│   └── RAGAgent/ # Agent de recommandation
-│       ├── DataAnalyzer.php
-│       └── SuggestionEngine.php
-├── Controller/
-│   ├── HR/ # Contrôleurs RH standards
-│   └── AIController.php # Endpoints IA
-├── Entity/
-├── Repository/
-├── Resources/
-│   └── policies/ # Documents pour le RAG
-config/
-├── packages/
-│   └── ai.yaml # Configuration IA
-public/
-├── js/
-│   └── chat.js # Gestion du chat frontend
 
 ## Getting Started
 
@@ -115,8 +93,7 @@ Créer un fichier `.env.local` :
 AI_API_KEY=votre_cle
 AI_MODEL=llama-3.1
 
-# Vector DB
-VECTOR_DB_URL=http://localhost:6333
+
 ```
 
 Initialiser l'agent RAG :
